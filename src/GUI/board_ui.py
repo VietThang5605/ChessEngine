@@ -2,13 +2,14 @@ import sys
 import chess
 import pygame
 
+from AI_AI_mode import ai_vs_ai
+from config import *
+
 #Init game
-pygame.init()
+
 
 #Screen
-WIDTH, HEIGHT = 800, 800
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Choose game mode')
+pygame.display.set_caption('Chess Project')
 
 #color
 WHITE = (255, 255, 255)
@@ -19,55 +20,52 @@ BUTTON_COLOR = (0, 128, 0)
 HOVER_COLOR = (0, 255, 0)
 
 #board
-SQUARE_SIZE = WIDTH // 8
 
-start_board = [
-    ["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
-    ["bp"] * 8,
-    [""] * 8,
-    [""] * 8,
-    [""] * 8,
-    [""] * 8,
-    ["wp"] * 8,
-    ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"]
-]
+# start_board = [
+#     ["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
+#     ["bp"] * 8,
+#     [""] * 8,
+#     [""] * 8,
+#     [""] * 8,
+#     [""] * 8,
+#     ["wp"] * 8,
+#     ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"]
+# ]
 
 #upload piece_image
-def load_piece(name):
-    image = pygame.image.load(name)
-    return pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))
+# def load_piece(name):
+#     image = pygame.image.load(name)
+#     return pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))
 
-pieces = {
-    "wp": load_piece("images/white_Pawn.png"),
-    "wr": load_piece("images/white_Rook.png"),
-    "wn": load_piece("images/white_Knight.png"),
-    "wb": load_piece("images/white_Bishop.png"),
-    "wq": load_piece("images/white_Queen.png"),
-    "wk": load_piece("images/white_King.png"),
-    "bp": load_piece("images/black_Pawn.png"),
-    "br": load_piece("images/black_Rook.png"),
-    "bn": load_piece("images/black_Knight.png"),
-    "bb": load_piece("images/black_Bishop.png"),
-    "bq": load_piece("images/black_Queen.png"),
-    "bk": load_piece("images/black_King.png"),
-}
+# pieces = {
+#     "wp": load_piece("images/white_Pawn.png"),
+#     "wr": load_piece("images/white_Rook.png"),
+#     "wn": load_piece("images/white_Knight.png"),
+#     "wb": load_piece("images/white_Bishop.png"),
+#     "wq": load_piece("images/white_Queen.png"),
+#     "wk": load_piece("images/white_King.png"),
+#     "bp": load_piece("images/black_Pawn.png"),
+#     "br": load_piece("images/black_Rook.png"),
+#     "bn": load_piece("images/black_Knight.png"),
+#     "bb": load_piece("images/black_Bishop.png"),
+#     "bq": load_piece("images/black_Queen.png"),
+#     "bk": load_piece("images/black_King.png"),
+# }
 
-#Button set
 button_font = pygame.font.Font(None, 48)
-font = pygame.font.Font(None, 48)
 
-def draw_board():
-    for row in range(8):
-        for col in range(8):
-            color = LIGHT_BROWN if (row + col) % 2 == 0 else DARK_BROWN
-            pygame.draw.rect(SCREEN, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+# def draw_board():
+#     for row in range(8):
+#         for col in range(8):
+#             color = LIGHT_BROWN if (row + col) % 2 == 0 else DARK_BROWN
+#             pygame.draw.rect(SCREEN, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-def draw_pieces(board):
-    for row in range(8):
-        for col in range(8):
-            piece = board[row][col]
-            if piece != "":
-                SCREEN.blit(pieces[piece], (col * SQUARE_SIZE, row * SQUARE_SIZE))
+# def draw_pieces(board):
+#     for row in range(8):
+#         for col in range(8):
+#             piece = board[row][col]
+#             if piece != "":
+#                 SCREEN.blit(pieces[piece], (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
 #draw_button
 def draw_button(text, x, y, width, height):
@@ -106,7 +104,7 @@ def game_menu():
                 elif btn2.collidepoint(event.pos):
                     player_vs_ai()
                 elif btn3.collidepoint(event.pos):
-                    pass  # Sau này xử lý Máy vs Máy
+                    ai_vs_ai()
 
         pygame.display.update()
 
@@ -115,19 +113,6 @@ def player_vs_player():
     pass
 
 def player_vs_ai():
-    board = [row.copy() for row in start_board]  # Copy để tránh thay đổi bản gốc
-
-    while True:
-        draw_board()
-        draw_pieces(board)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return
-
-        pygame.display.update()
-
-def ai_vs_ai():
     pass
 
 game_menu()
