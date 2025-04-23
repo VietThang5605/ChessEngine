@@ -1,8 +1,11 @@
 #include "types.h"
 #include "init.h"
 #include "bitboards.h"
+#include "board.h"
 
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -84,7 +87,7 @@ int main() {
 
     //Part 10
 
-    U64 playBitBoard = 0ULL;
+    // U64 playBitBoard = 0ULL;
     // for (int i = 0; i < 64; ++i) {
         // cout << "Index: " << i << '\n';
         // PrintBitBoard(SetMask[i]);
@@ -95,14 +98,49 @@ int main() {
     //     cout << '\n';
     // }
 
-    SETBIT(&playBitBoard, 61);
-    PrintBitBoard(playBitBoard);
+    // SETBIT(&playBitBoard, 61);
+    // PrintBitBoard(playBitBoard);
 
-    SETBIT(&playBitBoard, 11);
-    PrintBitBoard(playBitBoard);
+    // SETBIT(&playBitBoard, 11);
+    // PrintBitBoard(playBitBoard);
 
-    CLRBIT(&playBitBoard, 61);
-    PrintBitBoard(playBitBoard);
+    // CLRBIT(&playBitBoard, 61);
+    // PrintBitBoard(playBitBoard);
+
+    //Part 11
+    // int PieceOne = rand();
+    // int PieceTwo = rand();
+    // int PieceThree = rand();
+    // int PieceFour = rand();
+
+    // cout << hex << uppercase << PieceOne << '\n'; 
+    // cout << hex << uppercase << PieceTwo << '\n'; 
+    // cout << hex << uppercase << PieceThree << '\n'; 
+    // cout << hex << uppercase << PieceFour << '\n'; 
+
+    // int Key = PieceOne ^ PieceTwo ^ PieceFour;
+    // int TempKey = PieceTwo;
+    // TempKey ^= PieceThree;
+    // TempKey ^= PieceFour;
+    // TempKey ^= PieceOne;
+
+    // cout << "Key: " << hex << uppercase << Key << '\n';
+    // cout << "TempKey: " << hex << uppercase << TempKey << '\n';
+    // cout << '\n';
+
+    // TempKey ^= PieceThree;
+    // cout << "(Three out) TempKey: " << hex << uppercase << TempKey << '\n';
+
+    // TempKey ^= PieceThree;
+    // cout << "(Three in again) TempKey: " << hex << uppercase << TempKey << '\n';
+
+    //Part 12
+    // for (int i = 1; i <= 10; ++i)
+    //     cout << RAND_15 << ' ' << RAND_64 << '\n';
+
+    //Part 13
+    // S_BOARD board;
+    // ResetBoard(&board);
 
     return 0;
 }

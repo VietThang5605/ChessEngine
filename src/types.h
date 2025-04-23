@@ -1,21 +1,29 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <iostream>
 
-// #define DEBUG
+#define DEBUG
 
 #ifndef DEBUG
 #define ASSERT(n)
 #else
 #define ASSERT(n) \
 if(! (n)) { \
-    printf("%s - FAILED ", #n); \
-    printf("on %s ", __DATE__); \
-    printf("at %s ", __TIME__); \
-    printf("In file %s ", __FILE__); \
-    printf("At line %d\n", __LINE__); \
-    exit(1);}
+    std::cerr << #n << " - FAILED "; \
+    std::cerr << "on " << __DATE__ << " "; \
+    std::cerr << "at " << __TIME__ << " "; \
+    std::cerr << "In file " << __FILE__ << " "; \
+    std::cerr << "At line " << __LINE__ << std::endl; \
+    exit(1); \
+}
+
+// printf("%s - FAILED ", #n); \
+// printf("on %s ", __DATE__); \
+// printf("at %s ", __TIME__); \
+// printf("In file %s ", __FILE__); \
+// printf("At line %d\n", __LINE__);
 
 #endif
 
@@ -72,7 +80,7 @@ enum Rank : int {
 };
 
 enum Piece {
-    NO_PIECE, 
+    EMPTY,
     wP, wN, wB, wR, wQ, wK,
     bP, bN, bB, bR, bQ, bK,
     PIECE_NB
@@ -83,7 +91,6 @@ enum Piece {
 #define FR2SQ(f,r) ( (21 + (f) ) + ( (r) * 10) ) // for a given file (f) and rank (r) returns the equivalent square in the 120 square 2D array
 
 /* FUNCTIONS */
-
 
 #define ENABLE_BASE_OPERATORS_ON(T)                                \
 constexpr T operator+(T d1, T d2) { return T(int(d1) + int(d2)); } \

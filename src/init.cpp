@@ -1,15 +1,33 @@
 #include "init.h"
 
+#include <iostream>
+
 int Sq120ToSq64[BRD_SQ_NUM];
 int Sq64ToSq120[64];
 
 U64 SetMask[64]; //see at init.h
 U64 ClearMask[64];
 
+U64 PieceKeys[13][120];
+U64 SideKey;
+U64 CastleKeys[16];
+
+void InitHashKeys() {
+    for (int i = 0; i < 13; ++i) {
+        for (int j = 0; j < 120; ++j) {
+            PieceKeys[i][j] = RAND_64;
+        }
+    }
+    SideKey = RAND_64;
+    for (int i = 0; i < 16; i++) {
+        CastleKeys[i] = RAND_64;
+    }
+}
+
 void InitBitMasks() {
-    for (int index = 0; index < 64; ++index) {
-        SetMask[index] = (1ULL << index);
-        ClearMask[index] = ~SetMask[index];
+    for (int i = 0; i < SQUARE_NB; ++i) {
+        SetMask[i] = (1ULL << i);
+        ClearMask[i] = ~SetMask[i];
     }
 }
 
@@ -22,12 +40,12 @@ void setBit(U64 *bb, U64 sq) {
 }
 
 void InitSq120To64(){
-    for (int index = 0; index < BRD_SQ_NUM; ++index){
-        Sq120ToSq64[index] = 65; //indexing them all to 65 becuz thge max is 63 (0 to 63 cases)
+    for (int i = 0; i < BRD_SQ_NUM; ++i){
+        Sq120ToSq64[i] = 65; //indexing them all to 65 becuz thge max is 63 (0 to 63 cases)
     }
 
-    for (int index = 0; index < 64; ++index){
-        Sq64ToSq120[index] = 120; // same as 65 but for the 120 array
+    for (int i = 0; i < SQUARE_NB; ++i){
+        Sq64ToSq120[i] = 120; // same as 65 but for the 120 array
     }
 
     int sq = A1;
@@ -43,7 +61,13 @@ void InitSq120To64(){
     }
 }
 
+void InitSrandTime() {
+    srand(time(NULL)); // Seed based on current time
+}
+
 void AllInit() {
+    InitSrandTime(); //must before any of using rand()
     InitSq120To64();
     InitBitMasks();
+    InitHashKeys();
 }
