@@ -1,8 +1,10 @@
-#pragma once
+#ifndef BOARD_H
+#define BOARD_H
 
 #include "types.h"
+#include "init.h"
 
-struct S_Undo {
+struct S_UNDO {
     int move;
     int castlePerm;
     int enPas;
@@ -10,9 +12,14 @@ struct S_Undo {
     U64 posKey; //or hashkey its the same
 };
 
-struct S_Board {
+struct S_BOARD {
     int pieces[BRD_SQ_NUM];
-    U64 pawns[3]; // 0100000 for the first line means we have a pawn on B1
+    U64 pawnsBB[3]; // 0100000 for the first line means we have a pawn on B1
+    U64 knightsBB[3];
+    U64 bishopsBB[3];
+    U64 rooksBB[3];
+    U64 queensBB[3];
+    U64 kingsBB[3];
 
     int KingSq[2]; // same for kings
 
@@ -28,15 +35,20 @@ struct S_Board {
 
     U64 posKey; //or hashkey again will be used to represent the position of the board
 
-    int pceNum[13]; // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
-    int bigPce[3]; // number of "big" pieces (everything that's not a pawn)
-    int majPce[3]; // major pieces (queen and rooqs)
-    int minPce[3]; // minor pieces (knight and bishop)
+    int pieceNum[13]; // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
+    int bigPiece[3]; // number of "big" pieces (everything that's not a pawn)
+    int majPiece[3]; // major pieces (queen and rooqs)
+    int minPiece[3]; // minor pieces (knight and bishop)
     int material[2];
+
+    S_UNDO history[MAXGAMEMOVES];
 
     // piece list
     /*we could loop on the entiere board until we come across avery piece and genereate all the moves possible
     but its not very fast, so we do a piece list*/ 
-
-    int pList[PIECE_NB][10]; // 13 different pieeces which u can have maximum 10 each (like promoting all ur pawns to roks and u get 10 rooks)
+    int pieceList[PIECE_NB][10]; // 13 different pieces which u can have maximum 10 each (like promoting all ur pawns to roks and u get 10 rooks)
 };
+
+void ResetBoard(S_BOARD *pos);
+
+#endif
