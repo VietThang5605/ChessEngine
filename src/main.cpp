@@ -7,6 +7,11 @@
 #include <cstdlib>
 #include <ctime>
 
+#define FEN1 "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+#define FEN2 "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
+#define FEN3 "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
+#define FEN4 "r1bqk2r/ppp2ppp/2n2n2/3pp1B1/1bB1P3/2NP1N2/PPP2PPP/R2QK2R b KQkq - 1 6"
+
 using namespace std;
 
 int main() {
@@ -142,5 +147,22 @@ int main() {
     // S_BOARD board;
     // ResetBoard(&board);
 
+    //Part 17
+    S_BOARD board[1];
+
+    ParseFen(START_FEN, board);
+    PrintBoard(board);
+
+    ParseFen(FEN1, board);
+    PrintBoard(board);
+    
+    ParseFen(FEN2, board);
+    PrintBoard(board);
+
+    ParseFen(FEN3, board);
+    PrintBoard(board);
+
+    ParseFen(FEN4, board);
+    PrintBoard(board);
     return 0;
 }
