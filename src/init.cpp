@@ -1,6 +1,12 @@
 #include "types.h"
+#include "evaluation_types.h"
 
 #include <stdlib.h>
+
+// Khai báo hàm init từ namespace PSQT
+namespace PSQT {
+    void init();
+}
 
 int Sq120ToSq64[BRD_SQ_NUM]; 
 int Sq64ToSq120[64];
@@ -32,4 +38,5 @@ void InitSq120To64(){
 
 void AllInit() {
     InitSq120To64();
+    PSQT::init(); // Gọi hàm init() từ namespace PSQT
 }
