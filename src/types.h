@@ -38,8 +38,6 @@ typedef unsigned long long U64;
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 64
 
-#define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-
 #define INFINITE 30000
 #define MATE (INFINITE - MAXDEPTH)
 

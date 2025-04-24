@@ -3,6 +3,8 @@
 
 #include "types.h"
 #include "init.h"
+#include "hashkeys.h"
+#include "data.h"
 
 struct S_UNDO {
     int move;
@@ -20,6 +22,7 @@ struct S_BOARD {
     U64 rooksBB[3];
     U64 queensBB[3];
     U64 kingsBB[3];
+    U64 allPiecesBB[3];
 
     int KingSq[2]; // same for kings
 
@@ -49,6 +52,9 @@ struct S_BOARD {
     int pieceList[PIECE_NB][10]; // 13 different pieces which u can have maximum 10 each (like promoting all ur pawns to roks and u get 10 rooks)
 };
 
+int ParseFen(char *fen, S_BOARD *pos);
+
 void ResetBoard(S_BOARD *pos);
 
+void PrintBoard(const S_BOARD *pos);
 #endif

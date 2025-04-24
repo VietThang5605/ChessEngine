@@ -66,7 +66,7 @@ void InitSrandTime() {
 }
 
 void AllInit() {
-    InitSrandTime(); //must before any of using rand()
+    InitSrandTime(); //must before any of using rand(), can turn off for debug so each pos will have fix posKey
     InitSq120To64();
     InitBitMasks();
     InitHashKeys();
