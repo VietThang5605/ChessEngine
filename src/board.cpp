@@ -236,7 +236,7 @@ bool CheckBoard(const S_BOARD *pos) {
 
 	ASSERT(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
-	return true; //assuming we passed everything, we return true 
+	return TRUE; //assuming we passed everything, we return true 
 }
 
 void UpdateListsMaterial(S_BOARD *pos) {

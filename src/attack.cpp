@@ -8,11 +8,11 @@ bool SqAttacked(const int sq, const int side, const S_BOARD *pos) {
     // pawns
 	if (side == WHITE) {
 		if (pos->pieces[sq - 11] == wP || pos->pieces[sq - 9] == wP) {
-			return true;
+			return TRUE;
 		}
 	} else {
 		if (pos->pieces[sq + 11] == bP || pos->pieces[sq + 9] == bP) {
-			return true;
+			return TRUE;
         }
 	}
 
@@ -68,5 +68,5 @@ bool SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 		}
 	}
 
-    return false;
+    return FALSE;
 }

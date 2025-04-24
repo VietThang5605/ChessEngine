@@ -10,15 +10,15 @@ extern char SideChar[]; //self explanatory '-' is for both b and w
 extern char RankChar[]; //for ranks
 extern char FileChar[]; //for files
 
-extern int PieceIsBig[13]; //knight bishop rook queen king are big pieces
-extern int PieceIsMajor[13]; // king queen rook (black and white)
-extern int PieceIsMinor[13]; //knight bishop
+extern bool PieceIsBig[13]; //knight bishop rook queen king are big pieces
+extern bool PieceIsMajor[13]; // king queen rook (black and white)
+extern bool PieceIsMinor[13]; //knight bishop
 extern int PieceValue[13];
 extern int PieceColor[13]; //gives colo of a piece
 
-extern int PieceIsPawn[13];
-extern int PieceIsKnight[13];
-extern int PieceIsKing[13];
-extern int PieceIsRookQueen[13];
-extern int PieceIsBishopQueen[13];
-extern int PieceIsSlides[13];
+extern bool PieceIsPawn[13];
+extern bool PieceIsKnight[13];
+extern bool PieceIsKing[13];
+extern bool PieceIsRookQueen[13];
+extern bool PieceIsBishopQueen[13];
+extern bool PieceIsSlides[13];
