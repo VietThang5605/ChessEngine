@@ -2,6 +2,8 @@
 #include "init.h"
 #include "bitboards.h"
 #include "board.h"
+#include "data.h"
+#include "attack.h"
 
 #include <iostream>
 #include <iomanip>
@@ -21,7 +23,28 @@
 //illegal FEN - white has 9 pawns - error when turn on debug
 #define FEN8 "r1b3kr/2p5/1pn1q2p/p2pP1p1/8/PPP2NQP/PB3PPP/R4RK1 w - d6 0 20"
 
+//illegal FEN - only 2 queens - test attacked squares
+#define FEN9 "8/3q4/8/8/4Q3/8/8/8 w - - 0 2"
+
+//illegal FEN - only 2 queens, 2 pawns - test attacked squares
+#define FEN10 "8/3q1p2/8/5P2/4Q3/8/8/8 w - - 0 2"
+
 using namespace std;
+
+void ShowSqAttackedBySide(const int side, const S_BOARD *pos) {
+    std::cout << "Squares attacked by " << SideChar[side] << '\n';
+    for (Rank rank = RANK_8; rank >= RANK_1; --rank) {
+        for (File file = FILE_A; file <= FILE_H; ++file) {
+            if (SqAttacked(FR2SQ(file, rank), side, pos)) {
+                std::cout << 'X';
+            } else {
+                std::cout << '-';
+            }
+        }
+        std::cout << '\n';
+    }
+    std::cout << "\n\n";
+}
 
 int main() {
     AllInit();
@@ -203,72 +226,83 @@ int main() {
     // std::cout << std::dec << board->enPas << '\n';
 
     //Part 20
+    // S_BOARD board[1];
+    // ParseFen(FEN6, board);
+    // PrintBoard(board);
+    // // board->posKey ^= SideKey;
+    // ASSERT(CheckBoard(board));
+
+    // std::cout << '\n';
+    // std::cout << "white pawns bitboard:\n";
+    // PrintBitBoard(board->pawnsBB[WHITE]);
+
+    // std::cout << '\n';
+    // std::cout << "black pawns bitboard:\n";
+    // PrintBitBoard(board->pawnsBB[BLACK]);
+
+    // std::cout << '\n';
+    // std::cout << "all pawns bitboard:\n";
+    // PrintBitBoard(board->pawnsBB[BOTH]);
+
+
+    // std::cout << '\n';
+    // std::cout << "white king bitboard:\n";
+    // PrintBitBoard(board->kingsBB[WHITE]);
+
+    // std::cout << '\n';
+    // std::cout << "black king bitboard:\n";
+    // PrintBitBoard(board->kingsBB[BLACK]);
+
+    // std::cout << '\n';
+    // std::cout << "white rooks bitboard:\n";
+    // PrintBitBoard(board->rooksBB[WHITE]);
+
+    // std::cout << '\n';
+    // std::cout << "black rooks bitboard:\n";
+    // PrintBitBoard(board->rooksBB[BLACK]);
+
+    // std::cout << '\n';
+    // std::cout << "white knights bitboard:\n";
+    // PrintBitBoard(board->knightsBB[WHITE]);
+
+    // std::cout << '\n';
+    // std::cout << "black knights bitboard:\n";
+    // PrintBitBoard(board->knightsBB[BLACK]);
+
+    // std::cout << '\n';
+    // std::cout << "white bishops bitboard:\n";
+    // PrintBitBoard(board->bishopsBB[WHITE]);
+
+    // std::cout << '\n';
+    // std::cout << "black bishops bitboard:\n";
+    // PrintBitBoard(board->bishopsBB[BLACK]);
+
+    // std::cout << '\n';
+    // std::cout << "all pieces white bitboard:\n";
+    // PrintBitBoard(board->allPiecesBB[WHITE]);
+
+    // std::cout << '\n';
+    // std::cout << "all pieces black bitboard:\n";
+    // PrintBitBoard(board->allPiecesBB[BLACK]);
+
+    // std::cout << '\n';
+    // std::cout << "all pieces both bitboard:\n";
+    // PrintBitBoard(board->allPiecesBB[BOTH]);
+
+    // std::cout << "white pawns piece: " << board->pieceNum[wP] << '\n';
+    // std::cout << "black pawns piece: " << board->pieceNum[bP] << '\n';
+
+    //Part 23 - turn off debug for illegal FEN
     S_BOARD board[1];
-    ParseFen(FEN6, board);
+    ParseFen(FEN10, board);
     PrintBoard(board);
-    // board->posKey ^= SideKey;
-    ASSERT(CheckBoard(board));
+    // ASSERT(CheckBoard(board));
 
-    std::cout << '\n';
-    std::cout << "white pawns bitboard:\n";
-    PrintBitBoard(board->pawnsBB[WHITE]);
+    std::cout << "\n\nWhite is attacking:\n";
+    ShowSqAttackedBySide(WHITE, board);
 
-    std::cout << '\n';
-    std::cout << "black pawns bitboard:\n";
-    PrintBitBoard(board->pawnsBB[BLACK]);
-
-    std::cout << '\n';
-    std::cout << "all pawns bitboard:\n";
-    PrintBitBoard(board->pawnsBB[BOTH]);
-
-
-    std::cout << '\n';
-    std::cout << "white king bitboard:\n";
-    PrintBitBoard(board->kingsBB[WHITE]);
-
-    std::cout << '\n';
-    std::cout << "black king bitboard:\n";
-    PrintBitBoard(board->kingsBB[BLACK]);
-
-    std::cout << '\n';
-    std::cout << "white rooks bitboard:\n";
-    PrintBitBoard(board->rooksBB[WHITE]);
-
-    std::cout << '\n';
-    std::cout << "black rooks bitboard:\n";
-    PrintBitBoard(board->rooksBB[BLACK]);
-
-    std::cout << '\n';
-    std::cout << "white knights bitboard:\n";
-    PrintBitBoard(board->knightsBB[WHITE]);
-
-    std::cout << '\n';
-    std::cout << "black knights bitboard:\n";
-    PrintBitBoard(board->knightsBB[BLACK]);
-
-    std::cout << '\n';
-    std::cout << "white bishops bitboard:\n";
-    PrintBitBoard(board->bishopsBB[WHITE]);
-
-    std::cout << '\n';
-    std::cout << "black bishops bitboard:\n";
-    PrintBitBoard(board->bishopsBB[BLACK]);
-
-    std::cout << '\n';
-    std::cout << "all pieces white bitboard:\n";
-    PrintBitBoard(board->allPiecesBB[WHITE]);
-
-    std::cout << '\n';
-    std::cout << "all pieces black bitboard:\n";
-    PrintBitBoard(board->allPiecesBB[BLACK]);
-
-    std::cout << '\n';
-    std::cout << "all pieces both bitboard:\n";
-    PrintBitBoard(board->allPiecesBB[BOTH]);
-
-    std::cout << "white pawns piece: " << board->pieceNum[wP] << '\n';
-    std::cout << "black pawns piece: " << board->pieceNum[bP] << '\n';
-
-
+    std::cout << "\n\nBlack is attacking:\n";
+    ShowSqAttackedBySide(BLACK, board);
+    
     return 0;
 }

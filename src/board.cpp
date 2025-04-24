@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-int CheckBoard(const S_BOARD *pos) {
+bool CheckBoard(const S_BOARD *pos) {
     int t_pieceNum[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // t_ means temporary
 	int t_bigPiece[3] = {0, 0, 0}; //self explanbatory
 	int t_majorPiece[3] = {0, 0, 0};
@@ -236,7 +236,7 @@ int CheckBoard(const S_BOARD *pos) {
 
 	ASSERT(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
-	return TRUE; //assuming we passed everything, we return true 
+	return true; //assuming we passed everything, we return true 
 }
 
 void UpdateListsMaterial(S_BOARD *pos) {

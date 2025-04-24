@@ -53,7 +53,7 @@ struct S_BOARD {
     int pieceList[PIECE_NB][10]; // 13 different pieces which u can have maximum 10 each (like promoting all ur pawns to roks and u get 10 rooks)
 };
 
-int CheckBoard(const S_BOARD *pos);
+bool CheckBoard(const S_BOARD *pos);
 
 void UpdateListsMaterial(S_BOARD *pos);
 
