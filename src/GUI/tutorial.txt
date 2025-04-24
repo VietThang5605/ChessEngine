@@ -1,1 +1,0 @@
-The built app can be found at src-tauri/target/release
