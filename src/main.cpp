@@ -4,6 +4,7 @@
 #include "board.h"
 
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <ctime>
 
@@ -11,6 +12,14 @@
 #define FEN2 "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
 #define FEN3 "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
 #define FEN4 "r1bqk2r/ppp2ppp/2n2n2/3pp1B1/1bB1P3/2NP1N2/PPP2PPP/R2QK2R b KQkq - 1 6"
+#define FEN5 "r1b4r/ppppqkpp/2n5/4P3/4n3/2Q2N2/P4PPP/R1B2RK1 w - - 0 13"
+#define FEN6 "r1b3kr/2p5/1pn1q2p/p2pP1p1/8/P4NQP/1B3PP1/R4RK1 w - d6 0 20"
+
+//illegal FEN - black has 2 kings - error when turn on debug
+#define FEN7 "rkb3kr/2p5/1pn1q2p/p2pP1p1/8/P4NQP/1B3PP1/R4RK1 w - d6 0 20"
+
+//illegal FEN - white has 9 pawns - error when turn on debug
+#define FEN8 "r1b3kr/2p5/1pn1q2p/p2pP1p1/8/PPP2NQP/PB3PPP/R4RK1 w - d6 0 20"
 
 using namespace std;
 
@@ -147,22 +156,119 @@ int main() {
     // S_BOARD board;
     // ResetBoard(&board);
 
-    //Part 17
-    S_BOARD board[1];
+    //Part 17->18
+    // S_BOARD board[1];
 
-    ParseFen(START_FEN, board);
-    PrintBoard(board);
+    // ParseFen(START_FEN, board);
+    // PrintBoard(board);
 
-    ParseFen(FEN1, board);
-    PrintBoard(board);
+    // ParseFen(FEN1, board);
+    // PrintBoard(board);
     
-    ParseFen(FEN2, board);
-    PrintBoard(board);
+    // ParseFen(FEN2, board);
+    // PrintBoard(board);
 
-    ParseFen(FEN3, board);
-    PrintBoard(board);
+    // ParseFen(FEN3, board);
+    // PrintBoard(board);
 
-    ParseFen(FEN4, board);
+    // ParseFen(FEN4, board);
+    // PrintBoard(board);
+
+    // ParseFen(FEN5, board);
+    // PrintBoard(board);
+
+    // std::cout << WHITE << ' ' << BLACK << ' ' << BOTH << '\n';
+
+    // std::cout << "White - Black - BOTH big piece:\n";
+    // std::cout << board->bigPiece[WHITE] << '\n';
+    // std::cout << board->bigPiece[BLACK] << '\n';
+    // std::cout << std::dec << board->bigPiece[BOTH] << '\n';
+
+    // std::cout << "White - Black - BOTH major piece:\n";
+    // std::cout << board->majorPiece[WHITE] << '\n';
+    // std::cout << board->majorPiece[BLACK] << '\n';
+    // std::cout << std::dec << board->majorPiece[BOTH] << '\n';
+
+    // std::cout << "White - Black - BOTH minor piece:\n";
+    // std::cout << board->minorPiece[WHITE] << '\n';
+    // std::cout << board->minorPiece[BLACK] << '\n';
+    // std::cout << std::dec << board->minorPiece[BOTH] << '\n';
+
+    // std::cout << "White - Black king square:\n";
+    // std::cout << std::dec << board->kingSquare[WHITE] << '\n';
+    // std::cout << std::dec << board->kingSquare[BLACK] << '\n';
+
+    // std::cout << "castlePerm - enPas:\n";
+    // std::cout << std::dec << board->castlePerm << '\n';
+    // std::cout << std::dec << board->enPas << '\n';
+
+    //Part 20
+    S_BOARD board[1];
+    ParseFen(FEN6, board);
     PrintBoard(board);
+    // board->posKey ^= SideKey;
+    ASSERT(CheckBoard(board));
+
+    std::cout << '\n';
+    std::cout << "white pawns bitboard:\n";
+    PrintBitBoard(board->pawnsBB[WHITE]);
+
+    std::cout << '\n';
+    std::cout << "black pawns bitboard:\n";
+    PrintBitBoard(board->pawnsBB[BLACK]);
+
+    std::cout << '\n';
+    std::cout << "all pawns bitboard:\n";
+    PrintBitBoard(board->pawnsBB[BOTH]);
+
+
+    std::cout << '\n';
+    std::cout << "white king bitboard:\n";
+    PrintBitBoard(board->kingsBB[WHITE]);
+
+    std::cout << '\n';
+    std::cout << "black king bitboard:\n";
+    PrintBitBoard(board->kingsBB[BLACK]);
+
+    std::cout << '\n';
+    std::cout << "white rooks bitboard:\n";
+    PrintBitBoard(board->rooksBB[WHITE]);
+
+    std::cout << '\n';
+    std::cout << "black rooks bitboard:\n";
+    PrintBitBoard(board->rooksBB[BLACK]);
+
+    std::cout << '\n';
+    std::cout << "white knights bitboard:\n";
+    PrintBitBoard(board->knightsBB[WHITE]);
+
+    std::cout << '\n';
+    std::cout << "black knights bitboard:\n";
+    PrintBitBoard(board->knightsBB[BLACK]);
+
+    std::cout << '\n';
+    std::cout << "white bishops bitboard:\n";
+    PrintBitBoard(board->bishopsBB[WHITE]);
+
+    std::cout << '\n';
+    std::cout << "black bishops bitboard:\n";
+    PrintBitBoard(board->bishopsBB[BLACK]);
+
+    std::cout << '\n';
+    std::cout << "all pieces white bitboard:\n";
+    PrintBitBoard(board->allPiecesBB[WHITE]);
+
+    std::cout << '\n';
+    std::cout << "all pieces black bitboard:\n";
+    PrintBitBoard(board->allPiecesBB[BLACK]);
+
+    std::cout << '\n';
+    std::cout << "all pieces both bitboard:\n";
+    PrintBitBoard(board->allPiecesBB[BOTH]);
+
+    std::cout << "white pawns piece: " << board->pieceNum[wP] << '\n';
+    std::cout << "black pawns piece: " << board->pieceNum[bP] << '\n';
+
+
     return 0;
 }

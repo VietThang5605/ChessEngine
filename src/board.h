@@ -5,6 +5,7 @@
 #include "init.h"
 #include "hashkeys.h"
 #include "data.h"
+#include "bitboards.h"
 
 struct S_UNDO {
     int move;
@@ -24,7 +25,7 @@ struct S_BOARD {
     U64 kingsBB[3];
     U64 allPiecesBB[3];
 
-    int KingSq[2]; // same for kings
+    int kingSquare[2]; // same for kings
 
     int side;
     int enPas;
@@ -40,8 +41,8 @@ struct S_BOARD {
 
     int pieceNum[13]; // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
     int bigPiece[3]; // number of "big" pieces (everything that's not a pawn)
-    int majPiece[3]; // major pieces (queen and rooqs)
-    int minPiece[3]; // minor pieces (knight and bishop)
+    int majorPiece[3]; // major pieces (queen and rooqs)
+    int minorPiece[3]; // minor pieces (knight and bishop)
     int material[2];
 
     S_UNDO history[MAXGAMEMOVES];
@@ -51,6 +52,10 @@ struct S_BOARD {
     but its not very fast, so we do a piece list*/ 
     int pieceList[PIECE_NB][10]; // 13 different pieces which u can have maximum 10 each (like promoting all ur pawns to roks and u get 10 rooks)
 };
+
+int CheckBoard(const S_BOARD *pos);
+
+void UpdateListsMaterial(S_BOARD *pos);
 
 int ParseFen(char *fen, S_BOARD *pos);
 
