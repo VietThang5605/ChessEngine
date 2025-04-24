@@ -4,6 +4,8 @@
 #include "board.h"
 #include "data.h"
 #include "attack.h"
+#include "search.h"
+#include "uci.h"
 
 #include <iostream>
 #include <iomanip>
@@ -299,16 +301,46 @@ int main()
     // std::cout << "black pawns piece: " << board->pieceNum[bP] << '\n';
 
     // Part 23 - turn off debug for illegal FEN
-    S_BOARD board[1];
-    ParseFen(FEN10, board);
-    PrintBoard(board);
-    // ASSERT(CheckBoard(board));
+    // S_BOARD board[1];
+    // ParseFen(FEN10, board);
+    // PrintBoard(board);
+    // // ASSERT(CheckBoard(board));
 
-    std::cout << "\n\nWhite is attacking:\n";
-    ShowSqAttackedBySide(WHITE, board);
+    // std::cout << "\n\nWhite is attacking:\n";
+    // ShowSqAttackedBySide(WHITE, board);
 
-    std::cout << "\n\nBlack is attacking:\n";
-    ShowSqAttackedBySide(BLACK, board);
+    // std::cout << "\n\nBlack is attacking:\n";
+    // ShowSqAttackedBySide(BLACK, board);
 
-    return 0;
+    // return 0;
+
+    // Test UCI
+    S_BOARD pos[1];
+    S_SEARCHINFO info[1];
+    info->quit = FALSE;
+    setbuf(stdin, NULL);
+    setbuf(stdout, NULL);
+
+    cout << "Welcome to Our Chessengine! Type 'uci' to start..." << endl;
+
+    string input;
+    while (true)
+    {
+        cout << "> ";
+        if (!getline(cin, input))
+            continue;
+        if (input.empty())
+            continue;
+
+        if (input.rfind("uci", 0) == 0)
+        {
+            Uci_Loop(pos, info);
+            if (info->quit)
+                break;
+        }
+        else if (input.rfind("quit", 0) == 0)
+        {
+            break;
+        }
+    }
 }

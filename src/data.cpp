@@ -18,3 +18,7 @@ bool PieceIsKing[13] = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, F
 bool PieceIsRookQueen[13] = {FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE};
 bool PieceIsBishopQueen[13] = {FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE};
 bool PieceIsSlides[13] = {FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE};
+
+int PieceRookQueen[13] = {0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0};
+int PieceBishopQueen[13] = {0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0};
+int PieceKnight[13] = {0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0};

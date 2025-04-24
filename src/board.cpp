@@ -1,7 +1,4 @@
 #include "board.h"
-#include "bitboards.h"
-#include "validate.h"
-#include "data.h"
 
 #include <iostream>
 #include <iomanip>
@@ -553,104 +550,88 @@ int ParseFen(char *fen, S_BOARD *pos)
 void ResetBoard(S_BOARD *pos)
 {
     for (int i = 0; i < BRD_SQ_NUM; ++i)
-    { // looping through all 120 squares
-        void ResetBoard(S_BOARD * pos)
+    {                              // looping through all 120 squares
+        pos->pieces[i] = OFFBOARD; // and setting them to "OFFBOARD"
+    } // for more understanding, look at the image in the folder named "board representation"
+
+    for (int i = 0; i < SQUARE_NB; ++i)
+    {
+        pos->pieces[SQ120(i)] = EMPTY; // then the "real" squares are set to "empty"
+    }
+
+    for (int i = 0; i < 3; ++i)
+    {
+        pos->bigPiece[i] = 0; // number of all pieces (black and white)
+        pos->majorPiece[i] = 0;
+        pos->minorPiece[i] = 0;
+    }
+
+    for (int i = 0; i < 2; ++i)
+    {
+        pos->material[i] = 0; // set material scores to 0
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        pos->pawnsBB[i] = 0ULL; // OULL cuz pawnsBB are an U64 type in an unsigned long long
+        pos->knightsBB[i] = 0ULL;
+        pos->bishopsBB[i] = 0ULL;
+        pos->rooksBB[i] = 0ULL;
+        pos->queensBB[i] = 0ULL;
+        pos->kingsBB[i] = 0ULL;
+    }
+
+    for (int i = 0; i < 13; ++i)
+    {
+        pos->pieceNum[i] = 0; // resets the piece number
+    }
+
+    pos->kingSquare[WHITE] = pos->kingSquare[BLACK] = NO_SQ;
+
+    pos->side = BOTH; // once we setup a position, checkboard will check some things so we set it to both not to get an ASSERT
+    pos->enPas = NO_SQ;
+    pos->fiftyMove = 0;
+
+    pos->ply = 0; // nber of half moves played in the current search
+    pos->hisPly = 0;
+
+    pos->castlePerm = 0;
+
+    pos->posKey = 0ULL;
+}
+
+void PrintBoard(const S_BOARD *pos)
+{
+
+    std::cout << "\nGame Board:\n\n";
+
+    for (Rank rank = RANK_8; rank >= RANK_1; --rank)
+    { // stat on the 8th rank cuz its how we look at it
+        printf("%d  ", rank + 1);
+        for (File file = FILE_A; file <= FILE_H; ++file)
         {
-            for (int i = 0; i < BRD_SQ_NUM; ++i)
-            {                              // looping through all 120 squares
-                pos->pieces[i] = OFFBOARD; // and setting them to "OFFBOARD"
-            } // for more understanding, look at the image in the folder named "board representation"
+            int sq = FR2SQ(file, rank);  // sqare index
+            int piece = pos->pieces[sq]; // get the piece using the square index from board
+            std::cout << std::setw(3) << PieceChar[piece];
+        }
+        std::cout << '\n';
+    }
 
-            for (int i = 0; i < SQUARE_NB; ++i)
-            {
-                for (int i = 0; i < SQUARE_NB; ++i)
-                {
-                    pos->pieces[SQ120(i)] = EMPTY; // then the "real" squares are set to "empty"
-                }
+    std::cout << "\n   ";
+    for (File file = FILE_A; file <= FILE_H; ++file)
+    {
+        std::cout << std::setw(3) << char('a' + file);
+    }
+    std::cout << '\n';
 
-                for (int i = 0; i < 2; ++i)
-                {
-                    for (int i = 0; i < 3; ++i)
-                    {
-                        pos->bigPiece[i] = 0; // number of all pieces (black and white)
-                        pos->majPiece[i] = 0;
-                        pos->minPiece[i] = 0;
-                        pos->material[i] = 0; // set material scores to 0
-                        pos->majorPiece[i] = 0;
-                        pos->minorPiece[i] = 0;
-                    }
-
-                    for (int i = 0; i < 2; ++i)
-                    {
-                        pos->material[i] = 0; // set material scores to 0
-                    }
-
-                    for (int i = 0; i < 3; i++)
-                    {
-                        for (int i = 0; i < 3; i++)
-                        {
-                            pos->pawnsBB[i] = 0ULL; // OULL cuz pawnsBB are an U64 type in an unsigned long long
-                            pos->knightsBB[i] = 0ULL;
-                            pos->bishopsBB[i] = 0ULL;
-                            pos->rooksBB[i] = 0ULL;
-                            pos->queensBB[i] = 0ULL;
-                            pos->kingsBB[i] = 0ULL;
-                        }
-
-                        for (int i = 0; i < 13; ++i)
-                        {
-                            pos->pieceNum[i] = 0; // resets the piece number
-                            for (int i = 0; i < 13; ++i)
-                            {
-                                pos->pieceNum[i] = 0; // resets the piece number
-                            }
-
-                            pos->kingSquare[WHITE] = pos->kingSquare[BLACK] = NO_SQ;
-
-                            pos->side = BOTH; // once we setup a position, checkboard will check some things so we set it to both not to get an ASSERT
-                            pos->enPas = NO_SQ;
-                            pos->fiftyMove = 0;
-
-                            pos->ply = 0; // nber of half moves played in the current search
-                            pos->hisPly = 0;
-
-                            pos->castlePerm = 0;
-
-                            pos->posKey = 0ULL;
-                        }
-
-                        void PrintBoard(const S_BOARD *pos)
-                        {
-
-                            std::cout << "\nGame Board:\n\n";
-
-                            for (Rank rank = RANK_8; rank >= RANK_1; --rank)
-                            { // stat on the 8th rank cuz its how we look at it
-                                printf("%d  ", rank + 1);
-                                for (File file = FILE_A; file <= FILE_H; ++file)
-                                {
-                                    int sq = FR2SQ(file, rank);  // sqare index
-                                    int piece = pos->pieces[sq]; // get the piece using the square index from board
-                                    std::cout << std::setw(3) << PieceChar[piece];
-                                }
-                                std::cout << '\n';
-                            }
-
-                            std::cout << "\n   ";
-                            for (File file = FILE_A; file <= FILE_H; ++file)
-                            {
-                                std::cout << std::setw(3) << char('a' + file);
-                            }
-                            std::cout << '\n';
-
-                            std::cout << "side: " << SideChar[pos->side] << '\n';
-                            std::cout << "enPas: " << std::dec << pos->enPas << '\n'; // printed as a decimal rather then as characters
-                            std::cout << "castle: "
-                                      << (pos->castlePerm & WKCA ? 'K' : '-') // if castle perm ends with ' ' then print the corresponding letters
-                                      << (pos->castlePerm & WQCA ? 'Q' : '-')
-                                      << (pos->castlePerm & BKCA ? 'k' : '-')
-                                      << (pos->castlePerm & BQCA ? 'q' : '-')
-                                      << '\n';
-                            std::cout << "PosKey: ";
-                            std::cout << std::hex << std::uppercase << pos->posKey << '\n'; // hexa cuz easier to read
-                        }
+    std::cout << "side: " << SideChar[pos->side] << '\n';
+    std::cout << "enPas: " << std::dec << pos->enPas << '\n'; // printed as a decimal rather then as characters
+    std::cout << "castle: "
+              << (pos->castlePerm & WKCA ? 'K' : '-') // if castle perm ends with ' ' then print the corresponding letters
+              << (pos->castlePerm & WQCA ? 'Q' : '-')
+              << (pos->castlePerm & BKCA ? 'k' : '-')
+              << (pos->castlePerm & BQCA ? 'q' : '-')
+              << '\n';
+    std::cout << "PosKey: ";
+    std::cout << std::hex << std::uppercase << pos->posKey << '\n'; // hexa cuz easier to read
+}

@@ -18,7 +18,7 @@ static void ClearPiece(const int sq, S_BOARD *pos)
 
     ASSERT(PieceValid(pce));
 
-    int col = PieceCol[pce];
+    int col = PieceColor[pce];
     int index = 0;
     int t_pceNum = -1;
 
@@ -27,18 +27,18 @@ static void ClearPiece(const int sq, S_BOARD *pos)
     HASH_PCE(pce, sq);
 
     pos->pieces[sq] = EMPTY;
-    pos->material[col] -= PieceVal[pce];
+    pos->material[col] -= PieceValue[pce];
 
-    if (PieceBig[pce])
+    if (PieceIsBig[pce])
     {
         pos->bigPiece[col]--;
-        if (PieceMaj[pce])
+        if (PieceIsMajor[pce])
         {
-            pos->majPiece[col]--;
+            pos->majorPiece[col]--;
         }
         else
         {
-            pos->minPiece[col]--;
+            pos->minorPiece[col]--;
         }
     }
     else
@@ -70,23 +70,23 @@ static void AddPiece(const int sq, S_BOARD *pos, const int pce)
     ASSERT(PieceValid(pce));
     ASSERT(SqOnBoard(sq));
 
-    int col = PieceCol[pce];
+    int col = PieceColor[pce];
     ASSERT(SideValid(col));
 
     HASH_PCE(pce, sq);
 
     pos->pieces[sq] = pce;
 
-    if (PieceBig[pce])
+    if (PieceIsBig[pce])
     {
         pos->bigPiece[col]++;
-        if (PieceMaj[pce])
+        if (PieceIsMajor[pce])
         {
-            pos->majPiece[col]++;
+            pos->majorPiece[col]++;
         }
         else
         {
-            pos->minPiece[col]++;
+            pos->minorPiece[col]++;
         }
     }
     else
@@ -95,7 +95,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int pce)
         SETBIT(&pos->pawnsBB[BOTH], SQ64(sq));
     }
 
-    pos->material[col] += PieceVal[pce];
+    pos->material[col] += PieceValue[pce];
     pos->pieceList[pce][pos->pieceNum[pce]++] = sq;
 }
 
@@ -107,7 +107,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos)
 
     int index = 0;
     int pce = pos->pieces[from];
-    int col = PieceCol[pce];
+    int col = PieceColor[pce];
     ASSERT(SideValid(col));
     ASSERT(PieceValid(pce));
 
@@ -121,7 +121,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos)
     HASH_PCE(pce, to);
     pos->pieces[to] = pce;
 
-    if (!PieceBig[pce])
+    if (!PieceIsBig[pce])
     {
         CLRBIT(&pos->pawnsBB[col], SQ64(from));
         CLRBIT(&pos->pawnsBB[BOTH], SQ64(from));
@@ -225,7 +225,7 @@ int MakeMove(S_BOARD *pos, int move)
     ASSERT(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
     ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
-    if (PiecePawn[pos->pieces[from]])
+    if (PieceIsPawn[pos->pieces[from]])
     {
         pos->fiftyMove = 0;
         if (move & MFLAGPS)
@@ -249,14 +249,14 @@ int MakeMove(S_BOARD *pos, int move)
     int prPce = PROMOTED(move);
     if (prPce != EMPTY)
     {
-        ASSERT(PieceValid(prPce) && !PiecePawn[prPce]);
+        ASSERT(PieceValid(prPce) && !PieceIsPawn[prPce]);
         ClearPiece(to, pos);
         AddPiece(to, pos, prPce);
     }
 
-    if (PieceKing[pos->pieces[to]])
+    if (PieceIsKing[pos->pieces[to]])
     {
-        pos->KingSq[pos->side] = to;
+        pos->kingSquare[pos->side] = to;
     }
 
     pos->side ^= 1;
@@ -264,7 +264,7 @@ int MakeMove(S_BOARD *pos, int move)
 
     ASSERT(CheckBoard(pos));
 
-    if (SqAttacked(pos->KingSq[side], pos->side, pos))
+    if (SqAttacked(pos->kingSquare[side], pos->side, pos))
     {
         TakeMove(pos);
         return FALSE;
@@ -341,9 +341,9 @@ void TakeMove(S_BOARD *pos)
 
     MovePiece(to, from, pos);
 
-    if (PieceKing[pos->pieces[from]])
+    if (PieceIsKing[pos->pieces[from]])
     {
-        pos->KingSq[pos->side] = from;
+        pos->kingSquare[pos->side] = from;
     }
 
     int captured = CAPTURED(move);
@@ -355,9 +355,9 @@ void TakeMove(S_BOARD *pos)
 
     if (PROMOTED(move) != EMPTY)
     {
-        ASSERT(PieceValid(PROMOTED(move)) && !PiecePawn[PROMOTED(move)]);
+        ASSERT(PieceValid(PROMOTED(move)) && !PieceIsPawn[PROMOTED(move)]);
         ClearPiece(from, pos);
-        AddPiece(from, pos, (PieceCol[PROMOTED(move)] == WHITE ? wP : bP));
+        AddPiece(from, pos, (PieceColor[PROMOTED(move)] == WHITE ? wP : bP));
     }
 
     ASSERT(CheckBoard(pos));

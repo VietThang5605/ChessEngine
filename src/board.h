@@ -43,9 +43,6 @@ struct S_BOARD
 
     int pieceNum[13];  // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
     int bigPiece[3];   // number of "big" pieces (everything that's not a pawn)
-    int majPiece[3];   // major pieces (queen and rooqs)
-    int minPiece[3];   // minor pieces (knight and bishop)
-    int bigPiece[3];   // number of "big" pieces (everything that's not a pawn)
     int majorPiece[3]; // major pieces (queen and rooqs)
     int minorPiece[3]; // minor pieces (knight and bishop)
     int material[2];
@@ -70,5 +67,4 @@ int ParseFen(char *fen, S_BOARD *pos);
 void ResetBoard(S_BOARD *pos);
 
 void PrintBoard(const S_BOARD *pos);
-
 #endif

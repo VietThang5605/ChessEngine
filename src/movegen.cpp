@@ -184,11 +184,11 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
                 }
             }
 
-            if (!SQOFFBOARD(sq + 9) && PieceCol[pos->pieces[sq + 9]] == BLACK)
+            if (!SQOFFBOARD(sq + 9) && PieceColor[pos->pieces[sq + 9]] == BLACK)
             {
                 AddWhitePawnCapMove(pos, sq, sq + 9, pos->pieces[sq + 9], list);
             }
-            if (!SQOFFBOARD(sq + 11) && PieceCol[pos->pieces[sq + 11]] == BLACK)
+            if (!SQOFFBOARD(sq + 11) && PieceColor[pos->pieces[sq + 11]] == BLACK)
             {
                 AddWhitePawnCapMove(pos, sq, sq + 11, pos->pieces[sq + 11], list);
             }
@@ -245,12 +245,12 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
                 }
             }
 
-            if (!SQOFFBOARD(sq - 9) && PieceCol[pos->pieces[sq - 9]] == WHITE)
+            if (!SQOFFBOARD(sq - 9) && PieceColor[pos->pieces[sq - 9]] == WHITE)
             {
                 AddBlackPawnCapMove(pos, sq, sq - 9, pos->pieces[sq - 9], list);
             }
 
-            if (!SQOFFBOARD(sq - 11) && PieceCol[pos->pieces[sq - 11]] == WHITE)
+            if (!SQOFFBOARD(sq - 11) && PieceColor[pos->pieces[sq - 11]] == WHITE)
             {
                 AddBlackPawnCapMove(pos, sq, sq - 11, pos->pieces[sq - 11], list);
             }
@@ -313,7 +313,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
                     // BLACK ^ 1 == WHITE       WHITE ^ 1 == BLACK
                     if (pos->pieces[t_sq] != EMPTY)
                     {
-                        if (PieceCol[pos->pieces[t_sq]] == (side ^ 1))
+                        if (PieceColor[pos->pieces[t_sq]] == (side ^ 1))
                         {
                             AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
                         }
@@ -354,7 +354,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
                 // BLACK ^ 1 == WHITE       WHITE ^ 1 == BLACK
                 if (pos->pieces[t_sq] != EMPTY)
                 {
-                    if (PieceCol[pos->pieces[t_sq]] == (side ^ 1))
+                    if (PieceColor[pos->pieces[t_sq]] == (side ^ 1))
                     {
                         AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
                     }
