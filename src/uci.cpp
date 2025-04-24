@@ -1,6 +1,10 @@
 #include "uci.h"
+#include "io.h"
+#include "makemove.h"
 
 #include <iostream>
+#include <cstdio>
+#include <cstring>
 
 #define INPUTBUFFER 400 * 6
 
@@ -102,24 +106,24 @@ void ParsePosition(char *lineIn, S_BOARD *pos)
         }
     }
 
-    ptrChar = strstr(lineIn, "moves");
-    int move;
+    // ptrChar = strstr(lineIn, "moves");
+    // int move;
 
-    if (ptrChar != nullptr)
-    {
-        ptrChar += 6;
-        while (*ptrChar)
-        {
-            move = ParseMove(ptrChar, pos);
-            if (move == NOMOVE)
-                break;
-            MakeMove(pos, move);
-            pos->ply = 0;
-            while (*ptrChar && *ptrChar != ' ')
-                ptrChar++;
-            ptrChar++;
-        }
-    }
+    // if (ptrChar != nullptr)
+    // {
+    //     ptrChar += 6;
+    //     while (*ptrChar)
+    //     {
+    //         move = ParseMove(ptrChar, pos);
+    //         if (move == NOMOVE)
+    //             break;
+    //         MakeMove(pos, move);
+    //         pos->ply = 0;
+    //         while (*ptrChar && *ptrChar != ' ')
+    //             ptrChar++;
+    //         ptrChar++;
+    //     }
+    // }
     PrintBoard(pos);
 }
 
@@ -162,11 +166,11 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info)
             char startpos[] = "position startpos\n";
             ParsePosition(startpos, pos);
         }
-        else if (!std::strncmp(line, "go", 2))
-        {
-            std::printf("Seen Go..\n");
-            ParseGo(line, info, pos);
-        }
+        // else if (!std::strncmp(line, "go", 2))
+        // {
+        //     std::printf("Seen Go..\n");
+        //     ParseGo(line, info, pos);
+        // }
         else if (!std::strncmp(line, "quit", 4))
         {
             info->quit = TRUE;
@@ -178,33 +182,33 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info)
             std::printf("id author Bluefever\n");
             std::printf("uciok\n");
         }
-        else if (!std::strncmp(line, "debug", 5))
-        {
-            DebugAnalysisTest(pos, info);
-            break;
-        }
-        else if (!std::strncmp(line, "setoption name Hash value ", 26))
-        {
-            std::sscanf(line, "%*s %*s %*s %*s %d", &MB);
-            if (MB < 4)
-                MB = 4;
-            if (MB > MAX_HASH)
-                MB = MAX_HASH;
-            std::printf("Set Hash to %d MB\n", MB);
-            InitHashTable(pos->HashTable, MB);
-        }
-        else if (!std::strncmp(line, "setoption name Book value ", 26))
-        {
-            char *ptrTrue = strstr(line, "true");
-            if (ptrTrue != nullptr)
-            {
-                EngineOptions->UseBook = TRUE;
-            }
-            else
-            {
-                EngineOptions->UseBook = FALSE;
-            }
-        }
+        // else if (!std::strncmp(line, "debug", 5))
+        // {
+        //     DebugAnalysisTest(pos, info);
+        //     break;
+        // }
+        // else if (!std::strncmp(line, "setoption name Hash value ", 26))
+        // {
+        //     std::sscanf(line, "%*s %*s %*s %*s %d", &MB);
+        //     if (MB < 4)
+        //         MB = 4;
+        //     if (MB > MAX_HASH)
+        //         MB = MAX_HASH;
+        //     std::printf("Set Hash to %d MB\n", MB);
+        //     InitHashTable(pos->HashTable, MB);
+        // }
+        // else if (!std::strncmp(line, "setoption name Book value ", 26))
+        // {
+        //     char *ptrTrue = strstr(line, "true");
+        //     if (ptrTrue != nullptr)
+        //     {
+        //         EngineOptions->UseBook = TRUE;
+        //     }
+        //     else
+        //     {
+        //         EngineOptions->UseBook = FALSE;
+        //     }
+        // }
 
         if (info->quit)
             break;

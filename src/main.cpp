@@ -2,8 +2,12 @@
 #include "init.h"
 #include "bitboards.h"
 #include "board.h"
+#include "search.h"
+#include "uci.h"
 
 #include <iostream>
+#include <string>
+#include <cstring>
 #include <cstdlib>
 #include <ctime>
 
@@ -14,18 +18,19 @@
 
 using namespace std;
 
-int main() {
+int main()
+{
     AllInit();
 
     // int num = 2, nuts = 4;
     // ASSERT(num == nuts);
 
-    //Part 7
-    // for (int index = 0; index < BRD_SQ_NUM; index++) {
-    //     if (index % 10 == 0)
-    //         std::cout << '\n';
-    //     printf("%5d", Sq120ToSq64[index]);
-    // }
+    // Part 7
+    //  for (int index = 0; index < BRD_SQ_NUM; index++) {
+    //      if (index % 10 == 0)
+    //          std::cout << '\n';
+    //      printf("%5d", Sq120ToSq64[index]);
+    //  }
 
     // std::cout << '\n';
     // std::cout << '\n';
@@ -36,7 +41,7 @@ int main() {
     //     printf("%5d", Sq64ToSq120[index]);
     // }
 
-    //Part 8
+    // Part 8
 
     // U64 playBitBoard = 0ULL;
 
@@ -63,8 +68,8 @@ int main() {
     // cout << "H4 added:\n";
     // PrintBitBoard(playBitBoard);
 
-    //Part9
-    // U64 playBitBoard = 0ULL;
+    // Part9
+    //  U64 playBitBoard = 0ULL;
 
     // playBitBoard |= (1ULL << SQ64(D2));
     // playBitBoard |= (1ULL << SQ64(D3));
@@ -90,13 +95,13 @@ int main() {
     //     PrintBitBoard(playBitBoard);
     // }
 
-    //Part 10
+    // Part 10
 
     // U64 playBitBoard = 0ULL;
     // for (int i = 0; i < 64; ++i) {
-        // cout << "Index: " << i << '\n';
-        // PrintBitBoard(SetMask[i]);
-        // cout << '\n';
+    // cout << "Index: " << i << '\n';
+    // PrintBitBoard(SetMask[i]);
+    // cout << '\n';
 
     //     cout << "Index: " << i << '\n';
     //     PrintBitBoard(ClearMask[i]);
@@ -112,16 +117,16 @@ int main() {
     // CLRBIT(&playBitBoard, 61);
     // PrintBitBoard(playBitBoard);
 
-    //Part 11
-    // int PieceOne = rand();
-    // int PieceTwo = rand();
-    // int PieceThree = rand();
-    // int PieceFour = rand();
+    // Part 11
+    //  int PieceOne = rand();
+    //  int PieceTwo = rand();
+    //  int PieceThree = rand();
+    //  int PieceFour = rand();
 
-    // cout << hex << uppercase << PieceOne << '\n'; 
-    // cout << hex << uppercase << PieceTwo << '\n'; 
-    // cout << hex << uppercase << PieceThree << '\n'; 
-    // cout << hex << uppercase << PieceFour << '\n'; 
+    // cout << hex << uppercase << PieceOne << '\n';
+    // cout << hex << uppercase << PieceTwo << '\n';
+    // cout << hex << uppercase << PieceThree << '\n';
+    // cout << hex << uppercase << PieceFour << '\n';
 
     // int Key = PieceOne ^ PieceTwo ^ PieceFour;
     // int TempKey = PieceTwo;
@@ -139,30 +144,60 @@ int main() {
     // TempKey ^= PieceThree;
     // cout << "(Three in again) TempKey: " << hex << uppercase << TempKey << '\n';
 
-    //Part 12
-    // for (int i = 1; i <= 10; ++i)
-    //     cout << RAND_15 << ' ' << RAND_64 << '\n';
+    // Part 12
+    //  for (int i = 1; i <= 10; ++i)
+    //      cout << RAND_15 << ' ' << RAND_64 << '\n';
 
-    //Part 13
-    // S_BOARD board;
-    // ResetBoard(&board);
+    // Part 13
+    //  S_BOARD board;
+    //  ResetBoard(&board);
 
-    //Part 17
-    S_BOARD board[1];
+    // Part 17
+    //  S_BOARD board[1];
 
-    ParseFen(START_FEN, board);
-    PrintBoard(board);
+    // ParseFen(START_FEN, board);
+    // PrintBoard(board);
 
-    ParseFen(FEN1, board);
-    PrintBoard(board);
-    
-    ParseFen(FEN2, board);
-    PrintBoard(board);
+    // ParseFen(FEN1, board);
+    // PrintBoard(board);
 
-    ParseFen(FEN3, board);
-    PrintBoard(board);
+    // ParseFen(FEN2, board);
+    // PrintBoard(board);
 
-    ParseFen(FEN4, board);
-    PrintBoard(board);
-    return 0;
+    // ParseFen(FEN3, board);
+    // PrintBoard(board);
+
+    // ParseFen(FEN4, board);
+    // PrintBoard(board);
+    // return 0;
+
+    // Test UCI
+    S_BOARD pos[1];
+    S_SEARCHINFO info[1];
+    info->quit = FALSE;
+    setbuf(stdin, NULL);
+    setbuf(stdout, NULL);
+
+    char line[256];
+    while (TRUE)
+    {
+        memset(&line[0], 0, sizeof(line));
+
+        fflush(stdout);
+        if (!fgets(line, 256, stdin))
+            continue;
+        if (line[0] == '\n')
+            continue;
+        if (!strncmp(line, "uci", 3))
+        {
+            Uci_Loop(pos, info);
+            if (info->quit == TRUE)
+                break;
+            continue;
+        }
+        else if (!strncmp(line, "quit", 4))
+        {
+            break;
+        }
+    }
 }
