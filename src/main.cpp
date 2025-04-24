@@ -4,6 +4,7 @@
 #include "board.h"
 #include "data.h"
 #include "attack.h"
+#include "io.h"
 
 #include <iostream>
 #include <iomanip>
@@ -44,6 +45,15 @@ void ShowSqAttackedBySide(const int side, const S_BOARD *pos) {
         std::cout << '\n';
     }
     std::cout << "\n\n";
+}
+
+void PrintBinary(int move) {
+    for (int i = 27; i >= 0; i--) {
+        if ((1 << i) & move) std::cout << '1';
+        else std::cout << '0';
+        if (i != 28 && i % 4 == 0) std::cout << ' ';
+    }
+    std::cout << '\n';
 }
 
 int main() {
@@ -293,16 +303,45 @@ int main() {
     // std::cout << "black pawns piece: " << board->pieceNum[bP] << '\n';
 
     //Part 23 - turn off debug for illegal FEN
-    S_BOARD board[1];
-    ParseFen(FEN10, board);
-    PrintBoard(board);
+    // S_BOARD board[1];
+    // ParseFen(FEN10, board);
+    // PrintBoard(board);
+    // // ASSERT(CheckBoard(board));
+
+    // std::cout << "\n\nWhite is attacking:\n";
+    // ShowSqAttackedBySide(WHITE, board);
+
+    // std::cout << "\n\nBlack is attacking:\n";
+    // ShowSqAttackedBySide(BLACK, board);
+
+    //Part 26
+    // S_BOARD board[1];
+    // ParseFen(FEN6, board);
+    // PrintBoard(board);
     // ASSERT(CheckBoard(board));
 
-    std::cout << "\n\nWhite is attacking:\n";
-    ShowSqAttackedBySide(WHITE, board);
+    // int from = 6; int to = 12;
+    // int captured = wR; int promoted = bR;
 
-    std::cout << "\n\nBlack is attacking:\n";
-    ShowSqAttackedBySide(BLACK, board);
+    // int move = ((from) | (to << 7) | (captured << 14) | (promoted << 20));
+    // std::cout << '\n';
+    // std::cout << std::hex << move << '\n';
+    // PrintBinary(move);
+    // std::cout << std::dec << "from: " << FROMSQ(move) << " to: " << TOSQ(move) << " captured: " << CAPTURED(move) << " promoted: " << PROMOTED(move) << '\n';
     
+    // // move |= MOVEFLAG_PAWNSTART;
+    // std::cout << "is pawn start: " << ((move & MOVEFLAG_PAWNSTART) ? "YES" : "NO") << '\n';
+
+    //Part 27
+    int move = 0;
+    int from = F2, to = G1;
+    int cap = wN; int prom = bB;
+
+    move = ((from) | (to << 7) | (cap << 14) | (prom << 20));
+    std::cout << std::dec << "from: " << FROMSQ(move) << " to: " << TOSQ(move) << " captured: " << CAPTURED(move) << " promoted: " << PROMOTED(move) << '\n';
+
+    std::cout << "Algebraic from: " << PrintSquare(from) << '\n';
+    std::cout << "Algebraic to: " << PrintSquare(to) << '\n';
+    std::cout << "Algebraic move: " << PrintMove(move) << '\n';
     return 0;
 }

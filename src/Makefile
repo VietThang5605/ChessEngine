@@ -1,5 +1,5 @@
 all:
-	g++ main.cpp init.cpp bitboards.cpp hashkeys.cpp board.cpp data.cpp attack.cpp -o ChessEngine
+	g++ main.cpp init.cpp bitboards.cpp hashkeys.cpp board.cpp data.cpp attack.cpp io.cpp -o ChessEngine
 	./ChessEngine
 
 # CCWIN=x86_64-w64-mingw32-gcc
