@@ -29,7 +29,8 @@
 
 #endif
 
-typedef unsigned long long U64;
+// typedef unsigned long long U64;
+typedef uint64_t U64;
 
 #define NAME "Chess Engine"
 #define BRD_SQ_NUM 120 // cuz 120 cases on the board (0 to 120)
@@ -262,6 +263,7 @@ extern int RanksBrd[BRD_SQ_NUM];
 
 ENABLE_INCR_OPERATORS_ON(File)
 ENABLE_INCR_OPERATORS_ON(Rank)
+ENABLE_INCR_OPERATORS_ON(Piece)
 
 #undef ENABLE_FULL_OPERATORS_ON
 #undef ENABLE_INCR_OPERATORS_ON

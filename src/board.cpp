@@ -6,126 +6,408 @@
 #include <iostream>
 #include <iomanip>
 
-int PceListOk(const S_BOARD *pos)
+bool CheckBoard(const S_BOARD *pos)
 {
-    int pce = wP;
-    int sq;
-    int num;
-    for (pce = wP; pce <= bK; ++pce)
-    {
-        if (pos->pieceNum[pce] < 0 || pos->pieceNum[pce] >= 10)
-            return FALSE;
-    }
-
-    if (pos->pieceNum[wK] != 1 || pos->pieceNum[bK] != 1)
-        return FALSE;
-
-    for (pce = wP; pce <= bK; ++pce)
-    {
-        for (num = 0; num < pos->pieceNum[pce]; ++num)
-        {
-            sq = pos->pieceList[pce][num];
-            if (!SqOnBoard(sq))
-                return FALSE;
-        }
-    }
-    return TRUE;
-}
-
-int CheckBoard(const S_BOARD *pos)
-{
-
-    int t_pceNum[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int t_bigPce[2] = {0, 0};
-    int t_majPce[2] = {0, 0};
-    int t_minPce[2] = {0, 0};
+    int t_pieceNum[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // t_ means temporary
+    int t_bigPiece[3] = {0, 0, 0};                                // self explanbatory
+    int t_majorPiece[3] = {0, 0, 0};
+    int t_minorPiece[3] = {0, 0, 0};
     int t_material[2] = {0, 0};
 
-    int sq64, t_piece, t_pce_num, sq120, colour, pcount;
+    U64 t_pawnsBB[3] = {0ULL, 0ULL, 0ULL};
+    t_pawnsBB[WHITE] = pos->pawnsBB[WHITE];
+    t_pawnsBB[BLACK] = pos->pawnsBB[BLACK];
+    t_pawnsBB[BOTH] = pos->pawnsBB[BOTH];
 
-    U64 t_pawns[3] = {0ULL, 0ULL, 0ULL};
+    U64 t_knightsBB[3] = {0ULL, 0ULL, 0ULL};
+    t_knightsBB[WHITE] = pos->knightsBB[WHITE];
+    t_knightsBB[BLACK] = pos->knightsBB[BLACK];
+    t_knightsBB[BOTH] = pos->knightsBB[BOTH];
 
-    t_pawns[WHITE] = pos->pawnsBB[WHITE];
-    t_pawns[BLACK] = pos->pawnsBB[BLACK];
-    t_pawns[BOTH] = pos->pawnsBB[BOTH];
+    U64 t_bishopsBB[3] = {0ULL, 0ULL, 0ULL};
+    t_bishopsBB[WHITE] = pos->bishopsBB[WHITE];
+    t_bishopsBB[BLACK] = pos->bishopsBB[BLACK];
+    t_bishopsBB[BOTH] = pos->bishopsBB[BOTH];
+
+    U64 t_rooksBB[3] = {0ULL, 0ULL, 0ULL};
+    t_rooksBB[WHITE] = pos->rooksBB[WHITE];
+    t_rooksBB[BLACK] = pos->rooksBB[BLACK];
+    t_rooksBB[BOTH] = pos->rooksBB[BOTH];
+
+    U64 t_queensBB[3] = {0ULL, 0ULL, 0ULL};
+    t_queensBB[WHITE] = pos->queensBB[WHITE];
+    t_queensBB[BLACK] = pos->queensBB[BLACK];
+    t_queensBB[BOTH] = pos->queensBB[BOTH];
+
+    U64 t_kingsBB[3] = {0ULL, 0ULL, 0ULL};
+    t_kingsBB[WHITE] = pos->kingsBB[WHITE];
+    t_kingsBB[BLACK] = pos->kingsBB[BLACK];
+    t_kingsBB[BOTH] = pos->kingsBB[BOTH];
 
     // check piece lists
-    for (t_piece = wP; t_piece <= bK; ++t_piece)
-    {
-        for (t_pce_num = 0; t_pce_num < pos->pieceNum[t_piece]; ++t_pce_num)
-        {
-            sq120 = pos->pieceList[t_piece][t_pce_num];
-            ASSERT(pos->pieces[sq120] == t_piece);
-        }
+    for (Piece t_piece = wP; t_piece <= bK; ++t_piece)
+    { // looops by piece type from white pawn to black king
+        for (int t_piece_num = 0; t_piece_num < pos->pieceNum[t_piece]; ++t_piece_num)
+        {                                                     // loops by the poiuece number for each type
+            int sq120 = pos->pieceList[t_piece][t_piece_num]; // we get the squarz for that piece
+            ASSERT(pos->pieces[sq120] == t_piece);            // we assert that if our piece list says a white pawn on this square then our pieces array should have a white pawn on it (they should be the same)
+        } // if not, we kjnow that the piece list isnt aligned with what's on the board array
     }
 
     // check piece count and other counters
-    for (sq64 = 0; sq64 < 64; ++sq64)
+    for (int sq64 = 0; sq64 < 64; ++sq64)
     {
-        sq120 = SQ120(sq64);
-        t_piece = pos->pieces[sq120];
-        t_pceNum[t_piece]++;
-        colour = PieceCol[t_piece];
-        if (PieceBig[t_piece] == TRUE)
-            t_bigPce[colour]++;
-        if (PieceMin[t_piece] == TRUE)
-            t_minPce[colour]++;
-        if (PieceMaj[t_piece] == TRUE)
-            t_majPce[colour]++;
+        int sq120 = SQ120(sq64);
+        int t_piece = pos->pieces[sq120]; // looking on the piece on that square
+        t_pieceNum[t_piece]++;            // incrementing the number of temporary pieces for that piece type
 
-        t_material[colour] += PieceVal[t_piece];
+        int color = PieceColor[t_piece]; // getting the colour of that piece
+        if (PieceIsBig[t_piece] == TRUE)
+            t_bigPiece[color]++; // incrementing depending which typoe of piece it is
+        if (PieceIsMinor[t_piece] == TRUE)
+            t_minorPiece[color]++;
+        if (PieceIsMajor[t_piece] == TRUE)
+            t_majorPiece[color]++;
+
+        t_material[color] += PieceValue[t_piece]; // then we upodate the material value
     }
+    t_bigPiece[BOTH] = t_bigPiece[WHITE] + t_bigPiece[BLACK];
+    t_minorPiece[BOTH] = t_minorPiece[WHITE] + t_minorPiece[BLACK];
+    t_majorPiece[BOTH] = t_majorPiece[WHITE] + t_majorPiece[BLACK];
 
-    for (t_piece = wP; t_piece <= bK; ++t_piece)
+    for (Piece t_piece = wP; t_piece <= bK; ++t_piece)
     {
-        ASSERT(t_pceNum[t_piece] == pos->pieceNum[t_piece]);
-    }
+        //     printf("Checking piece: %d, t_pceNum: %d, pos->pceNum: %d\n",
+        //    t_piece, t_pceNum[t_piece], pos->pceNum[t_piece]);
+        ASSERT(t_pieceNum[t_piece] == pos->pieceNum[t_piece]); // the number of pieces we found on the board and stored inside our temporary piece number array equals for each piece type what our position says
+    } // if they're not equal, something went wrong with the piece number array in our position structure
 
     // check bitboards count
-    pcount = CNT(t_pawns[WHITE]);
-    ASSERT(pcount == pos->pieceNum[wP]);
-    pcount = CNT(t_pawns[BLACK]);
-    ASSERT(pcount == pos->pieceNum[bP]);
-    pcount = CNT(t_pawns[BOTH]);
-    ASSERT(pcount == (pos->pieceNum[bP] + pos->pieceNum[wP]));
+    // pawns
+    int bbcount = CNT(t_pawnsBB[WHITE]);  // we take the pawn count for the white bitboard
+    ASSERT(bbcount == pos->pieceNum[wP]); // and we assert that count is equal to what the position says is the number of white pawns we have
+    bbcount = CNT(t_pawnsBB[BLACK]);      // same for black
+    ASSERT(bbcount == pos->pieceNum[bP]);
+    bbcount = CNT(t_pawnsBB[BOTH]); // same for both
+    ASSERT(bbcount == (pos->pieceNum[bP] + pos->pieceNum[wP]));
+
+    // knights
+    bbcount = CNT(t_knightsBB[WHITE]);
+    ASSERT(bbcount == pos->pieceNum[wN]);
+    bbcount = CNT(t_knightsBB[BLACK]);
+    ASSERT(bbcount == pos->pieceNum[bN]);
+    bbcount = CNT(t_knightsBB[BOTH]);
+    ASSERT(bbcount == (pos->pieceNum[bN] + pos->pieceNum[wN]));
+
+    // bishops
+    bbcount = CNT(t_bishopsBB[WHITE]);
+    ASSERT(bbcount == pos->pieceNum[wB]);
+    bbcount = CNT(t_bishopsBB[BLACK]);
+    ASSERT(bbcount == pos->pieceNum[bB]);
+    bbcount = CNT(t_bishopsBB[BOTH]);
+    ASSERT(bbcount == (pos->pieceNum[bB] + pos->pieceNum[wB]));
+
+    // rooks
+    bbcount = CNT(t_rooksBB[WHITE]);
+    ASSERT(bbcount == pos->pieceNum[wR]);
+    bbcount = CNT(t_rooksBB[BLACK]);
+    ASSERT(bbcount == pos->pieceNum[bR]);
+    bbcount = CNT(t_rooksBB[BOTH]);
+    ASSERT(bbcount == (pos->pieceNum[bR] + pos->pieceNum[wR]));
+
+    // queens
+    bbcount = CNT(t_queensBB[WHITE]);
+    ASSERT(bbcount == pos->pieceNum[wQ]);
+    bbcount = CNT(t_queensBB[BLACK]);
+    ASSERT(bbcount == pos->pieceNum[bQ]);
+    bbcount = CNT(t_queensBB[BOTH]);
+    ASSERT(bbcount == (pos->pieceNum[bQ] + pos->pieceNum[wQ]));
+
+    // kings
+    bbcount = CNT(t_kingsBB[WHITE]);
+    ASSERT(bbcount == pos->pieceNum[wK]);
+    bbcount = CNT(t_kingsBB[BLACK]);
+    ASSERT(bbcount == pos->pieceNum[bK]);
+    bbcount = CNT(t_kingsBB[BOTH]);
+    ASSERT(bbcount == (pos->pieceNum[bK] + pos->pieceNum[wK]));
 
     // check bitboards squares
-    while (t_pawns[WHITE])
-    {
-        sq64 = POP(&t_pawns[WHITE]);
-        ASSERT(pos->pieces[SQ120(sq64)] == wP);
+    // pawns
+    while (t_pawnsBB[WHITE])
+    { // checking if theres a white, black or both pawn oin that square otherwise thre bits don't match with the pieces array in our position and we throw an assert error
+        int sq64 = POP(&t_pawnsBB[WHITE]);
+        ASSERT(pos->pieces[SQ120(sq64)] == wP); // loop keeps going until there is not bits left
     }
 
-    while (t_pawns[BLACK])
+    while (t_pawnsBB[BLACK])
     {
-        sq64 = POP(&t_pawns[BLACK]);
+        int sq64 = POP(&t_pawnsBB[BLACK]); // same
         ASSERT(pos->pieces[SQ120(sq64)] == bP);
     }
 
-    while (t_pawns[BOTH])
-    {
-        sq64 = POP(&t_pawns[BOTH]);
+    while (t_pawnsBB[BOTH])
+    { // same
+        int sq64 = POP(&t_pawnsBB[BOTH]);
         ASSERT((pos->pieces[SQ120(sq64)] == bP) || (pos->pieces[SQ120(sq64)] == wP));
     }
 
+    // knights
+    while (t_knightsBB[WHITE])
+    {
+        int sq64 = POP(&t_knightsBB[WHITE]);
+        ASSERT(pos->pieces[SQ120(sq64)] == wN);
+    }
+
+    while (t_knightsBB[BLACK])
+    {
+        int sq64 = POP(&t_knightsBB[BLACK]);
+        ASSERT(pos->pieces[SQ120(sq64)] == bN);
+    }
+
+    while (t_knightsBB[BOTH])
+    { // same
+        int sq64 = POP(&t_knightsBB[BOTH]);
+        ASSERT((pos->pieces[SQ120(sq64)] == bN) || (pos->pieces[SQ120(sq64)] == wN));
+    }
+
+    // bishops
+    while (t_bishopsBB[WHITE])
+    {
+        int sq64 = POP(&t_bishopsBB[WHITE]);
+        ASSERT(pos->pieces[SQ120(sq64)] == wB);
+    }
+
+    while (t_bishopsBB[BLACK])
+    {
+        int sq64 = POP(&t_bishopsBB[BLACK]);
+        ASSERT(pos->pieces[SQ120(sq64)] == bB);
+    }
+
+    while (t_bishopsBB[BOTH])
+    { // same
+        int sq64 = POP(&t_bishopsBB[BOTH]);
+        ASSERT((pos->pieces[SQ120(sq64)] == bB) || (pos->pieces[SQ120(sq64)] == wB));
+    }
+
+    // rooks
+    while (t_rooksBB[WHITE])
+    {
+        int sq64 = POP(&t_rooksBB[WHITE]);
+        ASSERT(pos->pieces[SQ120(sq64)] == wR);
+    }
+
+    while (t_rooksBB[BLACK])
+    {
+        int sq64 = POP(&t_rooksBB[BLACK]);
+        ASSERT(pos->pieces[SQ120(sq64)] == bR);
+    }
+
+    while (t_rooksBB[BOTH])
+    { // same
+        int sq64 = POP(&t_rooksBB[BOTH]);
+        ASSERT((pos->pieces[SQ120(sq64)] == bR) || (pos->pieces[SQ120(sq64)] == wR));
+    }
+
+    // queens
+    while (t_queensBB[WHITE])
+    {
+        int sq64 = POP(&t_queensBB[WHITE]);
+        ASSERT(pos->pieces[SQ120(sq64)] == wQ);
+    }
+
+    while (t_queensBB[BLACK])
+    {
+        int sq64 = POP(&t_queensBB[BLACK]);
+        ASSERT(pos->pieces[SQ120(sq64)] == bQ);
+    }
+
+    while (t_queensBB[BOTH])
+    { // same
+        int sq64 = POP(&t_queensBB[BOTH]);
+        ASSERT((pos->pieces[SQ120(sq64)] == bQ) || (pos->pieces[SQ120(sq64)] == wQ));
+    }
+
+    // kings
+    while (t_kingsBB[WHITE])
+    {
+        int sq64 = POP(&t_kingsBB[WHITE]);
+        ASSERT(pos->pieces[SQ120(sq64)] == wK);
+    }
+
+    while (t_kingsBB[BLACK])
+    {
+        int sq64 = POP(&t_kingsBB[BLACK]);
+        ASSERT(pos->pieces[SQ120(sq64)] == bK);
+    }
+
+    while (t_kingsBB[BOTH])
+    { // same
+        int sq64 = POP(&t_kingsBB[BOTH]);
+        ASSERT((pos->pieces[SQ120(sq64)] == bK) || (pos->pieces[SQ120(sq64)] == wK));
+    }
+
     ASSERT(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
-    ASSERT(t_minPce[WHITE] == pos->minPiece[WHITE] && t_minPce[BLACK] == pos->minPiece[BLACK]);
-    ASSERT(t_majPce[WHITE] == pos->majPiece[WHITE] && t_majPce[BLACK] == pos->majPiece[BLACK]);
-    ASSERT(t_bigPce[WHITE] == pos->bigPiece[WHITE] && t_bigPce[BLACK] == pos->bigPiece[BLACK]);
+    ASSERT(t_minorPiece[WHITE] == pos->minorPiece[WHITE] && t_minorPiece[BLACK] == pos->minorPiece[BLACK] && t_minorPiece[BOTH] == pos->minorPiece[BOTH]);
+    ASSERT(t_majorPiece[WHITE] == pos->majorPiece[WHITE] && t_majorPiece[BLACK] == pos->majorPiece[BLACK] && t_majorPiece[BOTH] == pos->majorPiece[BOTH]);
+    ASSERT(t_bigPiece[WHITE] == pos->bigPiece[WHITE] && t_bigPiece[BLACK] == pos->bigPiece[BLACK] && t_bigPiece[BOTH] == pos->bigPiece[BOTH]);
 
     ASSERT(pos->side == WHITE || pos->side == BLACK);
-    ASSERT(GeneratePosKey(pos) == pos->posKey);
+    ASSERT(GeneratePosKey(pos) == pos->posKey); // the psition key should be the same as the genreated key
+    // when we make a move, we don't at the end of making a move regenerate the entire hashkey becuz thats too many computations
+    // so we simply XOR a piece that weve moved into the new square
 
-    ASSERT(pos->enPas == NO_SQ || (RanksBrd[pos->enPas] == RANK_6 && pos->side == WHITE) || (RanksBrd[pos->enPas] == RANK_3 && pos->side == BLACK));
+    ASSERT(pos->enPas == NO_SQ || (RanksBrd[pos->enPas] == RANK_6 && pos->side == WHITE) // check for en passant (its either no square or it must be a square that if the side to move is white
+                                                                                         //  is on the 6th rank if the side to move is black then the en passant square must be on the 3rd rank
+           || (RanksBrd[pos->enPas] == RANK_3 && pos->side == BLACK));
 
-    ASSERT(pos->pieces[pos->KingSq[WHITE]] == wK);
-    ASSERT(pos->pieces[pos->KingSq[BLACK]] == bK);
+    ASSERT(pos->pieces[pos->kingSquare[WHITE]] == wK); // checking the square of kings if they are the corresponding ones
+    ASSERT(pos->pieces[pos->kingSquare[BLACK]] == bK);
 
     ASSERT(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
-    ASSERT(PceListOk(pos));
+    return TRUE; // assuming we passed everything, we return true
+}
 
-    return TRUE;
+void UpdateListsMaterial(S_BOARD *pos)
+{
+    for (int i = 0; i < BRD_SQ_NUM; ++i)
+    {
+        int sq = i;
+        int piece = pos->pieces[i];
+
+        if (piece != OFFBOARD && piece != EMPTY)
+        {
+            int color = PieceColor[piece];
+            if (PieceIsBig[piece] == TRUE)
+                pos->bigPiece[color]++;
+            if (PieceIsMajor[piece] == TRUE)
+                pos->majorPiece[color]++;
+            if (PieceIsMinor[piece] == TRUE)
+                pos->minorPiece[color]++;
+
+            pos->material[color] += PieceValue[piece];
+
+            // for example : pList[wP][0] = a1;
+            //  pList[wP][1] = a2;
+            ASSERT(pos->pieceNum[piece] >= 0 && pos->pieceNum[piece] < 10);
+            if (piece == wP || piece == bP)
+            {
+                ASSERT(pos->pieceNum[piece] >= 0 && pos->pieceNum[piece] < 8);
+            }
+            if (piece == wK || piece == bK)
+            {
+                ASSERT(pos->pieceNum[piece] >= 0 && pos->pieceNum[piece] < 1);
+            }
+            pos->pieceList[piece][pos->pieceNum[piece]] = sq;
+            pos->pieceNum[piece]++;
+
+            if (piece == wK)
+                pos->kingSquare[WHITE] = sq;
+            if (piece == bK)
+                pos->kingSquare[BLACK] = sq;
+
+            // set pieces bitboard
+            // pawns bitboard
+            if (piece == wP)
+            {                                             // if the piece is a white pawn, set the bit on the bitboard in a position for white pawn and both
+                SETBIT(&(pos->pawnsBB[WHITE]), SQ64(sq)); // we coinvert it cuz sq is in a 120 format
+                SETBIT(&(pos->pawnsBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+            else if (piece == bP)
+            { // same for black pawn
+                SETBIT(&(pos->pawnsBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->pawnsBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+
+            // knights bitboard
+            if (piece == wN)
+            {
+                SETBIT(&(pos->knightsBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->knightsBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+            else if (piece == bN)
+            {
+                SETBIT(&(pos->knightsBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->knightsBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+
+            // bishops bitboard
+            if (piece == wB)
+            {
+                SETBIT(&(pos->bishopsBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->bishopsBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+            else if (piece == bB)
+            {
+                SETBIT(&(pos->bishopsBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->bishopsBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+
+            // rooks bitboard
+            if (piece == wR)
+            {
+                SETBIT(&(pos->rooksBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->rooksBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+            else if (piece == bR)
+            {
+                SETBIT(&(pos->rooksBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->rooksBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+
+            // queens bitboard
+            if (piece == wQ)
+            {
+                SETBIT(&(pos->queensBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->queensBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+            else if (piece == bQ)
+            {
+                SETBIT(&(pos->queensBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->queensBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+
+            // kings bitboard
+            if (piece == wK)
+            {
+                SETBIT(&(pos->kingsBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->kingsBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[WHITE]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+            else if (piece == bK)
+            {
+                SETBIT(&(pos->kingsBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->kingsBB[BOTH]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BLACK]), SQ64(sq));
+                SETBIT(&(pos->allPiecesBB[BOTH]), SQ64(sq));
+            }
+        }
+    }
+
+    pos->bigPiece[BOTH] = pos->bigPiece[WHITE] + pos->bigPiece[BLACK];
+    pos->majorPiece[BOTH] = pos->majorPiece[WHITE] + pos->majorPiece[BLACK];
+    pos->minorPiece[BOTH] = pos->minorPiece[WHITE] + pos->minorPiece[BLACK];
 }
 
 int ParseFen(char *fen, S_BOARD *pos)
@@ -263,90 +545,112 @@ int ParseFen(char *fen, S_BOARD *pos)
 
     pos->posKey = GeneratePosKey(pos);
 
+    UpdateListsMaterial(pos);
+
     return 0;
 }
 
 void ResetBoard(S_BOARD *pos)
 {
     for (int i = 0; i < BRD_SQ_NUM; ++i)
-    {                              // looping through all 120 squares
-        pos->pieces[i] = OFFBOARD; // and setting them to "OFFBOARD"
-    } // for more understanding, look at the image in the folder named "board representation"
-
-    for (int i = 0; i < SQUARE_NB; ++i)
-    {
-        pos->pieces[SQ120(i)] = EMPTY; // then the "real" squares are set to "empty"
-    }
-
-    for (int i = 0; i < 2; ++i)
-    {
-        pos->bigPiece[i] = 0; // number of all pieces (black and white)
-        pos->majPiece[i] = 0;
-        pos->minPiece[i] = 0;
-        pos->material[i] = 0; // set material scores to 0
-    }
-
-    for (int i = 0; i < 3; i++)
-    {
-        pos->pawnsBB[i] = 0ULL; // OULL cuz pawnsBB are an U64 type in an unsigned long long
-        pos->knightsBB[i] = 0ULL;
-        pos->bishopsBB[i] = 0ULL;
-        pos->rooksBB[i] = 0ULL;
-        pos->queensBB[i] = 0ULL;
-        pos->kingsBB[i] = 0ULL;
-    }
-
-    for (int i = 0; i < 13; ++i)
-    {
-        pos->pieceNum[i] = 0; // resets the piece number
-    }
-
-    pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
-
-    pos->side = BOTH; // once we setup a position, checkboard will check some things so we set it to both not to get an ASSERT
-    pos->enPas = NO_SQ;
-    pos->fiftyMove = 0;
-
-    pos->ply = 0; // nber of half moves played in the current search
-    pos->hisPly = 0;
-
-    pos->castlePerm = 0;
-
-    pos->posKey = 0ULL;
-}
-
-void PrintBoard(const S_BOARD *pos)
-{
-
-    std::cout << "\nGame Board:\n\n";
-
-    for (Rank rank = RANK_8; rank >= RANK_1; --rank)
-    { // stat on the 8th rank cuz its how we look at it
-        printf("%d  ", rank + 1);
-        for (File file = FILE_A; file <= FILE_H; ++file)
+    { // looping through all 120 squares
+        void ResetBoard(S_BOARD * pos)
         {
-            int sq = FR2SQ(file, rank);  // sqare index
-            int piece = pos->pieces[sq]; // get the piece using the square index from board
-            std::cout << std::setw(3) << PieceChar[piece];
-        }
-        std::cout << '\n';
-    }
+            for (int i = 0; i < BRD_SQ_NUM; ++i)
+            {                              // looping through all 120 squares
+                pos->pieces[i] = OFFBOARD; // and setting them to "OFFBOARD"
+            } // for more understanding, look at the image in the folder named "board representation"
 
-    std::cout << "\n   ";
-    for (File file = FILE_A; file <= FILE_H; ++file)
-    {
-        std::cout << std::setw(3) << char('a' + file);
-    }
-    std::cout << '\n';
+            for (int i = 0; i < SQUARE_NB; ++i)
+            {
+                for (int i = 0; i < SQUARE_NB; ++i)
+                {
+                    pos->pieces[SQ120(i)] = EMPTY; // then the "real" squares are set to "empty"
+                }
 
-    std::cout << "side: " << SideChar[pos->side] << '\n';
-    std::cout << "enPas: " << std::dec << pos->enPas << '\n'; // printed as a decimal rather then as characters
-    std::cout << "castle: "
-              << (pos->castlePerm & WKCA ? 'K' : '-') // if castle perm ends with ' ' then print the corresponding letters
-              << (pos->castlePerm & WQCA ? 'Q' : '-')
-              << (pos->castlePerm & BKCA ? 'k' : '-')
-              << (pos->castlePerm & BQCA ? 'q' : '-')
-              << '\n';
-    std::cout << "PosKey: ";
-    std::cout << std::hex << std::uppercase << pos->posKey << '\n'; // hexa cuz easier to read
-}
+                for (int i = 0; i < 2; ++i)
+                {
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        pos->bigPiece[i] = 0; // number of all pieces (black and white)
+                        pos->majPiece[i] = 0;
+                        pos->minPiece[i] = 0;
+                        pos->material[i] = 0; // set material scores to 0
+                        pos->majorPiece[i] = 0;
+                        pos->minorPiece[i] = 0;
+                    }
+
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        pos->material[i] = 0; // set material scores to 0
+                    }
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            pos->pawnsBB[i] = 0ULL; // OULL cuz pawnsBB are an U64 type in an unsigned long long
+                            pos->knightsBB[i] = 0ULL;
+                            pos->bishopsBB[i] = 0ULL;
+                            pos->rooksBB[i] = 0ULL;
+                            pos->queensBB[i] = 0ULL;
+                            pos->kingsBB[i] = 0ULL;
+                        }
+
+                        for (int i = 0; i < 13; ++i)
+                        {
+                            pos->pieceNum[i] = 0; // resets the piece number
+                            for (int i = 0; i < 13; ++i)
+                            {
+                                pos->pieceNum[i] = 0; // resets the piece number
+                            }
+
+                            pos->kingSquare[WHITE] = pos->kingSquare[BLACK] = NO_SQ;
+
+                            pos->side = BOTH; // once we setup a position, checkboard will check some things so we set it to both not to get an ASSERT
+                            pos->enPas = NO_SQ;
+                            pos->fiftyMove = 0;
+
+                            pos->ply = 0; // nber of half moves played in the current search
+                            pos->hisPly = 0;
+
+                            pos->castlePerm = 0;
+
+                            pos->posKey = 0ULL;
+                        }
+
+                        void PrintBoard(const S_BOARD *pos)
+                        {
+
+                            std::cout << "\nGame Board:\n\n";
+
+                            for (Rank rank = RANK_8; rank >= RANK_1; --rank)
+                            { // stat on the 8th rank cuz its how we look at it
+                                printf("%d  ", rank + 1);
+                                for (File file = FILE_A; file <= FILE_H; ++file)
+                                {
+                                    int sq = FR2SQ(file, rank);  // sqare index
+                                    int piece = pos->pieces[sq]; // get the piece using the square index from board
+                                    std::cout << std::setw(3) << PieceChar[piece];
+                                }
+                                std::cout << '\n';
+                            }
+
+                            std::cout << "\n   ";
+                            for (File file = FILE_A; file <= FILE_H; ++file)
+                            {
+                                std::cout << std::setw(3) << char('a' + file);
+                            }
+                            std::cout << '\n';
+
+                            std::cout << "side: " << SideChar[pos->side] << '\n';
+                            std::cout << "enPas: " << std::dec << pos->enPas << '\n'; // printed as a decimal rather then as characters
+                            std::cout << "castle: "
+                                      << (pos->castlePerm & WKCA ? 'K' : '-') // if castle perm ends with ' ' then print the corresponding letters
+                                      << (pos->castlePerm & WQCA ? 'Q' : '-')
+                                      << (pos->castlePerm & BKCA ? 'k' : '-')
+                                      << (pos->castlePerm & BQCA ? 'q' : '-')
+                                      << '\n';
+                            std::cout << "PosKey: ";
+                            std::cout << std::hex << std::uppercase << pos->posKey << '\n'; // hexa cuz easier to read
+                        }

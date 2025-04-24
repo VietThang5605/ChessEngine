@@ -1,13 +1,10 @@
-#ifndef ATTACK_H
-#define ATTACK_H
-
 #include "types.h"
 #include "board.h"
+#include "data.h"
 
-const int KnDir[8] = {-8, -19, -21, -12, 8, 19, 21, 12};
-const int RkDir[4] = {-1, -10, 1, 10};
-const int BiDir[4] = {-9, -11, 11, 9};
-const int KiDir[8] = {-1, -10, 1, 10, -9, -11, 11, 9};
+const int KnightDir[8] = {-8, -19, -21, -12, 8, 19, 21, 12}; // looking at the board representation in the excel file, knights are positionned like this from the current square
+const int RookDir[4] = {-1, -10, 1, 10};                     // for rooks,, its simple, its just +9
+const int BishopDir[4] = {-9, -11, 11, 9};                   // for bishops
+const int KingDir[8] = {-1, -10, 1, 10, -9, -11, 11, 9};     // king direction can move only one square to every direction
 
-int SqAttacked(const int sq, const int side, const S_BOARD *pos);
-#endif
+bool SqAttacked(const int sq, const int side, const S_BOARD *pos);

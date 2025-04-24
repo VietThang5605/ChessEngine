@@ -5,6 +5,7 @@
 #include "init.h"
 #include "hashkeys.h"
 #include "data.h"
+#include "bitboards.h"
 
 struct S_UNDO
 {
@@ -26,7 +27,7 @@ struct S_BOARD
     U64 kingsBB[3];
     U64 allPiecesBB[3];
 
-    int KingSq[2]; // same for kings
+    int kingSquare[2]; // same for kings
 
     int side;
     int enPas;
@@ -40,10 +41,13 @@ struct S_BOARD
 
     U64 posKey; // or hashkey again will be used to represent the position of the board
 
-    int pieceNum[13]; // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
-    int bigPiece[3];  // number of "big" pieces (everything that's not a pawn)
-    int majPiece[3];  // major pieces (queen and rooqs)
-    int minPiece[3];  // minor pieces (knight and bishop)
+    int pieceNum[13];  // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
+    int bigPiece[3];   // number of "big" pieces (everything that's not a pawn)
+    int majPiece[3];   // major pieces (queen and rooqs)
+    int minPiece[3];   // minor pieces (knight and bishop)
+    int bigPiece[3];   // number of "big" pieces (everything that's not a pawn)
+    int majorPiece[3]; // major pieces (queen and rooqs)
+    int minorPiece[3]; // minor pieces (knight and bishop)
     int material[2];
 
     S_UNDO history[MAXGAMEMOVES];
@@ -57,9 +61,9 @@ struct S_BOARD
     int searchKillers[2][MAXDEPTH];
 };
 
-int PceListOk(const S_BOARD *pos);
+bool CheckBoard(const S_BOARD *pos);
 
-int CheckBoard(const S_BOARD *pos);
+void UpdateListsMaterial(S_BOARD *pos);
 
 int ParseFen(char *fen, S_BOARD *pos);
 
