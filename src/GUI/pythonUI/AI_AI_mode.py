@@ -351,7 +351,8 @@ def ai_vs_ai():
     elif board.is_stalemate() or board.is_insufficient_material() or board.is_seventyfive_moves() or board.is_fivefold_repetition():
         winner = "Draw"
     else:
-        winner = "Unknown"
+        if (white_remaining == 0 or black_remaining == 0): winner = "Drawn"
+        else: winner = "Unknown"
 
     show_game_result(winner)
 
