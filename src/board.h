@@ -12,6 +12,11 @@ struct S_MOVE {
     int score;
 };
 
+struct S_MOVELIST {
+    S_MOVE moves[MAXPOSITIONMOVES];
+    int count;
+};
+
 /*
 0000 0000 0000 0000 0000 0111 1111 -> From 0x3F
 0000 0000 0000 0011 1111 1000 0000 -> To >> 7, 0x3F

@@ -38,3 +38,13 @@ char *PrintMove(const int move) {
 
 	return MoveStr;
 }
+
+void PrintMoveList(const S_MOVELIST *list) {
+	std::cout << "MoveList:\n";
+	for(int i = 0; i < list->count; ++i) {
+		int move = list->moves[i].move;
+		int score = list->moves[i].score;
+		std::cout << "Move: " << i + 1 << " > " << PrintMove(move) << " (score:" << score << ")\n";
+	}
+	std::cout << "MoveList Total " << list->count << "  Moves:\n\n";
+}

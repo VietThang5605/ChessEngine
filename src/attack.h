@@ -1,6 +1,7 @@
 #include "types.h"
 #include "board.h"
 #include "data.h"
+#include "validate.h"
 
 const int KnightDir[8] = { -8, -19,	-21, -12, 8, 19, 21, 12 }; //looking at the board representation in the excel file, knights are positionned like this from the current square
 const int RookDir[4] = { -1, -10,	1, 10 }; // for rooks,, its simple, its just +9

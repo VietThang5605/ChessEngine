@@ -526,5 +526,5 @@ void PrintBoard(const S_BOARD *pos) {
 			<< (pos->castlePerm & BQCA ? 'q' : '-')
 			<< '\n';
     std::cout << "PosKey: ";
-    std::cout << std::hex << std::uppercase << pos->posKey << '\n'; //hexa cuz easier to read
+    std::cout << std::hex << std::uppercase << pos->posKey << '\n' << std::dec; //hexa cuz easier to read
 }

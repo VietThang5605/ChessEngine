@@ -2,8 +2,10 @@
 
 bool SqAttacked(const int sq, const int side, const S_BOARD *pos) {
     //what square, which side is attacking it and in what position basically
-     
-    ASSERT(CheckBoard(pos));
+    
+	ASSERT(SqOnBoard(sq));
+	ASSERT(SideValid(side));
+	ASSERT(CheckBoard(pos));
 
     // pawns
 	if (side == WHITE) {

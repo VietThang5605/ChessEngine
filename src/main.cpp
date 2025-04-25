@@ -5,6 +5,7 @@
 #include "data.h"
 #include "attack.h"
 #include "io.h"
+#include "movegen.h"
 
 #include <iostream>
 #include <iomanip>
@@ -29,6 +30,10 @@
 
 //illegal FEN - only 2 queens, 2 pawns - test attacked squares
 #define FEN10 "8/3q1p2/8/5P2/4Q3/8/8/8 w - - 0 2"
+
+//FEN for testing pawn moves
+#define FEN_WHITEPAWNMOVES "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P5/RNBQKBNR w KQkq e6 0 1"
+#define FEN_BLACKPAWNMOVES "rnbqkb1r/p3p3/3p3p/1p1p4/2P1Pp2/8/PP1P1PpP/RNBQKB1R b KQkq e3 0 1"
 
 using namespace std;
 
@@ -333,15 +338,34 @@ int main() {
     // std::cout << "is pawn start: " << ((move & MOVEFLAG_PAWNSTART) ? "YES" : "NO") << '\n';
 
     //Part 27
-    int move = 0;
-    int from = F2, to = G1;
-    int cap = wN; int prom = bB;
+    // int move = 0;
+    // int from = F2, to = G1;
+    // int cap = wN; int prom = bB;
 
-    move = ((from) | (to << 7) | (cap << 14) | (prom << 20));
-    std::cout << std::dec << "from: " << FROMSQ(move) << " to: " << TOSQ(move) << " captured: " << CAPTURED(move) << " promoted: " << PROMOTED(move) << '\n';
+    // move = ((from) | (to << 7) | (cap << 14) | (prom << 20));
+    // std::cout << std::dec << "from: " << FROMSQ(move) << " to: " << TOSQ(move) << " captured: " << CAPTURED(move) << " promoted: " << PROMOTED(move) << '\n';
 
-    std::cout << "Algebraic from: " << PrintSquare(from) << '\n';
-    std::cout << "Algebraic to: " << PrintSquare(to) << '\n';
-    std::cout << "Algebraic move: " << PrintMove(move) << '\n';
+    // std::cout << "Algebraic from: " << PrintSquare(from) << '\n';
+    // std::cout << "Algebraic to: " << PrintSquare(to) << '\n';
+    // std::cout << "Algebraic move: " << PrintMove(move) << '\n';
+
+    //Part 30
+    // S_BOARD board[1];
+    // ParseFen(FEN_WHITEPAWNMOVES, board);
+    // PrintBoard(board);
+
+    // S_MOVELIST list[1];
+    // GenerateAllMove(board, list);
+    // PrintMoveList(list);
+
+    //Part 31
+    S_BOARD board[1];
+    ParseFen(FEN_BLACKPAWNMOVES, board);
+    PrintBoard(board);
+
+    S_MOVELIST list[1];
+    GenerateAllMove(board, list);
+    PrintMoveList(list);
+
     return 0;
 }
