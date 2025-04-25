@@ -8,7 +8,7 @@ bool CheckBoard(const S_BOARD *pos) {
 	int t_bigPiece[3] = {0, 0, 0}; //self explanbatory
 	int t_majorPiece[3] = {0, 0, 0};
 	int t_minorPiece[3] = {0, 0, 0};
-	int t_material[2] = {0, 0};
+	int t_material[3] = {0, 0, 0};
 
     U64 t_pawnsBB[3] = {0ULL, 0ULL, 0ULL};
     t_pawnsBB[WHITE] = pos->pawnsBB[WHITE];
@@ -64,6 +64,7 @@ bool CheckBoard(const S_BOARD *pos) {
     t_bigPiece[BOTH] = t_bigPiece[WHITE] + t_bigPiece[BLACK];
     t_minorPiece[BOTH] = t_minorPiece[WHITE] + t_minorPiece[BLACK];
     t_majorPiece[BOTH] = t_majorPiece[WHITE] + t_majorPiece[BLACK];
+    t_material[BOTH] = t_material[WHITE] + t_material[BLACK];
 
     for (Piece t_piece = wP; t_piece <= bK; ++t_piece) {
         //     printf("Checking piece: %d, t_pceNum: %d, pos->pceNum: %d\n",
@@ -217,7 +218,7 @@ bool CheckBoard(const S_BOARD *pos) {
 		ASSERT( (pos->pieces[SQ120(sq64)] == bK) || (pos->pieces[SQ120(sq64)] == wK) );
 	}
 
-    ASSERT(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
+    ASSERT(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK] && t_material[BOTH] == pos->material[BOTH]);
 	ASSERT(t_minorPiece[WHITE] == pos->minorPiece[WHITE] && t_minorPiece[BLACK] == pos->minorPiece[BLACK] && t_minorPiece[BOTH] == pos->minorPiece[BOTH]);
 	ASSERT(t_majorPiece[WHITE] == pos->majorPiece[WHITE] && t_majorPiece[BLACK] == pos->majorPiece[BLACK] && t_majorPiece[BOTH] == pos->majorPiece[BOTH]);
 	ASSERT(t_bigPiece[WHITE] == pos->bigPiece[WHITE] && t_bigPiece[BLACK] == pos->bigPiece[BLACK] && t_bigPiece[BOTH] == pos->bigPiece[BOTH]);
@@ -351,6 +352,7 @@ void UpdateListsMaterial(S_BOARD *pos) {
     pos->bigPiece[BOTH] = pos->bigPiece[WHITE] + pos->bigPiece[BLACK];
     pos->majorPiece[BOTH] = pos->majorPiece[WHITE] + pos->majorPiece[BLACK];
     pos->minorPiece[BOTH] = pos->minorPiece[WHITE] + pos->minorPiece[BLACK];
+    pos->material[BOTH] = pos->material[WHITE] + pos->material[BLACK];
 }
 
 int ParseFen(char *fen, S_BOARD *pos) {
@@ -464,9 +466,6 @@ void ResetBoard(S_BOARD *pos) {
         pos->bigPiece[i] = 0; // number of all pieces (black and white)
         pos->majorPiece[i] = 0;
         pos->minorPiece[i] = 0;
-    }
-
-    for (int i = 0; i < 2; ++i) {
         pos->material[i] = 0; //set material scores to 0
     }
 

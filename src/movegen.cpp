@@ -85,13 +85,9 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 
 	list->count = 0;
 
-	int pce = EMPTY;
 	int side = pos->side;
-	// int sq = 0; int t_sq = 0;
-	// int pieceNum = 0;
-	int dir = 0;
-	int index = 0;
-	int pceIndex = 0;
+
+    std::cout << "\nSide: " << side << '\n';
 
 	if (side == WHITE) {
 		for (int pieceNum = 0; pieceNum < pos->pieceNum[wP]; ++pieceNum) {
@@ -159,4 +155,75 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 			}
         }
     }
+
+    /* Loop for slide pieces */
+	int pieceIndex = LoopSlideIndex[side];
+	int piece = LoopSlidePiece[pieceIndex++];
+    while (piece != 0) {
+        ASSERT(PieceValid(piece));
+        std::cout << "sliders pieceIndex: " << pieceIndex << " piece: " << piece << '\n';
+
+        for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {
+			int sq = pos->pieceList[piece][pieceNum];
+			ASSERT(SqOnBoard(sq));
+            std::cout << "Piece: " << PieceChar[piece] << " on " << PrintSquare(sq) << '\n';
+
+            for (int i = 0; i < NumDir[piece]; i++) {
+                int dir = PieceDir[piece][i]; //dir can't be 0 because we have i < NumDir[piece]
+				int t_sq = sq + dir;
+
+                while (!SQOFFBOARD(t_sq)) {
+                    // BLACK ^ 1 == WHITE       WHITE ^ 1 == BLACK
+                    if (pos->pieces[t_sq] != EMPTY) {
+                        if (PieceColor[pos->pieces[t_sq]] == (side ^ 1)) {
+                            std::cout << "\tCapture on: " << PrintSquare(t_sq) << '\n';
+                            AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
+                        }
+                        break;
+                    }
+                    std::cout << "\tNormal on: " << PrintSquare(t_sq) << '\n';
+                    AddQuietMove(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
+                    t_sq += dir;
+                }
+            }
+        }
+
+		piece = LoopSlidePiece[pieceIndex++];
+	}
+
+    /* Loop for non slide */
+    pieceIndex = LoopNonSlideIndex[side];
+	piece = LoopNonSlidePiece[pieceIndex++];
+    while (piece != 0) {
+        ASSERT(PieceValid(piece));
+        std::cout << "non-sliders pieceIndex: " << pieceIndex << " piece: " << piece << '\n';
+
+        for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {
+			int sq = pos->pieceList[piece][pieceNum];
+			ASSERT(SqOnBoard(sq));
+            std::cout << "Piece: " << PieceChar[piece] << " on " << PrintSquare(sq) << '\n';
+
+            for (int i = 0; i < NumDir[piece]; i++) {
+                int dir = PieceDir[piece][i];
+				int t_sq = sq + dir;
+
+                if (SQOFFBOARD(t_sq)) {
+				    continue;
+				}
+
+                // BLACK ^ 1 == WHITE       WHITE ^ 1 == BLACK
+				if (pos->pieces[t_sq] != EMPTY) {
+					if (PieceColor[pos->pieces[t_sq]] == (side ^ 1)) {
+                        std::cout << "\tCapture on: " << PrintSquare(t_sq) << '\n';
+						AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
+					}
+					continue;
+				}
+                std::cout << "\tNormal on: " << PrintSquare(t_sq) << '\n';
+				AddQuietMove(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
+            }
+        }
+
+		piece = LoopNonSlidePiece[pieceIndex++];
+	}
 }

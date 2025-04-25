@@ -63,7 +63,7 @@ struct S_BOARD {
     int bigPiece[3]; // number of "big" pieces (everything that's not a pawn)
     int majorPiece[3]; // major pieces (queen and rooqs)
     int minorPiece[3]; // minor pieces (knight and bishop)
-    int material[2];
+    int material[3];
 
     S_UNDO history[MAXGAMEMOVES];
 

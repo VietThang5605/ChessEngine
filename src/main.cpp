@@ -32,8 +32,21 @@
 #define FEN10 "8/3q1p2/8/5P2/4Q3/8/8/8 w - - 0 2"
 
 //FEN for testing pawn moves
-#define FEN_WHITEPAWNMOVES "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P5/RNBQKBNR w KQkq e6 0 1"
-#define FEN_BLACKPAWNMOVES "rnbqkb1r/p3p3/3p3p/1p1p4/2P1Pp2/8/PP1P1PpP/RNBQKB1R b KQkq e3 0 1"
+#define FEN_WHITE_PAWNMOVES "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P5/RNBQKBNR w KQkq e6 0 1"
+#define FEN_BLACK_PAWNMOVES "rnbqkb1r/p3p3/3p3p/1p1p4/2P1Pp2/8/PP1P1PpP/RNBQKB1R b KQkq e3 0 1"
+
+//FEN for testing another piece moves
+#define FEN_BLACK_KNIGHTSKINGS "5k2/1n6/4n3/6N1/8/3N4/8/5K2 b - - 0 1"
+#define FEN_WHITE_KNIGHTSKINGS "5k2/1n6/4n3/6N1/8/3N4/8/5K2 w - - 0 1"
+
+#define FEN_WHITE_ROOKS "6k1/8/5r2/8/1nR5/5N2/8/6K1 w - - 0 1"
+#define FEN_BLACK_ROOKS "6k1/8/5r2/8/1nR5/5N2/8/6K1 b - - 0 1"
+
+#define FEN_WHITE_QUEENS "6k1/8/4nq2/8/1nQ5/5N2/1N6/6K1 w - - 0 1"
+#define FEN_BLACK_QUEENS "6k1/8/4nq2/8/1nQ5/5N2/1N6/6K1 b - - 0 1"
+
+#define FEN_WHITE_BISHOPS "6k1/1b6/4n3/8/1n4B1/1B3N2/1N6/2b3K1 w - - 0 1"
+#define FEN_BLACK_BISHOPS "6k1/1b6/4n3/8/1n4B1/1B3N2/1N6/2b3K1 b - - 0 1"
 
 using namespace std;
 
@@ -351,7 +364,7 @@ int main() {
 
     //Part 30
     // S_BOARD board[1];
-    // ParseFen(FEN_WHITEPAWNMOVES, board);
+    // ParseFen(FEN_WHITE_PAWNMOVES, board);
     // PrintBoard(board);
 
     // S_MOVELIST list[1];
@@ -359,13 +372,52 @@ int main() {
     // PrintMoveList(list);
 
     //Part 31
+    // S_BOARD board[1];
+    // ParseFen(FEN_BLACK_PAWNMOVES, board);
+    // PrintBoard(board);
+
+    // S_MOVELIST list[1];
+    // GenerateAllMove(board, list);
+    // PrintMoveList(list);
+
+    //Part 32
+    // S_BOARD board[1];
+    // // ParseFen(FEN_WHITE_PAWNMOVES, board);
+    // ParseFen(FEN_BLACK_PAWNMOVES, board);
+    // PrintBoard(board);
+
+    // S_MOVELIST list[1];
+    // GenerateAllMove(board, list);
+    // // PrintMoveList(list);
+
+    //Part 33
+    // S_BOARD board[1];
+    // S_MOVELIST list[1];
+
+    // ParseFen(FEN_WHITE_KNIGHTSKINGS, board);
+    // // ParseFen(FEN_BLACK_KNIGHTSKINGS, board);
+    // PrintBoard(board);
+
+    // GenerateAllMove(board, list);
+    // // PrintMoveList(list);
+
+    //Part 34
     S_BOARD board[1];
-    ParseFen(FEN_BLACKPAWNMOVES, board);
+    S_MOVELIST list[1];
+
+    // ParseFen(FEN_WHITE_ROOKS, board);
+    // ParseFen(FEN_BLACK_ROOKS, board);
+
+    // ParseFen(FEN_WHITE_QUEENS, board);
+    ParseFen(FEN_BLACK_QUEENS, board);
+
+    // ParseFen(FEN_WHITE_BISHOPS, board);
+    // ParseFen(FEN_BLACK_BISHOPS, board);
+
     PrintBoard(board);
 
-    S_MOVELIST list[1];
     GenerateAllMove(board, list);
-    PrintMoveList(list);
+    // PrintMoveList(list);
 
     return 0;
 }
