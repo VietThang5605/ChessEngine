@@ -12,7 +12,13 @@ struct S_Undo {
 
 struct S_Board {
     int pieces[BRD_SQ_NUM];
-    U64 pawns[3]; // 0100000 for the first line means we have a pawn on B1
+    U64 pawnsBB[3]; // 0100000 for the first line means we have a pawn on B1
+    U64 knightsBB[3];
+    U64 bishopsBB[3];
+    U64 rooksBB[3];
+    U64 queensBB[3];
+    U64 kingsBB[3];
+    U64 allPiecesBB[3];
 
     int KingSq[2]; // same for kings
 
@@ -39,16 +45,4 @@ struct S_Board {
     but its not very fast, so we do a piece list*/ 
 
     int pList[PIECE_NB][10]; // 13 different pieeces which u can have maximum 10 each (like promoting all ur pawns to roks and u get 10 rooks)
-
-    
-    //bitboards for each piece type
-    U64 knightsBB[2]; // 2 for black and white
-    U64 bishopsBB[2]; // 2 for black and white
-    U64 rooksBB[2]; // 2 for black and white
-    U64 queensBB[2]; // 2 for black and white
-    U64 kingsBB[2]; // 2 for black and white
-
-     // Bitboards cho tất cả các quân của một màu, và cả hai màu
-    // Quy ước chỉ số mảng: [WHITE = 0], [BLACK = 1], [BOTH = 2] (giống pawns[3])
-    U64 all_piecesBB[3];
 };

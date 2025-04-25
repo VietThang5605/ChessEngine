@@ -101,7 +101,6 @@ inline Value eg_value(Score s) {
 
 
 // Các toán tử cho Score (lấy từ Stockfish)
-// *** SỬA LẠI MACRO NÀY CHO ĐÚNG DẤU '\' ***
 #define ENABLE_BASE_OPERATORS_ON(T)                                \
 constexpr T operator+(T d1, T d2) { return T(int(d1) + int(d2)); } \
 constexpr T operator-(T d1, T d2) { return T(int(d1) - int(d2)); } \
@@ -212,6 +211,96 @@ constexpr Piece operator~(Piece pc) {
 constexpr Color operator~(Color c) {
   return Color(c ^ BLACK); // Đảo màu
 }
+
+
+//********** Định nghĩa các kiểu dữ liệu và hàm hỗ trợ cho đánh giá **********/
+typedef uint64_t Bitboard; // Định nghĩa Bitboard là uint64_t (64 bit)
+// Mảng lưu khoảng cách (cần khởi tạo)
+extern uint8_t SquareDistance[SQUARE_NB][SQUARE_NB]; // SQUARE_NB = 64
+
+// Hàm template để lấy khoảng cách
+template<typename T1 = Square> // Mặc định là Square
+inline int distance(Square x, Square y);
+
+// Chuyên biệt hóa cho Square
+template<>
+inline int distance<Square>(Square x, Square y) {
+    // Giả định SquareDistance đã được khởi tạo và x, y hợp lệ
+    return SquareDistance[x][y];
+}
+
+// Có thể thêm chuyên biệt hóa cho File, Rank nếu cần
+template<> inline int distance<File>(Square x, Square y) { return std::abs(file_of(x) - file_of(y)); }
+template<> inline int distance<Rank>(Square x, Square y) { return std::abs(rank_of(x) - rank_of(y)); }
+
+// Hàm khởi tạo (đặt trong file .cpp tương ứng, ví dụ bitboard_utils.cpp)
+void init_bitboard_utils(); // Hàm này sẽ khởi tạo cả distance và square_bb
+
+//// Mảng lưu bitboard cho từng ô
+extern Bitboard SquareBB[SQUARE_NB];
+    inline Bitboard square_bb(Square s) {
+        // is_ok nên kiểm tra s >= SQ_A1 && s <= SQ_H8
+        // Bạn đã có is_ok trong evaluation_types.h
+        return is_ok(s) ? SquareBB[s] : Bitboard(0);
+    }
+
+//hướng
+
+// --- Các hướng di chuyển ---
+enum Direction : int {
+  NORTH = 8, EAST = 1, SOUTH = -NORTH, WEST = -EAST,
+  NORTH_EAST = NORTH + EAST, SOUTH_EAST = SOUTH + EAST,
+  SOUTH_WEST = SOUTH + WEST, NORTH_WEST = NORTH + WEST,
+
+  NNE = 17, ENE = 10, ESE = -6, SSE = -15,
+  SSW = -17, WSW = -10, WNW = 6, NNW = 15
+};
+constexpr Bitboard FileABB = 0x0101010101010101ULL;
+     constexpr Bitboard FileHBB = FileABB << 7;
+
+    template<Direction D>
+    constexpr Bitboard shift(Bitboard b) {
+      // Nên định nghĩa các hằng số Direction trực tiếp trong enum
+      // thay vì dựa vào tính toán trong template argument nếu có thể.
+      return D == NORTH      ?  b << 8 :
+             D == SOUTH      ?  b >> 8 :
+             D == EAST       ? (b & ~FileHBB) << 1 :
+             D == WEST       ? (b & ~FileABB) >> 1 :
+             D == NORTH_EAST ? (b & ~FileHBB) << 9 :
+             D == NORTH_WEST ? (b & ~FileABB) << 7 :
+             D == SOUTH_EAST ? (b & ~FileHBB) >> 7 :
+             D == SOUTH_WEST ? (b & ~FileABB) >> 9 :
+             // Thêm các hướng khác nếu cần (NNE, SSE...)
+             Bitboard(0);
+    }
+    inline Square lsb(Bitboard b) {
+      assert(b != 0); // Đảm bảo bitboard không rỗng
+#if defined(_MSC_VER)
+      unsigned long idx;
+      #ifdef _WIN64
+      _BitScanForward64(&idx, b);
+      #else
+      // Triển khai cho 32-bit nếu cần
+      if (static_cast<uint32_t>(b)) { _BitScanForward(&idx, static_cast<uint32_t>(b)); }
+      else { _BitScanForward(&idx, static_cast<uint32_t>(b >> 32)); idx += 32; }
+      #endif
+      return static_cast<Square>(idx);
+#elif defined(__GNUC__) || defined(__clang__)
+      return static_cast<Square>(__builtin_ctzll(b)); // Count Trailing Zeros
+#else
+      // Fallback nếu không có built-in (chậm)
+      // (Có thể thay bằng cách hiệu quả hơn nếu cần)
+      for(int i=0; i<64; ++i) { if((b>>i)&1) return Square(i); }
+      return SQ_NONE; // Sẽ không xảy ra nếu b != 0
+#endif
+  }
+
+  // Hàm tìm và xóa LSB
+  inline Square pop_lsb(Bitboard* b) {
+      const Square s = lsb(*b);
+      *b &= (*b - 1); // Xóa bit thấp nhất bằng trick Brian Kernighan
+      return s;
+  }
 
 // *** Đặt các #undef ở cuối cùng, trước khi kết thúc namespace ***
 #undef ENABLE_FULL_OPERATORS_ON

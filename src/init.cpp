@@ -1,5 +1,6 @@
 #include "types.h"
 #include "evaluation_types.h"
+#include "attack_gen.h"
 
 #include <stdlib.h>
 
@@ -39,4 +40,7 @@ void InitSq120To64(){
 void AllInit() {
     InitSq120To64();
     PSQT::init(); // Gọi hàm init() từ namespace PSQT
+    SF::init_bitboard_utils(); // Khởi tạo các hàm bitboard
+    AttackGen::init_attack_tables(); // Khởi tạo các bảng tấn công
+    
 }
