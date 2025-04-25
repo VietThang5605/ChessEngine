@@ -41,19 +41,19 @@ const int NumDir[13] = {
     0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8
 };
 
-void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list);
+static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list);
 
-void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list);
+static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list);
 
-void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list);
+static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list);
 
-void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list);
+static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list);
 
-void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list);
+static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list);
 
-void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list);
+static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list);
 
-void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list);
+static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list);
 
 void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list);
 #endif
