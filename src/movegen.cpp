@@ -87,8 +87,6 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 
 	int side = pos->side;
 
-    std::cout << "\nSide: " << side << '\n';
-
 	if (side == WHITE) {
 		for (int pieceNum = 0; pieceNum < pos->pieceNum[wP]; ++pieceNum) {
 			int sq = pos->pieceList[wP][pieceNum];

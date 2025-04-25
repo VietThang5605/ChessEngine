@@ -6,6 +6,9 @@
 #define IsBishopQueen(p) (PieceIsBishopQueen[(p)])
 #define IsRookQueen(p) (PieceIsRookQueen[(p)])
 #define IsKnight(p) (PieceIsKnight[(p)])
+#define IsBishop(p) (PieceIsBishop[(p)])
+#define IsRook(p) (PieceIsRook[(p)])
+#define IsQueen(p) (PieceIsQueen[(p)])
 #define IsKing(p) (PieceIsKing[(p)])
 
 extern char PieceChar[]; //piece according the number
@@ -21,6 +24,9 @@ extern int PieceColor[13]; //gives colo of a piece
 
 extern bool PieceIsPawn[13];
 extern bool PieceIsKnight[13];
+extern bool PieceIsBishop[13];
+extern bool PieceIsRook[13];
+extern bool PieceIsQueen[13];
 extern bool PieceIsKing[13];
 extern bool PieceIsRookQueen[13];
 extern bool PieceIsBishopQueen[13];
