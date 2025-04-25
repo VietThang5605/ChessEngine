@@ -1,0 +1,10 @@
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\libversion_check-01f7e171df325a1c.rmeta: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\lib.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\version.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\channel.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\date.rs
+
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\libversion_check-01f7e171df325a1c.rlib: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\lib.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\version.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\channel.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\date.rs
+
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\version_check-01f7e171df325a1c.d: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\lib.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\version.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\channel.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\date.rs
+
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\lib.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\version.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\channel.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\version_check-0.9.4\src\date.rs:

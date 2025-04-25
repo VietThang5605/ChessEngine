@@ -1,0 +1,10 @@
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\libcargo_toml-fc70e56371a9a226.rmeta: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\cargo_toml.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\afs.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\error.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\inheritable.rs
+
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\libcargo_toml-fc70e56371a9a226.rlib: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\cargo_toml.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\afs.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\error.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\inheritable.rs
+
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\cargo_toml-fc70e56371a9a226.d: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\cargo_toml.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\afs.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\error.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\inheritable.rs
+
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\cargo_toml.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\afs.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\error.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cargo_toml-0.17.2\src\inheritable.rs:

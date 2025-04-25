@@ -1,0 +1,6 @@
+cargo:rerun-if-changed=permissions
+cargo:PERMISSION_FILES_PATH=E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\build\tauri-plugin-os-29eca3a0149c9581\out\tauri-plugin-os-permission-files
+cargo:GLOBAL_API_SCRIPT_PATH=\\?\C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-os-2.0.1\api-iife.js
+cargo:rustc-check-cfg=cfg(mobile)
+cargo:rustc-check-cfg=cfg(desktop)
+cargo:rustc-cfg=desktop

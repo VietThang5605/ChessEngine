@@ -1,0 +1,9 @@
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\futures_macro-d918c04d4436a8ac.dll: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\lib.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\executor.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\join.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\select.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\stream_select.rs
+
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\futures_macro-d918c04d4436a8ac.d: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\lib.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\executor.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\join.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\select.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\stream_select.rs
+
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\lib.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\executor.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\join.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\select.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.30\src\stream_select.rs:

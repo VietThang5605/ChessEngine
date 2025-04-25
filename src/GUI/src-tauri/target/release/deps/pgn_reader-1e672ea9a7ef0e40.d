@@ -1,0 +1,10 @@
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\libpgn_reader-1e672ea9a7ef0e40.rmeta: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\lib.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\reader.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\types.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\visitor.rs
+
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\libpgn_reader-1e672ea9a7ef0e40.rlib: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\lib.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\reader.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\types.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\visitor.rs
+
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\pgn_reader-1e672ea9a7ef0e40.d: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\lib.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\reader.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\types.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\visitor.rs
+
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\lib.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\reader.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\types.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pgn-reader-0.26.0\src\visitor.rs:

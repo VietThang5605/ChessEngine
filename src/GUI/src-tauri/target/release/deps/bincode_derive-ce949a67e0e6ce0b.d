@@ -1,0 +1,8 @@
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\bincode_derive-ce949a67e0e6ce0b.dll: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\lib.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\attribute.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\derive_enum.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\derive_struct.rs
+
+E:\Uet\Nam2\Artificial_Intelligence\ChessEngine_copy\test\en-croissant\src-tauri\target\release\deps\bincode_derive-ce949a67e0e6ce0b.d: C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\lib.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\attribute.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\derive_enum.rs C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\derive_struct.rs
+
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\lib.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\attribute.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\derive_enum.rs:
+C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.0-rc.3\src\derive_struct.rs:
