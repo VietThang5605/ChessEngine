@@ -19,6 +19,9 @@ DARK_BROWN = (139, 69, 19)
 HIGHLIGHT_COLOR = (50, 205, 50)
 font = pygame.font.Font(None, 48)
 
+move_sound = pygame.mixer.Sound("sound/move.wav")
+capture_sound = pygame.mixer.Sound("sound/capture.wav")
+
 PIECE_NAMES = ["wp", "wr", "wn", "wb", "wq", "wk", "bp", "br", "bn", "bb", "bq", "bk"]
 
 pieces_img = {}

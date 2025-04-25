@@ -90,7 +90,7 @@ def game_menu():
         button_height = 60
         x = (WIDTH - button_width) // 2
 
-        # btn1 = draw_button("Human vs Human", x, 150, button_width, button_height)
+        btn1 = draw_button("Human vs Human", x, 150, button_width, button_height)
         btn2 = draw_button("Human vs AI", x, 250, button_width, button_height)
         btn3 = draw_button("AI vs AI", x, 350, button_width, button_height)
 
@@ -100,9 +100,9 @@ def game_menu():
                 sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                # if btn1.collidepoint(event.pos):
-                #     pass  # Sau này xử lý Người vs Người
-                if btn2.collidepoint(event.pos):
+                if btn1.collidepoint(event.pos):
+                    pass  # Sau này xử lý Người vs Người
+                elif btn2.collidepoint(event.pos):
                     player_vs_ai()
                 elif btn3.collidepoint(event.pos):
                     ai_vs_ai()
