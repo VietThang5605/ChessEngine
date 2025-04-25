@@ -46,5 +46,5 @@ void PrintMoveList(const S_MOVELIST *list) {
 		int score = list->moves[i].score;
 		std::cout << "Move: " << i + 1 << " > " << PrintMove(move) << " (score:" << score << ")\n";
 	}
-	std::cout << "MoveList Total " << list->count << "  Moves:\n\n";
+	std::cout << "MoveList Total " << list->count << "  Moves\n\n";
 }

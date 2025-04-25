@@ -131,7 +131,6 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 		if (pos->castlePerm & WKCA) {
 			if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY) {
 				if(!SqAttacked(E1,BLACK,pos) && !SqAttacked(F1,BLACK,pos) ) {
-					std::cout << "WKCA MoveGen\n";
 					AddQuietMove(pos, MOVE(E1, G1, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
 				}
 			}
@@ -140,7 +139,6 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 		if (pos->castlePerm & WQCA) {
 			if(pos->pieces[D1] == EMPTY && pos->pieces[C1] == EMPTY && pos->pieces[B1] == EMPTY) {
 				if(!SqAttacked(E1,BLACK,pos) && !SqAttacked(D1,BLACK,pos) ) {
-					std::cout << "WQCA MoveGen\n";
 					AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
 				}
 			}
@@ -179,7 +177,6 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 		if (pos->castlePerm & BKCA) {
 			if(pos->pieces[F8] == EMPTY && pos->pieces[G8] == EMPTY) {
 				if(!SqAttacked(E8,WHITE,pos) && !SqAttacked(F8,WHITE,pos) ) {
-					std::cout << "BKCA MoveGen\n";
 					AddQuietMove(pos, MOVE(E8, G8, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
 				}
 			}
@@ -188,7 +185,6 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 		if (pos->castlePerm &  BQCA) {
 			if(pos->pieces[D8] == EMPTY && pos->pieces[C8] == EMPTY && pos->pieces[B8] == EMPTY) {
 				if(!SqAttacked(E8,WHITE,pos) && !SqAttacked(D8,WHITE,pos) ) {
-					std::cout << "BQCA MoveGen\n";
 					AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
 				}
 			}
@@ -215,12 +211,10 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
                     // BLACK ^ 1 == WHITE       WHITE ^ 1 == BLACK
                     if (pos->pieces[t_sq] != EMPTY) {
                         if (PieceColor[pos->pieces[t_sq]] == (side ^ 1)) {
-                            std::cout << "\tCapture on: " << PrintSquare(t_sq) << '\n';
                             AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
                         }
                         break;
                     }
-                    std::cout << "\tNormal on: " << PrintSquare(t_sq) << '\n';
                     AddQuietMove(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
                     t_sq += dir;
                 }
@@ -253,12 +247,10 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
                 // BLACK ^ 1 == WHITE       WHITE ^ 1 == BLACK
 				if (pos->pieces[t_sq] != EMPTY) {
 					if (PieceColor[pos->pieces[t_sq]] == (side ^ 1)) {
-                        std::cout << "\tCapture on: " << PrintSquare(t_sq) << '\n';
 						AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
 					}
 					continue;
 				}
-                std::cout << "\tNormal on: " << PrintSquare(t_sq) << '\n';
 				AddQuietMove(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
             }
         }
