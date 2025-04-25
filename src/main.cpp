@@ -457,13 +457,13 @@ int main() {
     // GenerateAllMove(board, list);
 
     //Part 36
-    S_BOARD board[1];
-    S_MOVELIST list[1];
+    // S_BOARD board[1];
+    // S_MOVELIST list[1];
 
-    ParseFen(FEN11, board);
-    PrintBoard(board);
+    // ParseFen(FEN11, board);
+    // PrintBoard(board);
 
-    GenerateAllMove(board, list);
-    PrintMoveList(list);
+    // GenerateAllMove(board, list);
+    // PrintMoveList(list);
     return 0;
 }

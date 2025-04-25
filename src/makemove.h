@@ -5,6 +5,7 @@
 #include "board.h"
 #include "init.h"
 #include "validate.h"
+#include "attack.h"
 
 #define HASH_PIECE(piece,sq) (pos->posKey ^= (PieceKeys[(piece)][(sq)]))
 #define HASH_CASTLE (pos->posKey ^= (CastleKeys[(pos->castlePerm)]))
@@ -32,5 +33,9 @@ static void ClearPiece(const int sq, S_BOARD *pos);
 static void AddPiece(const int sq, S_BOARD *pos, const int piece); // basically the opposite of clearpiece
 
 static void MovePiece(const int from, const int to, S_BOARD *pos);
+
+bool MakeMove(S_BOARD *pos, int move);
+
+void TakeMove(S_BOARD *pos); // similar to makemove, not a lot to explain
 
 #endif
