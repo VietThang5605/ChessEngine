@@ -1,7 +1,11 @@
+#ifndef MOVEGEN_H
+#define MOVEGEN_H
+
 #include "types.h"
 #include "board.h"
 #include "validate.h"
 #include "io.h"
+#include "attack.h"
 
 #define MOVE(from, to, captured, promoted, fl) ((from) | ((to) << 7) | ((captured) << 14) | ((promoted) << 20) | (fl))
 #define SQOFFBOARD(sq) (FilesBrd[(sq)] == OFFBOARD)
@@ -52,3 +56,4 @@ void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to, const
 void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list);
 
 void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list);
+#endif

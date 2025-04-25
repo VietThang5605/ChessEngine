@@ -1,3 +1,6 @@
+#ifndef DATA_H
+#define DATA_H
+
 #include "types.h"
 
 #define IsBishopQueen(p) (PieceIsBishopQueen[(p)])
@@ -22,3 +25,4 @@ extern bool PieceIsKing[13];
 extern bool PieceIsRookQueen[13];
 extern bool PieceIsBishopQueen[13];
 extern bool PieceIsSlides[13];
+#endif

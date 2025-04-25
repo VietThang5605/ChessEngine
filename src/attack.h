@@ -1,3 +1,6 @@
+#ifndef ATTACK_H
+#define ATTACK_H
+
 #include "types.h"
 #include "board.h"
 #include "data.h"
@@ -9,3 +12,4 @@ const int BishopDir[4] = { -9, -11, 11, 9 }; // for bishops
 const int KingDir[8] = { -1, -10,	1, 10, -9, -11, 11, 9 }; //king direction can move only one square to every direction
 
 bool SqAttacked(const int sq, const int side, const S_BOARD *pos);
+#endif

@@ -1,3 +1,6 @@
+#ifndef IO_H
+#define IO_H
+
 #include "types.h"
 #include "init.h"
 #include "data.h"
@@ -8,3 +11,4 @@ char *PrintSquare(const int sq); // simple function, to describe squares from a 
 char *PrintMove(const int move);
 
 void PrintMoveList(const S_MOVELIST *list);
+#endif

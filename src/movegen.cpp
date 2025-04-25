@@ -126,6 +126,26 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 			// 	}
 			// }
 		}
+
+		// castling
+		if (pos->castlePerm & WKCA) {
+			if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY) {
+				if(!SqAttacked(E1,BLACK,pos) && !SqAttacked(F1,BLACK,pos) ) {
+					std::cout << "WKCA MoveGen\n";
+					AddQuietMove(pos, MOVE(E1, G1, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
+				}
+			}
+		}
+
+		if (pos->castlePerm & WQCA) {
+			if(pos->pieces[D1] == EMPTY && pos->pieces[C1] == EMPTY && pos->pieces[B1] == EMPTY) {
+				if(!SqAttacked(E1,BLACK,pos) && !SqAttacked(D1,BLACK,pos) ) {
+					std::cout << "WQCA MoveGen\n";
+					AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
+				}
+			}
+		}
+
 	} else {
         for (int pieceNum = 0; pieceNum < pos->pieceNum[bP]; ++pieceNum) {
 			int sq = pos->pieceList[bP][pieceNum];
@@ -154,6 +174,25 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 				}
 			}
         }
+
+		// castling
+		if (pos->castlePerm & BKCA) {
+			if(pos->pieces[F8] == EMPTY && pos->pieces[G8] == EMPTY) {
+				if(!SqAttacked(E8,WHITE,pos) && !SqAttacked(F8,WHITE,pos) ) {
+					std::cout << "BKCA MoveGen\n";
+					AddQuietMove(pos, MOVE(E8, G8, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
+				}
+			}
+		}
+
+		if (pos->castlePerm &  BQCA) {
+			if(pos->pieces[D8] == EMPTY && pos->pieces[C8] == EMPTY && pos->pieces[B8] == EMPTY) {
+				if(!SqAttacked(E8,WHITE,pos) && !SqAttacked(D8,WHITE,pos) ) {
+					std::cout << "BQCA MoveGen\n";
+					AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
+				}
+			}
+		}
     }
 
     /* Loop for slide pieces */

@@ -48,6 +48,21 @@
 #define FEN_WHITE_BISHOPS "6k1/1b6/4n3/8/1n4B1/1B3N2/1N6/2b3K1 w - - 0 1"
 #define FEN_BLACK_BISHOPS "6k1/1b6/4n3/8/1n4B1/1B3N2/1N6/2b3K1 b - - 0 1"
 
+#define FEN_WHITE_CASTLE1 "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"
+#define FEN_BLACK_CASTLE1 "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1"
+
+#define FEN_WHITE_CASTLE2 "3rk2r/8/8/8/8/8/6p1/R3K2R w KQk - 0 1"
+#define FEN_BLACK_CASTLE2 "3rk2r/8/8/8/8/8/6p1/R3K2R b KQk - 0 1"
+
+#define FEN_WHITE_CASTLE3 "1r2k2r/8/8/8/8/8/7p/R3K2R w KQk - 0 1"
+#define FEN_BLACK_CASTLE3 "1r2k2r/8/8/8/8/8/7p/R3K2R b KQk - 0 1"
+
+#define FEN_WHITE_CASTLE4 "1r2k1Nr/8/8/b7/8/8/7p/R3K2R w KQk - 0 1"
+#define FEN_BLACK_CASTLE4 "1r2k1Nr/8/8/b7/8/8/7p/R3K2R b KQk - 0 1"
+
+#define FEN_WHITE_CASTLE5 "1r2k1Nr/8/8/8/2b5/8/7p/R3K2R w KQk - 0 1"
+#define FEN_BLACK_CASTLE5 "1r2k1Nr/8/8/8/2b5/8/7p/R3K2R b KQk - 0 1"
+
 using namespace std;
 
 void ShowSqAttackedBySide(const int side, const S_BOARD *pos) {
@@ -402,22 +417,42 @@ int main() {
     // // PrintMoveList(list);
 
     //Part 34
+    // S_BOARD board[1];
+    // S_MOVELIST list[1];
+
+    // // ParseFen(FEN_WHITE_ROOKS, board);
+    // // ParseFen(FEN_BLACK_ROOKS, board);
+
+    // // ParseFen(FEN_WHITE_QUEENS, board);
+    // ParseFen(FEN_BLACK_QUEENS, board);
+
+    // // ParseFen(FEN_WHITE_BISHOPS, board);
+    // // ParseFen(FEN_BLACK_BISHOPS, board);
+
+    // PrintBoard(board);
+
+    // GenerateAllMove(board, list);
+    // // PrintMoveList(list);
+
+    //Part 35
     S_BOARD board[1];
     S_MOVELIST list[1];
 
-    // ParseFen(FEN_WHITE_ROOKS, board);
-    // ParseFen(FEN_BLACK_ROOKS, board);
+    // ParseFen(FEN_WHITE_CASTLE2, board);
+    // ParseFen(FEN_BLACK_CASTLE2, board);
 
-    // ParseFen(FEN_WHITE_QUEENS, board);
-    ParseFen(FEN_BLACK_QUEENS, board);
+    // ParseFen(FEN_WHITE_CASTLE3, board);
+    // ParseFen(FEN_BLACK_CASTLE3, board);
 
-    // ParseFen(FEN_WHITE_BISHOPS, board);
-    // ParseFen(FEN_BLACK_BISHOPS, board);
+    // ParseFen(FEN_WHITE_CASTLE4, board);
+    // ParseFen(FEN_BLACK_CASTLE4, board);
+
+    ParseFen(FEN_WHITE_CASTLE5, board);
+    // ParseFen(FEN_BLACK_CASTLE5, board);
 
     PrintBoard(board);
 
     GenerateAllMove(board, list);
-    // PrintMoveList(list);
 
     return 0;
 }
