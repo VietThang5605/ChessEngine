@@ -6,6 +6,8 @@
 #include "attack.h"
 #include "io.h"
 #include "movegen.h"
+#include "makemove.h"
+#include "perft.h"
 
 #include <iostream>
 #include <iomanip>
@@ -64,6 +66,24 @@
 #define FEN_BLACK_CASTLE5 "1r2k1Nr/8/8/8/2b5/8/7p/R3K2R b KQk - 0 1"
 
 #define FEN11 "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+
+//FEN for perft testing
+#define FEN_PERFT_2 "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+#define FEN_PERFT_3 "4k3/8/8/8/8/8/8/4K2R w K - 0 1"
+#define FEN_PERFT_4 "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1"
+#define FEN_PERFT_8 "r3k2r/8/8/8/8/8/8/4K3 w kq - 0 1"
+#define FEN_PERFT_13 "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"
+#define FEN_PERFT_14 "r3k2r/8/8/8/8/8/8/1R2K2R w Kkq - 0 1"
+#define FEN_PERFT_17 "1r2k2r/8/8/8/8/8/8/R3K2R w KQk - 0 1"
+#define FEN_PERFT_19 "r3k1r1/8/8/8/8/8/8/R3K2R w KQq - 0 1"
+#define FEN_PERFT_20 "4k3/8/8/8/8/8/8/4K2R b K - 0 1"
+#define FEN_PERFT_30 "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1"
+#define FEN_PERFT_40 "K7/8/2n5/1n6/8/8/8/k6N w - - 0 1"
+#define FEN_PERFT_47 "B6b/8/8/8/2K5/4k3/8/b6B w - - 0 1"
+#define FEN_PERFT_64 "K7/8/8/3Q4/4q3/8/8/7k b - - 0 1"
+#define FEN_PERFT_111 "3k4/3pp3/8/8/8/8/3PP3/3K4 w - - 0 1"
+#define FEN_PERFT_120 "n1n5/1Pk5/8/8/8/8/5Kp1/5N1N w - - 0 1"
+#define FEN_PERFT_126 "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1"
 
 using namespace std;
 
@@ -385,7 +405,7 @@ int main() {
     // PrintBoard(board);
 
     // S_MOVELIST list[1];
-    // GenerateAllMove(board, list);
+    // GenerateAllMoves(board, list);
     // PrintMoveList(list);
 
     //Part 31
@@ -394,7 +414,7 @@ int main() {
     // PrintBoard(board);
 
     // S_MOVELIST list[1];
-    // GenerateAllMove(board, list);
+    // GenerateAllMoves(board, list);
     // PrintMoveList(list);
 
     //Part 32
@@ -404,7 +424,7 @@ int main() {
     // PrintBoard(board);
 
     // S_MOVELIST list[1];
-    // GenerateAllMove(board, list);
+    // GenerateAllMoves(board, list);
     // // PrintMoveList(list);
 
     //Part 33
@@ -415,7 +435,7 @@ int main() {
     // // ParseFen(FEN_BLACK_KNIGHTSKINGS, board);
     // PrintBoard(board);
 
-    // GenerateAllMove(board, list);
+    // GenerateAllMoves(board, list);
     // // PrintMoveList(list);
 
     //Part 34
@@ -433,7 +453,7 @@ int main() {
 
     // PrintBoard(board);
 
-    // GenerateAllMove(board, list);
+    // GenerateAllMoves(board, list);
     // // PrintMoveList(list);
 
     //Part 35
@@ -454,7 +474,7 @@ int main() {
 
     // PrintBoard(board);
 
-    // GenerateAllMove(board, list);
+    // GenerateAllMoves(board, list);
 
     //Part 36
     // S_BOARD board[1];
@@ -463,7 +483,91 @@ int main() {
     // ParseFen(FEN11, board);
     // PrintBoard(board);
 
-    // GenerateAllMove(board, list);
+    // GenerateAllMoves(board, list);
     // PrintMoveList(list);
+
+    //Part 43
+    // S_BOARD board[1];
+    // S_MOVELIST list[1];
+
+    // ParseFen(START_FEN, board);
+    // PrintBoard(board);
+
+    // GenerateAllMoves(board, list);
+    // PrintMoveList(list);
+
+    // for (int moveNum = 0; moveNum < list->count; ++moveNum) {
+    //     int move = list->moves[moveNum].move;
+        
+    //     if (!MakeMove(board, move)) {
+    //         continue;
+    //     }
+
+    //     std::cout << "\nMADE: " << PrintMove(move) << '\n';
+    //     PrintBoard(board);
+
+    //     TakeMove(board);
+    //     std::cout << "\nTAKEN: " << PrintMove(move) << '\n';
+    //     PrintBoard(board);
+
+    //     getchar();
+    // }
+
+    //Part 44
+    S_BOARD board[1];
+    S_MOVELIST list[1];
+
+    // ParseFen(START_FEN, board);
+    // ParseFen(FEN_PERFT_2, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_3, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_4, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_8, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_13, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_14, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_17, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_19, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_20, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_30, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_40, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_47, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_64, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_111, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_111, board);
+    // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_120, board);
+    // PerftTest(5, board);
+
+    ParseFen(FEN_PERFT_126, board);
+    PerftTest(5, board);
+
     return 0;
 }

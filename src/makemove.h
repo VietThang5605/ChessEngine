@@ -6,6 +6,7 @@
 #include "init.h"
 #include "validate.h"
 #include "attack.h"
+#include "io.h"
 
 #define HASH_PIECE(piece,sq) (pos->posKey ^= (PieceKeys[(piece)][(sq)]))
 #define HASH_CASTLE (pos->posKey ^= (CastleKeys[(pos->castlePerm)]))

@@ -80,7 +80,7 @@ static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S
 	}
 }
 
-void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
+void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
     ASSERT(CheckBoard(pos));
 
 	list->count = 0;
@@ -114,15 +114,6 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 					AddEnPassantMove(pos, MOVE(sq,sq + 11,EMPTY,EMPTY,MOVEFLAG_EP), list);
 				}
 			}
-
-            // if (pos->enPas != NO_SQ) {
-			// 	if (sq + 9 == pos->enPas) {
-			// 		AddCaptureMove(pos, MOVE(sq,sq + 9,EMPTY,EMPTY,MOVEFLAG_EP), list);
-			// 	}
-			// 	if (sq + 11 == pos->enPas) {
-			// 		AddCaptureMove(pos, MOVE(sq,sq + 11,EMPTY,EMPTY,MOVEFLAG_EP), list);
-			// 	}
-			// }
 		}
 
 		// castling
@@ -194,12 +185,12 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 	int piece = LoopSlidePiece[pieceIndex++];
     while (piece != 0) {
         ASSERT(PieceValid(piece));
-        std::cout << "sliders pieceIndex: " << pieceIndex << " piece: " << piece << '\n';
+        // std::cout << "sliders pieceIndex: " << pieceIndex << " piece: " << piece << '\n';
 
         for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {
 			int sq = pos->pieceList[piece][pieceNum];
 			ASSERT(SqOnBoard(sq));
-            std::cout << "Piece: " << PieceChar[piece] << " on " << PrintSquare(sq) << '\n';
+            // std::cout << "Piece: " << PieceChar[piece] << " on " << PrintSquare(sq) << '\n';
 
             for (int i = 0; i < NumDir[piece]; i++) {
                 int dir = PieceDir[piece][i]; //dir can't be 0 because we have i < NumDir[piece]
@@ -227,12 +218,12 @@ void GenerateAllMove(const S_BOARD *pos, S_MOVELIST *list) {
 	piece = LoopNonSlidePiece[pieceIndex++];
     while (piece != 0) {
         ASSERT(PieceValid(piece));
-        std::cout << "non-sliders pieceIndex: " << pieceIndex << " piece: " << piece << '\n';
+        // std::cout << "non-sliders pieceIndex: " << pieceIndex << " piece: " << piece << '\n';
 
         for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {
 			int sq = pos->pieceList[piece][pieceNum];
 			ASSERT(SqOnBoard(sq));
-            std::cout << "Piece: " << PieceChar[piece] << " on " << PrintSquare(sq) << '\n';
+            // std::cout << "Piece: " << PieceChar[piece] << " on " << PrintSquare(sq) << '\n';
 
             for (int i = 0; i < NumDir[piece]; i++) {
                 int dir = PieceDir[piece][i];

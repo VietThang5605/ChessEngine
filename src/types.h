@@ -103,7 +103,7 @@ enum Piece {
 #define CAPTURED(m) (((m) >> 14) & 0xF) //the piece captured in a move
 #define PROMOTED(m) (((m) >> 20) & 0xF)
 
-#define MOVEFLAG_EP 0x4000
+#define MOVEFLAG_EP 0x40000
 #define MOVEFLAG_PAWNSTART 0x80000
 #define MOVEFLAG_CASTLE 0x1000000
 

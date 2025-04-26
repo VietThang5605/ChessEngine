@@ -208,10 +208,10 @@ bool MakeMove(S_BOARD *pos, int move) {
 	int from = FROMSQ(move);
     int to = TOSQ(move);
     int side = pos->side;
-	int piece = pos->pieces[from];
-	if (piece == EMPTY || PieceColor[piece] != side) {
-		return FALSE;
-	}
+	// int piece = pos->pieces[from];
+	// if (piece == EMPTY || PieceColor[piece] != side) {
+	// 	return FALSE;
+	// }
 	
 	ASSERT(SqOnBoard(from));
     ASSERT(SqOnBoard(to));
@@ -222,6 +222,9 @@ bool MakeMove(S_BOARD *pos, int move) {
 	
 	if (move & MOVEFLAG_EP) { // if the move ends with the enpassant flag
         if (side == WHITE) {
+            // std::cout << "*********************\n";
+            // std::cout << move << ' ' << PrintMove(move) << '\n';
+            // PrintBoard(pos);
             ClearPiece(to - 10,pos); //remove the black pawn which is at the to square minus 10
         } else {
             ClearPiece(to + 10,pos); //opposite if it's white's play
@@ -255,6 +258,7 @@ bool MakeMove(S_BOARD *pos, int move) {
 	
 	if (captured != EMPTY) {
         ASSERT(PieceValid(captured));
+        // std::cout << "******";
         ClearPiece(to, pos);
         pos->fiftyMove = 0;
     }
@@ -308,8 +312,8 @@ void TakeMove(S_BOARD *pos) {
 	pos->hisPly--;
     pos->ply--;
 	
-	// ASSERT(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-	// ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
+	ASSERT(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
+	ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
 	
     int move = pos->history[pos->hisPly].move;
     int from = FROMSQ(move);
