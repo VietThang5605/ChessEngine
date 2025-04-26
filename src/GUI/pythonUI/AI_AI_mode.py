@@ -8,18 +8,18 @@ import time
 from tkinter import Tk, filedialog, simpledialog
 
 from config import SCREEN, WIDTH, HEIGHT, BOARD_WIDTH, HISTORY_PANEL_WIDTH
-from config import WHITE, BLACK, LIGHT_BROWN, DARK_BROWN, HIGHLIGHT_COLOR, SQUARE_SIZE, font, pieces_img
-from config import move_sound, capture_sound
+from config import WHITE, BLACK, LIGHT_BROWN, DARK_BROWN, BLUE, HIGHLIGHT_COLOR, SQUARE_SIZE, font, pieces_img
+from config import move_sound, capture_sound, PIECE_SIZE
 
 font = pygame.font.SysFont(None, 24)
 INFO_HEIGHT = 150
 HISTORY_Y_START = INFO_HEIGHT
 
-pieces_img = {}
-PIECE_NAMES = ["bp", "br", "bn", "bb", "bq", "bk", "wp", "wr", "wn", "wb", "wq", "wk"]
-for name in PIECE_NAMES:
-    img = pygame.image.load(os.path.join("images", f"{name}.png"))
-    pieces_img[name] = pygame.transform.scale(img, (SQUARE_SIZE, SQUARE_SIZE))
+# pieces_img = {}
+# PIECE_NAMES = ["bp", "br", "bn", "bb", "bq", "bk", "wp", "wr", "wn", "wb", "wq", "wk"]
+# for name in PIECE_NAMES:
+#     img = pygame.image.load(os.path.join("images", f"{name}.png"))
+#     pieces_img[name] = pygame.transform.scale(img, (SQUARE_SIZE, SQUARE_SIZE))
 
 def draw_board(board, last_move):
     for row in range(8):
@@ -53,7 +53,7 @@ def draw_board(board, last_move):
 
 def draw_engine_info(config, white_time, black_time):
 
-    pygame.draw.rect(SCREEN, BLACK, (BOARD_WIDTH, 0, HISTORY_PANEL_WIDTH, INFO_HEIGHT))
+    pygame.draw.rect(SCREEN, BLUE, (BOARD_WIDTH, 0, HISTORY_PANEL_WIDTH, INFO_HEIGHT))
 
     name_font = pygame.font.SysFont(None, 22)
     time_font = pygame.font.SysFont(None, 20)
@@ -68,39 +68,32 @@ def draw_engine_info(config, white_time, black_time):
     SCREEN.blit(white_clock, (BOARD_WIDTH + 10, 35))
     SCREEN.blit(black_text, (BOARD_WIDTH + 10, 70))
     SCREEN.blit(black_clock, (BOARD_WIDTH + 10, 95))
+    
+def draw_captured_pieces(captured_white, captured_black):
+    panel_rect = pygame.Rect(BOARD_WIDTH, INFO_HEIGHT, HISTORY_PANEL_WIDTH, HEIGHT - INFO_HEIGHT - 80)
+    pygame.draw.rect(SCREEN, BLUE, panel_rect)
 
+    x_center = BOARD_WIDTH + (HISTORY_PANEL_WIDTH // 10)
+    y_center_white = INFO_HEIGHT + 20
+    y_center_black = HEIGHT // 2
 
-def draw_move_history(history, scroll_offset):
-    # Kích thước hiển thị lịch sử nước đi
-    history_width = BOARD_WIDTH  # Chiều rộng của phần lịch sử
-    history_height = HEIGHT - INFO_HEIGHT - 60  # Chiều cao lịch sử, để không che mất tên engine và thời gian
-    history_area = pygame.Rect(BOARD_WIDTH, INFO_HEIGHT, history_width, history_height)
+    for i, piece in enumerate(captured_white):
+        key = 'w' + piece.lower()
+        img = pieces_img.get(key)
+        img_resized = pygame.transform.scale(img, (PIECE_SIZE, PIECE_SIZE))
+        if (i < 8):
+            SCREEN.blit(img_resized, (x_center + i * (PIECE_SIZE + 5), y_center_white))
+        else:
+            SCREEN.blit(img_resized, (x_center + i * (PIECE_SIZE + 5) - 264, y_center_white + 50))
 
-    # Kích thước của mỗi dòng và số dòng tối đa có thể hiển thị
-    moves_per_row = 4  # Mỗi dòng có tối đa 4 nước đi
-    row_height = 30  # Chiều cao mỗi dòng nước đi
-    max_rows_visible = history_height // row_height  # Số dòng tối đa có thể hiển thị
-
-    # Lấy tổng số dòng cần hiển thị
-    total_rows = len(history) // moves_per_row + (1 if len(history) % moves_per_row != 0 else 0)
-
-    # Vẽ phần lịch sử nước đi
-    pygame.draw.rect(SCREEN, BLACK, history_area)  # Vẽ nền lịch sử
-    for i in range(total_rows):
-        # Lấy các nước đi cho dòng i
-        row_moves = history[i * moves_per_row:(i + 1) * moves_per_row]
-        formatted_moves = []
-
-        # Thêm (B) hoặc (W) cho mỗi nước đi
-        for j, move in enumerate(row_moves):
-            player_color = 'W' if j % 2 == 0 else 'B'  # (W) cho quân trắng, (B) cho quân đen
-            formatted_moves.append(f"({player_color}) {move}")
-        
-        # Hiển thị dòng nước đi
-        move_text = "  ".join(formatted_moves)
-        text_surface = font.render(move_text, True, WHITE)
-        SCREEN.blit(text_surface, (BOARD_WIDTH + 10, INFO_HEIGHT + i * row_height))
-
+    for i, piece in enumerate(captured_black):
+        key = 'b' + piece.lower() 
+        img = pieces_img.get(key)
+        img_resized = pygame.transform.scale(img, (PIECE_SIZE, PIECE_SIZE))
+        if (i< 8):
+            SCREEN.blit(img_resized, (x_center + i * (PIECE_SIZE + 5), y_center_black))
+        else:
+            SCREEN.blit(img_resized, (x_center + i * (PIECE_SIZE + 5) - 264, y_center_black + 50))
 
 
 def draw_clock(white_time, black_time, white_name, black_name):
@@ -121,9 +114,15 @@ def draw_clock(white_time, black_time, white_name, black_name):
 
 
 def show_game_result(winner):
-    font = pygame.font.SysFont(None, 48)
-    text = font.render(f"Game Over! Winner: {winner}", True, WHITE)
-    SCREEN.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
+    font_big = pygame.font.SysFont(None, 48)
+    font_small = pygame.font.SysFont(None, 32)
+
+    # Hiện dòng kết quả
+    text = font_big.render(f"Game Over! Winner: {winner}", True, WHITE)
+    instruction = font_small.render("Press 1 to New Game, 2 to Exit", True, WHITE)
+
+    SCREEN.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2 - 20))
+    SCREEN.blit(instruction, (WIDTH // 2 - instruction.get_width() // 2, HEIGHT // 2 + 40))
     pygame.display.update()
 
     waiting_for_key = True
@@ -133,7 +132,10 @@ def show_game_result(winner):
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                waiting_for_key = False
+                if event.key == pygame.K_1:
+                    return "new_game"
+                elif event.key == pygame.K_2:
+                    return "exit"
 
 def show_engine_selection_dialog():
     import tkinter as tk
@@ -229,9 +231,10 @@ def ai_vs_ai():
         return
 
     board = chess.Board()
-    history = []
     max_scroll = 0
     last_move_squares = None
+    captured_white = []
+    captured_black = []
 
     engine1 = subprocess.Popen(config["engine_white_path"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     engine2 = subprocess.Popen(config["engine_black_path"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -287,7 +290,7 @@ def ai_vs_ai():
             "white": {"name": config["engine_white_name"]},
             "black": {"name": config["engine_black_name"]},
         }, white_remaining, black_remaining)
-        draw_move_history(history, scroll_offset)
+        draw_captured_pieces(captured_white, captured_black)
 
         # Nút tạm dừng / tiếp tục
         pygame.draw.rect(SCREEN, (100, 100, 100), pause_button_rect)
@@ -306,16 +309,22 @@ def ai_vs_ai():
             move = chess.Move.from_uci(move_uci)
             if move in board.legal_moves:
                 piece_captured = board.is_capture(move)
+                
+                if piece_captured:
+                    captured_piece = board.piece_at(move.to_square)
+                    if captured_piece:
+                        if captured_piece.color == chess.WHITE:
+                            captured_white.append(captured_piece.symbol())
+                        else:
+                            captured_black.append(captured_piece.symbol())
+                    capture_sound.play()
+                else:
+                    move_sound.play()
                 board.push(move)
-                history.append(move.uci())
                 last_move_squares = [
                     (7 - move.from_square // 8, move.from_square % 8),
                     (7 - move.to_square // 8, move.to_square % 8),
                 ]
-                if piece_captured:
-                    capture_sound.play()
-                else:
-                    move_sound.play()
         except Exception as e:
             print("Lỗi khi thực hiện nước đi:", e)
 
@@ -341,7 +350,6 @@ def ai_vs_ai():
             "white": {"name": config["engine_white_name"]},
             "black": {"name": config["engine_black_name"]},
         }, white_remaining, black_remaining)
-        draw_move_history(history, scroll_offset)
         pygame.display.flip()
         pygame.time.wait(500)
 
@@ -354,22 +362,23 @@ def ai_vs_ai():
         if (white_remaining == 0 or black_remaining == 0): winner = "Drawn"
         else: winner = "Unknown"
 
-    show_game_result(winner)
-
     engine1.kill()
     engine2.kill()
     print("Game Over:", board.result())
+    result = show_game_result(winner)
+    captured_white.clear()
+    captured_black.clear()
+    if result == 'new_game':
+        ai_vs_ai()
 
 
 
-
-
-def get_move_time_from_input():
-    root = tk.Tk()
-    root.withdraw()
-    time_str = simpledialog.askstring("Thời gian suy nghĩ", "Nhập thời gian suy nghĩ mỗi lượt (ms):")
-    try:
-        return int(time_str)
-    except:
-        return None
+# def get_move_time_from_input():
+#     root = tk.Tk()
+#     root.withdraw()
+#     time_str = simpledialog.askstring("Thời gian suy nghĩ", "Nhập thời gian suy nghĩ mỗi lượt (ms):")
+#     try:
+#         return int(time_str)
+#     except:
+#         return None
 

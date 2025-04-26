@@ -16,6 +16,8 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 LIGHT_BROWN = (222, 184, 135)
 DARK_BROWN = (139, 69, 19)
+BLUE = (100, 139, 186)
+
 HIGHLIGHT_COLOR = (50, 205, 50)
 font = pygame.font.Font(None, 48)
 
@@ -28,3 +30,5 @@ pieces_img = {}
 for name in PIECE_NAMES:
     img = pygame.image.load(os.path.join("images", f"{name}.png"))
     pieces_img[name] = pygame.transform.scale(img, (SQUARE_SIZE, SQUARE_SIZE))
+    
+PIECE_SIZE = 28
