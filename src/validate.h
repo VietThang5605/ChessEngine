@@ -2,7 +2,6 @@
 #define VALIDATE_H
 
 #include "types.h"
-#include "init.h"
 
 bool SqOnBoard(const int sq);
 

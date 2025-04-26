@@ -1,4 +1,5 @@
 #include "validate.h"
+#include "init.h"
 
 bool SqOnBoard(const int sq) { //checks if the square (which is supposed to be part of the 64 square array) is actually one of those
 	return FilesBrd[sq] == OFFBOARD ? FALSE : TRUE;

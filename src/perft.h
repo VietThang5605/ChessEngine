@@ -1,13 +1,8 @@
 #ifndef PERFT_H
 #define PERFT_H
 
-#include "perft.h"
+#include "types.h"
 #include "board.h"
-#include "movegen.h"
-#include "makemove.h"
-#include "init.h"
-#include "validate.h"
-#include "misc.h"
 
 extern long long leafNodes;
 

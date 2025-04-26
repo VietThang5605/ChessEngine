@@ -9,6 +9,7 @@
 #include "makemove.h"
 #include "perft.h"
 #include "search.h"
+#include "pvtable.h"
 
 #include <iostream>
 #include <iomanip>
@@ -608,6 +609,46 @@ int main() {
     // }
 
     //Part 49
+    // S_BOARD board[1];
+    // S_MOVELIST list[1];
+
+    // ParseFen(START_FEN, board);
+
+    // char input[6];
+    // int move = NOMOVE;
+
+    // while (true) {
+    //     PrintBoard(board);
+    //     std:: cout << "Please enter a move > ";
+    //     std::cin.getline(input, sizeof(input));
+
+    //     if (input[0] == 'q') {
+    //         break;
+    //     } else if (input[0] == 't') {
+    //         TakeMove(board);
+    //     } else if (input[0] == 'p') {
+    //         PerftTest(4, board);
+    //     } else {
+    //         move = ParseMove(input, board);
+    //         if (move != NOMOVE) {
+    //             MakeMove(board, move);
+    //             if (IsRepetition(board)) {
+    //                 std::cout << "REP SEEN\n";
+    //             }
+    //         } else {
+    //             std::cout << "Illegal move\n";
+    //         }
+    //     }
+
+    //     if (std::cin.fail()) {
+    //         std::cout << "Please enter the move with correct length. Input was too long!\n";
+    //         std::cin.clear();
+    //     }
+                
+    //     std::cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    // }
+
+    //Part 53
     S_BOARD board[1];
     S_MOVELIST list[1];
 
@@ -615,6 +656,7 @@ int main() {
 
     char input[6];
     int move = NOMOVE;
+    int Max = 0;
 
     while (true) {
         PrintBoard(board);
@@ -626,14 +668,22 @@ int main() {
         } else if (input[0] == 't') {
             TakeMove(board);
         } else if (input[0] == 'p') {
-            PerftTest(4, board);
+            // PerftTest(4, board);
+            Max = GetPvLine(4, board);
+            std::cout << "PvLine of " << Max << " Moves: ";
+            for (int PvNum = 0; PvNum < Max; ++PvNum) {
+                move = board->PvArray[PvNum];
+                std::cout << " " << PrintMove(move);
+            }
+            std::cout << '\n';
         } else {
             move = ParseMove(input, board);
             if (move != NOMOVE) {
+                StorePvMove(board, move);
                 MakeMove(board, move);
-                if (IsRepetition(board)) {
-                    std::cout << "REP SEEN\n";
-                }
+                // if (IsRepetition(board)) {
+                //     std::cout << "REP SEEN\n";
+                // }
             } else {
                 std::cout << "Illegal move\n";
             }

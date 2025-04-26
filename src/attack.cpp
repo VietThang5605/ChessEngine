@@ -1,4 +1,6 @@
 #include "attack.h"
+#include "data.h"
+#include "validate.h"
 
 bool SqAttacked(const int sq, const int side, const S_BOARD *pos) {
     //what square, which side is attacking it and in what position basically

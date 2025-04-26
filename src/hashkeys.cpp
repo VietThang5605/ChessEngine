@@ -1,5 +1,6 @@
 #include "hashkeys.h"
 #include "board.h"
+#include "init.h"
 
 U64 GeneratePosKey(const S_BOARD *pos){ //pointer to position or whatever position we wanna generate
     U64 finalKey = 0; //the finalkey we're gonna be returning

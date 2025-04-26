@@ -1,4 +1,10 @@
 #include "perft.h"
+#include "movegen.h"
+#include "makemove.h"
+#include "init.h"
+#include "validate.h"
+#include "misc.h"
+#include "io.h"
 
 long long leafNodes;
 

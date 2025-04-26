@@ -3,9 +3,6 @@
 
 #include "types.h"
 #include "board.h"
-#include "validate.h"
-#include "io.h"
-#include "attack.h"
 
 #define MOVE(from, to, captured, promoted, fl) ((from) | ((to) << 7) | ((captured) << 14) | ((promoted) << 20) | (fl))
 #define SQOFFBOARD(sq) (FilesBrd[(sq)] == OFFBOARD)
@@ -40,6 +37,8 @@ const int PieceDir[13][8] = {
 const int NumDir[13] = {
     0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8
 };
+
+int MoveExists(S_BOARD *pos, const int move);
 
 static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list);
 

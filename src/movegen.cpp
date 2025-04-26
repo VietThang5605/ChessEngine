@@ -1,4 +1,25 @@
 #include "movegen.h"
+#include "makemove.h"
+#include "validate.h"
+#include "io.h"
+#include "attack.h"
+#include "data.h"
+
+int MoveExists(S_BOARD *pos, const int move) {
+	S_MOVELIST list[1];
+    GenerateAllMoves(pos,list);
+
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+        if (!MakeMove(pos,list->moves[MoveNum].move))  {
+            continue;
+        }
+        TakeMove(pos);
+		if (list->moves[MoveNum].move == move) {
+			return TRUE;
+		}
+    }
+	return FALSE;
+}
 
 static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
     list->moves[list->count].move = move;

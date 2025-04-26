@@ -2,7 +2,6 @@
 #define HASHKEYS_H
 
 #include "types.h"
-#include "init.h"
 
 struct S_BOARD;
 

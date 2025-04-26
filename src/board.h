@@ -2,10 +2,9 @@
 #define BOARD_H
 
 #include "types.h"
-#include "init.h"
-#include "hashkeys.h"
-#include "data.h"
-#include "bitboards.h"
+#include "pvtable.h"
+
+struct S_PVTABLE;
 
 struct S_MOVE {
     int move;
@@ -71,6 +70,9 @@ struct S_BOARD {
     /*we could loop on the entiere board until we come across avery piece and genereate all the moves possible
     but its not very fast, so we do a piece list*/ 
     int pieceList[PIECE_NB][10]; // 13 different pieces which u can have maximum 10 each (like promoting all ur pawns to roks and u get 10 rooks)
+
+    S_PVTABLE PvTable[1];
+    int PvArray[MAXDEPTH];
 };
 
 bool CheckBoard(const S_BOARD *pos);

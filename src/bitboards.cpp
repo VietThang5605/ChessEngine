@@ -1,6 +1,5 @@
-#include "types.h"
-#include "init.h"
 #include "bitboards.h"
+#include "init.h"
 
 #include <iostream>
 

@@ -1,4 +1,8 @@
 #include "io.h"
+#include "init.h"
+#include "data.h"
+#include "validate.h"
+#include "movegen.h"
 
 char *PrintSquare(const int sq) {
     static char SquareStr[3]; //e4 - the last char is for \0

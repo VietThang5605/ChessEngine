@@ -1,4 +1,8 @@
 #include "makemove.h"
+#include "validate.h"
+#include "attack.h"
+#include "io.h"
+#include "data.h"
 
 static void ClearPiece(const int sq, S_BOARD *pos) {
     ASSERT(SqOnBoard(sq)); // see if the square's on the board to acvoid problems
