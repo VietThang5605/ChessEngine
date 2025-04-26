@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#define DEBUG
+// #define DEBUG
 
 #ifndef DEBUG
 #define ASSERT(n)

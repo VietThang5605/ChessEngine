@@ -29,7 +29,7 @@ void PerftTest(int depth, S_BOARD *pos) { //kindof a mirror of the perft functio
 	printf("\nStarting Test To Depth:%d\n",depth);	
 
 	leafNodes = 0;
-	// int start = GetTimeMs();
+	int start = GetTimeMs();
 
     S_MOVELIST list[1];
     GenerateAllMoves(pos, list);	
@@ -46,8 +46,7 @@ void PerftTest(int depth, S_BOARD *pos) { //kindof a mirror of the perft functio
         std::cout << "move " << MoveNum + 1 << " : " << PrintMove(move) << " : " << oldnodes << '\n';
     }   
 	
-    std::cout << "\nTest Complete : " << leafNodes << " nodes visited\n";
-	// printf("\nTest Complete : %ld nodes visited in %dms\n",leafNodes,GetTimeMs() - start);
+    std::cout << "\nTest Complete : " << leafNodes << " nodes visited in " << GetTimeMs() - start << '\n';
     //just shows all the leafs possible
     return;
 }

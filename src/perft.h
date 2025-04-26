@@ -7,6 +7,7 @@
 #include "makemove.h"
 #include "init.h"
 #include "validate.h"
+#include "misc.h"
 
 extern long long leafNodes;
 
