@@ -13,6 +13,12 @@ namespace AttackGen {
     extern SF::Bitboard PseudoAttacks_KNIGHT[SF::SQUARE_NB];
     extern SF::Bitboard PseudoAttacks_KING[SF::SQUARE_NB];
 
+    // --- KHAI BÁO EXTERN CHO CÁC MẢNG HƯỚNG ĐI ---
+    extern const SF::Direction BishopDirections[4]; // Thêm extern const
+    extern const SF::Direction RookDirections[4];   // Thêm extern const
+    // extern const SF::Direction KingDirections[8]; // Thêm nếu cần dùng ở file khác
+    // extern const int KnightOffsets[8];           // Thêm nếu cần dùng ở file khác
+
     // --- Khai báo hàm khởi tạo ---
     void init_attack_tables();
 
@@ -36,6 +42,10 @@ namespace AttackGen {
 
     // Hàm tính tổng tấn công cho một bên
     SF::Bitboard attacks_by_side(const S_Board* pos, SF::Color side);
+
+    // *** KHAI BÁO HÀM HELPER attacks_from_sliding ***
+    // Hàm này giờ đây có thể được gọi từ bên ngoài (eval_info.cpp)
+    SF::Bitboard attacks_from_sliding(SF::Bitboard sliders, SF::Bitboard occupied, const SF::Direction steps[], int numSteps);
 
 } // namespace AttackGen
 
