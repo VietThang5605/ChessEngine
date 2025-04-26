@@ -85,6 +85,10 @@ enum Piece {
     PIECE_NB
 };
 
+enum Value {
+    NOMOVE = 0
+};
+
 /* MACROS */
 
 #define FR2SQ(f,r) ( (21 + (f) ) + ( (r) * 10) ) // for a given file (f) and rank (r) returns the equivalent square in the 120 square 2D array

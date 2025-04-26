@@ -85,6 +85,8 @@
 #define FEN_PERFT_120 "n1n5/1Pk5/8/8/8/8/5Kp1/5N1N w - - 0 1"
 #define FEN_PERFT_126 "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1"
 
+#define FEN_PARSEMOVE_1 "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N w - - 0 1"
+
 using namespace std;
 
 void ShowSqAttackedBySide(const int side, const S_BOARD *pos) {
@@ -514,60 +516,95 @@ int main() {
     // }
 
     //Part 44
+    // S_BOARD board[1];
+    // S_MOVELIST list[1];
+
+    // // ParseFen(START_FEN, board);
+    // // ParseFen(FEN_PERFT_2, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_3, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_4, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_8, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_13, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_14, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_17, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_19, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_20, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_30, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_40, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_47, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_64, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_111, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_111, board);
+    // // PerftTest(5, board);
+
+    // // ParseFen(FEN_PERFT_120, board);
+    // // PerftTest(5, board);
+
+    // ParseFen(FEN_PERFT_126, board);
+    // PerftTest(5, board);
+
+    //Part 48
     S_BOARD board[1];
     S_MOVELIST list[1];
 
-    // ParseFen(START_FEN, board);
-    // ParseFen(FEN_PERFT_2, board);
-    // PerftTest(5, board);
+    ParseFen(FEN_PARSEMOVE_1, board);
 
-    // ParseFen(FEN_PERFT_3, board);
-    // PerftTest(5, board);
+    char input[6];
+    int move = NOMOVE;
 
-    // ParseFen(FEN_PERFT_4, board);
-    // PerftTest(5, board);
+    while (true) {
+        PrintBoard(board);
+        std:: cout << "Please enter a move > ";
+        std::cin.getline(input, sizeof(input));
 
-    // ParseFen(FEN_PERFT_8, board);
-    // PerftTest(5, board);
+        if (input[0] == 'q') {
+            break;
+        } else if (input[0] == 't') {
+            TakeMove(board);
+        } else {
+            move = ParseMove(input, board);
+            if (move != NOMOVE) {
+                MakeMove(board, move);
+            } else {
+                std::cout << "Illegal move\n";
+            }
+        }
 
-    // ParseFen(FEN_PERFT_13, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_14, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_17, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_19, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_20, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_30, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_40, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_47, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_64, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_111, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_111, board);
-    // PerftTest(5, board);
-
-    // ParseFen(FEN_PERFT_120, board);
-    // PerftTest(5, board);
-
-    ParseFen(FEN_PERFT_126, board);
-    PerftTest(5, board);
+        if (std::cin.fail()) {
+            std::cout << "Please enter the move with correct length. Input was too long!\n";
+            std::cin.clear();
+        }
+                
+        std::cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
 
     return 0;
 }

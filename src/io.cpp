@@ -39,6 +39,47 @@ char *PrintMove(const int move) {
 	return MoveStr;
 }
 
+int ParseMove(char *ptrChar, S_BOARD *pos) {
+	ASSERT(CheckBoard(pos));
+
+	if(ptrChar[1] > '8' || ptrChar[1] < '1') return NOMOVE;
+    if(ptrChar[3] > '8' || ptrChar[3] < '1') return NOMOVE;
+    if(ptrChar[0] > 'h' || ptrChar[0] < 'a') return NOMOVE;
+    if(ptrChar[2] > 'h' || ptrChar[2] < 'a') return NOMOVE;
+
+    int from = FR2SQ(ptrChar[0] - 'a', ptrChar[1] - '1');
+    int to = FR2SQ(ptrChar[2] - 'a', ptrChar[3] - '1');
+
+	std::cout << "prtChar:" << ptrChar << " from:" << from << " to:" << to << '\n';
+
+	ASSERT(SqOnBoard(from) && SqOnBoard(to));
+
+	S_MOVELIST list[1];
+    GenerateAllMoves(pos, list);
+
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+		int Move = list->moves[MoveNum].move;
+		if (FROMSQ(Move) == from && TOSQ(Move) == to) {
+			int PromotedPiece = PROMOTED(Move);
+			if (PromotedPiece != EMPTY) {
+				if (IsRookQueen(PromotedPiece) && !IsBishopQueen(PromotedPiece) && ptrChar[4] == 'r') {
+					return Move;
+				} else if (!IsRookQueen(PromotedPiece) && IsBishopQueen(PromotedPiece) && ptrChar[4] == 'b') {
+					return Move;
+				} else if (IsRookQueen(PromotedPiece) && IsBishopQueen(PromotedPiece) && ptrChar[4] == 'q') {
+					return Move;
+				} else if (IsKnight(PromotedPiece)&& ptrChar[4] == 'n') {
+					return Move;
+				}
+				continue;
+			}
+			return Move;
+		}
+    }
+
+    return NOMOVE;
+}
+
 void PrintMoveList(const S_MOVELIST *list) {
 	std::cout << "MoveList:\n";
 	for(int i = 0; i < list->count; ++i) {
