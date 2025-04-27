@@ -106,24 +106,24 @@ void ParsePosition(char *lineIn, S_BOARD *pos)
         }
     }
 
-    // ptrChar = strstr(lineIn, "moves");
-    // int move;
+    ptrChar = strstr(lineIn, "moves");
+    int move;
 
-    // if (ptrChar != nullptr)
-    // {
-    //     ptrChar += 6;
-    //     while (*ptrChar)
-    //     {
-    //         move = ParseMove(ptrChar, pos);
-    //         if (move == NOMOVE)
-    //             break;
-    //         MakeMove(pos, move);
-    //         pos->ply = 0;
-    //         while (*ptrChar && *ptrChar != ' ')
-    //             ptrChar++;
-    //         ptrChar++;
-    //     }
-    // }
+    if (ptrChar != nullptr)
+    {
+        ptrChar += 6;
+        while (*ptrChar)
+        {
+            move = ParseMove(ptrChar, pos);
+            if (move == NOMOVE)
+                break;
+            MakeMove(pos, move);
+            pos->ply = 0;
+            while (*ptrChar && *ptrChar != ' ')
+                ptrChar++;
+            ptrChar++;
+        }
+    }
     PrintBoard(pos);
 }
 
