@@ -85,7 +85,7 @@ enum Piece {
     PIECE_NB
 };
 
-enum Value {
+enum Move : int {
     NOMOVE = 0
 };
 

@@ -73,6 +73,9 @@ struct S_BOARD {
 
     S_PVTABLE PvTable[1];
     int PvArray[MAXDEPTH];
+
+    int searchHistory[13][BRD_SQ_NUM];
+    int searchKillers[2][MAXDEPTH];
 };
 
 bool CheckBoard(const S_BOARD *pos);
