@@ -98,6 +98,15 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	int Score = -INFINITE; 
 	int PvMove = ProbePvTable(pos);
 
+	if (PvMove != NOMOVE) {
+		for (int MoveNum = 0; MoveNum < list->count; MoveNum++) {
+			if (list->moves[MoveNum].move == PvMove) {
+				list->moves[MoveNum].score = 2000000;
+				break;
+			}
+		}
+	}
+
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 		PickNextMove(MoveNum, list);
 
@@ -115,10 +124,19 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 					info->fhf++;
 				}
 				info->fh++;
+
+				if (!(list->moves[MoveNum].move & MOVEFLAG_CAPTURED)) {
+					pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
+					pos->searchKillers[0][pos->ply] = list->moves[MoveNum].move;
+				}
+				
 				return beta;
 			}
 			alpha = Score;
 			BestMove = list->moves[MoveNum].move;
+			if (!(list->moves[MoveNum].move & MOVEFLAG_CAPTURED)) {
+				pos->searchHistory[pos->pieces[FROMSQ(BestMove)]][TOSQ(BestMove)] += depth;
+			}
 		}
 	}
 
