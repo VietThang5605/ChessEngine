@@ -4,18 +4,11 @@
 #include "types.h"
 #include "board.h"
 
-struct S_MOVE
-{
-    int move;
-    int score;
-};
+char *PrintSquare(const int sq); // simple function, to describe squares from a bit array to something more "human" such as B2B3 etc...
 
-struct S_MOVELIST
-{
-    S_MOVE moves[MAXPOSITIONMOVES];
-    int count;
-};
+char *PrintMove(const int move);
 
 int ParseMove(char *ptrChar, S_BOARD *pos);
 
+void PrintMoveList(const S_MOVELIST *list);
 #endif

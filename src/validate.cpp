@@ -1,62 +1,27 @@
 #include "validate.h"
-#include "data.h"
+#include "init.h"
 
-#include <cstdio>
-
-int SqOnBoard(const int sq)
-{
-    return FilesBrd[sq] == OFFBOARD ? 0 : 1;
+bool SqOnBoard(const int sq)
+{ // checks if the square (which is supposed to be part of the 64 square array) is actually one of those
+    return FilesBrd[sq] == OFFBOARD ? FALSE : TRUE;
 }
 
-int SideValid(const int side)
-{
-    return (side == WHITE || side == BLACK) ? 1 : 0;
+bool SideValid(const int side)
+{ // same for the side
+    return (side == WHITE || side == BLACK) ? TRUE : FALSE;
 }
 
-int PieceValidEmpty(const int pce)
-{
-    return (pce >= EMPTY && pce <= bK) ? 1 : 0;
+bool FileRankValid(const int fr)
+{ // for file and rank
+    return (fr >= 0 && fr <= 7) ? TRUE : FALSE;
 }
 
-int PieceValid(const int pce)
-{
-    return (pce >= wP && pce <= bK) ? 1 : 0;
+bool PieceValidEmpty(const int pce)
+{ // basic, but it just says that any piece is more valuable than an empty square and less than the king (useless for a human but necessary for a computer)
+    return (pce >= EMPTY && pce <= bK) ? TRUE : FALSE;
 }
 
-int SqIs120(const int sq)
-{
-    return (sq >= 0 && sq < 120);
-}
-
-int PceValidEmptyOffbrd(const int pce)
-{
-    return (PieceValidEmpty(pce) || pce == OFFBOARD);
-}
-
-int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos)
-{
-    if (list->count < 0 || list->count >= MAXPOSITIONMOVES)
-    {
-        return FALSE;
-    }
-
-    int MoveNum;
-    int from = 0;
-    int to = 0;
-    for (MoveNum = 0; MoveNum < list->count; ++MoveNum)
-    {
-        to = TOSQ(list->moves[MoveNum].move);
-        from = FROMSQ(list->moves[MoveNum].move);
-        if (!SqOnBoard(to) || !SqOnBoard(from))
-        {
-            return FALSE;
-        }
-        if (!PieceValid(pos->pieces[from]))
-        {
-            PrintBoard(pos);
-            return FALSE;
-        }
-    }
-
-    return TRUE;
+bool PieceValid(const int pce)
+{ // same but wiuthout the empty
+    return (pce >= wP && pce <= bK) ? TRUE : FALSE;
 }

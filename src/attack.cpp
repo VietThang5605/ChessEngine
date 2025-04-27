@@ -1,13 +1,13 @@
 #include "attack.h"
-#include "validate.h"
 #include "data.h"
-
-#include <cstdio>
+#include "validate.h"
 
 bool SqAttacked(const int sq, const int side, const S_BOARD *pos)
 {
     // what square, which side is attacking it and in what position basically
 
+    ASSERT(SqOnBoard(sq));
+    ASSERT(SideValid(side));
     ASSERT(CheckBoard(pos));
 
     // pawns

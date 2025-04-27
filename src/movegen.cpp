@@ -1,77 +1,53 @@
 #include "movegen.h"
+#include "makemove.h"
 #include "validate.h"
+#include "io.h"
 #include "attack.h"
 #include "data.h"
 
-#include <cstdio>
-
-void InitMvvLva()
+int MoveExists(S_BOARD *pos, const int move)
 {
-    int Attacker;
-    int Victim;
-    for (Attacker = wP; Attacker <= bK; ++Attacker)
+    S_MOVELIST list[1];
+    GenerateAllMoves(pos, list);
+
+    for (int MoveNum = 0; MoveNum < list->count; ++MoveNum)
     {
-        for (Victim = wP; Victim <= bK; ++Victim)
+        if (!MakeMove(pos, list->moves[MoveNum].move))
         {
-            MvvLvaScores[Victim][Attacker] = VictimScore[Victim] + 6 - (VictimScore[Attacker] / 100);
+            continue;
+        }
+        TakeMove(pos);
+        if (list->moves[MoveNum].move == move)
+        {
+            return TRUE;
         }
     }
+    return FALSE;
 }
 
 static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list)
 {
-
-    ASSERT(SqOnBoard(FROMSQ(move)));
-    ASSERT(SqOnBoard(TOSQ(move)));
-    ASSERT(CheckBoard(pos));
-    ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
-
     list->moves[list->count].move = move;
-
-    if (pos->searchKillers[0][pos->ply] == move)
-    {
-        list->moves[list->count].score = 900000;
-    }
-    else if (pos->searchKillers[1][pos->ply] == move)
-    {
-        list->moves[list->count].score = 800000;
-    }
-    else
-    {
-        list->moves[list->count].score = pos->searchHistory[pos->pieces[FROMSQ(move)]][TOSQ(move)];
-    }
+    list->moves[list->count].score = 0;
     list->count++;
 }
 
 static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list)
 {
-
-    ASSERT(SqOnBoard(FROMSQ(move)));
-    ASSERT(SqOnBoard(TOSQ(move)));
-    ASSERT(PieceValid(CAPTURED(move)));
-    ASSERT(CheckBoard(pos));
-
     list->moves[list->count].move = move;
-    list->moves[list->count].score = MvvLvaScores[CAPTURED(move)][pos->pieces[FROMSQ(move)]] + 1000000;
+    list->moves[list->count].score = 0;
     list->count++;
 }
 
 static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list)
 {
-
-    ASSERT(SqOnBoard(FROMSQ(move)));
-    ASSERT(SqOnBoard(TOSQ(move)));
-    ASSERT(CheckBoard(pos));
-    ASSERT((RanksBrd[TOSQ(move)] == RANK_6 && pos->side == WHITE) || (RanksBrd[TOSQ(move)] == RANK_3 && pos->side == BLACK));
-
     list->moves[list->count].move = move;
-    list->moves[list->count].score = 105 + 1000000;
+    list->moves[list->count].score = 0;
     list->count++;
 }
 
 static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list)
 {
-
     ASSERT(PieceValidEmpty(cap));
     ASSERT(SqOnBoard(from));
     ASSERT(SqOnBoard(to));
@@ -92,7 +68,6 @@ static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to
 
 static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list)
 {
-
     ASSERT(SqOnBoard(from));
     ASSERT(SqOnBoard(to));
     ASSERT(CheckBoard(pos));
@@ -112,7 +87,6 @@ static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S
 
 static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list)
 {
-
     ASSERT(PieceValidEmpty(cap));
     ASSERT(SqOnBoard(from));
     ASSERT(SqOnBoard(to));
@@ -133,7 +107,6 @@ static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to
 
 static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list)
 {
-
     ASSERT(SqOnBoard(from));
     ASSERT(SqOnBoard(to));
     ASSERT(CheckBoard(pos));
@@ -153,26 +126,17 @@ static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S
 
 void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
 {
-
     ASSERT(CheckBoard(pos));
 
     list->count = 0;
 
-    int pce = EMPTY;
     int side = pos->side;
-    int sq = 0;
-    int t_sq = 0;
-    int pceNum = 0;
-    int dir = 0;
-    int index = 0;
-    int pceIndex = 0;
 
     if (side == WHITE)
     {
-
-        for (pceNum = 0; pceNum < pos->pieceNum[wP]; ++pceNum)
+        for (int pieceNum = 0; pieceNum < pos->pieceNum[wP]; ++pieceNum)
         {
-            sq = pos->pieceList[wP][pceNum];
+            int sq = pos->pieceList[wP][pieceNum];
             ASSERT(SqOnBoard(sq));
 
             if (pos->pieces[sq + 10] == EMPTY)
@@ -180,7 +144,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
                 AddWhitePawnMove(pos, sq, sq + 10, list);
                 if (RanksBrd[sq] == RANK_2 && pos->pieces[sq + 20] == EMPTY)
                 {
-                    AddQuietMove(pos, MOVE(sq, (sq + 20), EMPTY, EMPTY, MFLAGPS), list);
+                    AddQuietMove(pos, MOVE(sq, (sq + 20), EMPTY, EMPTY, MOVEFLAG_PAWNSTART), list);
                 }
             }
 
@@ -197,22 +161,23 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
             {
                 if (sq + 9 == pos->enPas)
                 {
-                    AddEnPassantMove(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MFLAGEP), list);
+                    AddEnPassantMove(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MOVEFLAG_EP), list);
                 }
                 if (sq + 11 == pos->enPas)
                 {
-                    AddEnPassantMove(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MFLAGEP), list);
+                    AddEnPassantMove(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MOVEFLAG_EP), list);
                 }
             }
         }
 
+        // castling
         if (pos->castlePerm & WKCA)
         {
             if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY)
             {
                 if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(F1, BLACK, pos))
                 {
-                    AddQuietMove(pos, MOVE(E1, G1, EMPTY, EMPTY, MFLAGCA), list);
+                    AddQuietMove(pos, MOVE(E1, G1, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
                 }
             }
         }
@@ -223,17 +188,16 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
             {
                 if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(D1, BLACK, pos))
                 {
-                    AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, MFLAGCA), list);
+                    AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
                 }
             }
         }
     }
     else
     {
-
-        for (pceNum = 0; pceNum < pos->pieceNum[bP]; ++pceNum)
+        for (int pieceNum = 0; pieceNum < pos->pieceNum[bP]; ++pieceNum)
         {
-            sq = pos->pieceList[bP][pceNum];
+            int sq = pos->pieceList[bP][pieceNum];
             ASSERT(SqOnBoard(sq));
 
             if (pos->pieces[sq - 10] == EMPTY)
@@ -241,7 +205,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
                 AddBlackPawnMove(pos, sq, sq - 10, list);
                 if (RanksBrd[sq] == RANK_7 && pos->pieces[sq - 20] == EMPTY)
                 {
-                    AddQuietMove(pos, MOVE(sq, (sq - 20), EMPTY, EMPTY, MFLAGPS), list);
+                    AddQuietMove(pos, MOVE(sq, (sq - 20), EMPTY, EMPTY, MOVEFLAG_PAWNSTART), list);
                 }
             }
 
@@ -249,20 +213,20 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
             {
                 AddBlackPawnCapMove(pos, sq, sq - 9, pos->pieces[sq - 9], list);
             }
-
             if (!SQOFFBOARD(sq - 11) && PieceColor[pos->pieces[sq - 11]] == WHITE)
             {
                 AddBlackPawnCapMove(pos, sq, sq - 11, pos->pieces[sq - 11], list);
             }
+
             if (pos->enPas != NO_SQ)
             {
                 if (sq - 9 == pos->enPas)
                 {
-                    AddEnPassantMove(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MFLAGEP), list);
+                    AddEnPassantMove(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MOVEFLAG_EP), list);
                 }
                 if (sq - 11 == pos->enPas)
                 {
-                    AddEnPassantMove(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MFLAGEP), list);
+                    AddEnPassantMove(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MOVEFLAG_EP), list);
                 }
             }
         }
@@ -274,7 +238,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
             {
                 if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(F8, WHITE, pos))
                 {
-                    AddQuietMove(pos, MOVE(E8, G8, EMPTY, EMPTY, MFLAGCA), list);
+                    AddQuietMove(pos, MOVE(E8, G8, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
                 }
             }
         }
@@ -285,28 +249,30 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
             {
                 if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(D8, WHITE, pos))
                 {
-                    AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, MFLAGCA), list);
+                    AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, MOVEFLAG_CASTLE), list);
                 }
             }
         }
     }
 
     /* Loop for slide pieces */
-    pceIndex = LoopSlideIndex[side];
-    pce = LoopSlidePce[pceIndex++];
-    while (pce != 0)
+    int pieceIndex = LoopSlideIndex[side];
+    int piece = LoopSlidePiece[pieceIndex++];
+    while (piece != 0)
     {
-        ASSERT(PieceValid(pce));
+        ASSERT(PieceValid(piece));
+        // std::cout << "sliders pieceIndex: " << pieceIndex << " piece: " << piece << '\n';
 
-        for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum)
+        for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum)
         {
-            sq = pos->pieceList[pce][pceNum];
+            int sq = pos->pieceList[piece][pieceNum];
             ASSERT(SqOnBoard(sq));
+            // std::cout << "Piece: " << PieceChar[piece] << " on " << PrintSquare(sq) << '\n';
 
-            for (index = 0; index < NumDir[pce]; ++index)
+            for (int i = 0; i < NumDir[piece]; i++)
             {
-                dir = PceDir[pce][index];
-                t_sq = sq + dir;
+                int dir = PieceDir[piece][i]; // dir can't be 0 because we have i < NumDir[piece]
+                int t_sq = sq + dir;
 
                 while (!SQOFFBOARD(t_sq))
                 {
@@ -325,26 +291,27 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
             }
         }
 
-        pce = LoopSlidePce[pceIndex++];
+        piece = LoopSlidePiece[pieceIndex++];
     }
 
     /* Loop for non slide */
-    pceIndex = LoopNonSlideIndex[side];
-    pce = LoopNonSlidePce[pceIndex++];
-
-    while (pce != 0)
+    pieceIndex = LoopNonSlideIndex[side];
+    piece = LoopNonSlidePiece[pieceIndex++];
+    while (piece != 0)
     {
-        ASSERT(PieceValid(pce));
+        ASSERT(PieceValid(piece));
+        // std::cout << "non-sliders pieceIndex: " << pieceIndex << " piece: " << piece << '\n';
 
-        for (pceNum = 0; pceNum < pos->pieceNum[pce]; ++pceNum)
+        for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum)
         {
-            sq = pos->pieceList[pce][pceNum];
+            int sq = pos->pieceList[piece][pieceNum];
             ASSERT(SqOnBoard(sq));
+            // std::cout << "Piece: " << PieceChar[piece] << " on " << PrintSquare(sq) << '\n';
 
-            for (index = 0; index < NumDir[pce]; ++index)
+            for (int i = 0; i < NumDir[piece]; i++)
             {
-                dir = PceDir[pce][index];
-                t_sq = sq + dir;
+                int dir = PieceDir[piece][i];
+                int t_sq = sq + dir;
 
                 if (SQOFFBOARD(t_sq))
                 {
@@ -364,8 +331,6 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list)
             }
         }
 
-        pce = LoopNonSlidePce[pceIndex++];
+        piece = LoopNonSlidePiece[pieceIndex++];
     }
-
-    ASSERT(MoveListOk(list, pos));
 }

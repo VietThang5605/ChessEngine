@@ -2,7 +2,6 @@
 #define BITBOARDS_H
 
 #include "types.h"
-#include "init.h"
 
 #include <iostream>
 

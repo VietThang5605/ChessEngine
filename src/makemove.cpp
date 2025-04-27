@@ -1,102 +1,174 @@
 #include "makemove.h"
 #include "validate.h"
 #include "attack.h"
-#include "bitboards.h"
+#include "io.h"
 #include "data.h"
-#include "init.h"
-
-#include <cstdio>
-#include <cassert>
 
 static void ClearPiece(const int sq, S_BOARD *pos)
 {
-
-    ASSERT(SqOnBoard(sq));
+    ASSERT(SqOnBoard(sq)); // see if the square's on the board to acvoid problems
     ASSERT(CheckBoard(pos));
 
-    int pce = pos->pieces[sq];
+    int piece = pos->pieces[sq]; // and get the piece that's on that square
 
-    ASSERT(PieceValid(pce));
+    ASSERT(PieceValid(piece)); // and double check if it's a piece (just in case)
 
-    int col = PieceColor[pce];
-    int index = 0;
-    int t_pceNum = -1;
+    int color = PieceColor[piece]; // color of the piece
 
-    ASSERT(SideValid(col));
+    ASSERT(SideValid(color));
 
-    HASH_PCE(pce, sq);
+    HASH_PIECE(piece, sq); // XOR our pieces on that square
 
-    pos->pieces[sq] = EMPTY;
-    pos->material[col] -= PieceValue[pce];
+    pos->pieces[sq] = EMPTY;                   // set thatsquare to empty
+    pos->material[color] -= PieceValue[piece]; // substract the value from the material score
+    pos->material[BOTH] -= PieceValue[piece];
 
-    if (PieceIsBig[pce])
-    {
-        pos->bigPiece[col]--;
-        if (PieceIsMajor[pce])
+    if (PieceIsBig[piece])
+    { // straight forward
+        pos->bigPiece[color]--;
+        pos->bigPiece[BOTH]--;
+
+        if (PieceIsMajor[piece])
         {
-            pos->majorPiece[col]--;
+            pos->majorPiece[color]--;
+            pos->majorPiece[BOTH]--;
         }
         else
         {
-            pos->minorPiece[col]--;
+            pos->minorPiece[color]--;
+            pos->minorPiece[BOTH]--;
+        }
+
+        if (IsKnight(piece))
+        {
+            CLRBIT(&pos->knightsBB[color], SQ64(sq));
+            CLRBIT(&pos->knightsBB[BOTH], SQ64(sq));
+        }
+        else if (IsBishop(piece))
+        {
+            CLRBIT(&pos->bishopsBB[color], SQ64(sq));
+            CLRBIT(&pos->bishopsBB[BOTH], SQ64(sq));
+        }
+        else if (IsRook(piece))
+        {
+            CLRBIT(&pos->rooksBB[color], SQ64(sq));
+            CLRBIT(&pos->rooksBB[BOTH], SQ64(sq));
+        }
+        else if (IsQueen(piece))
+        {
+            CLRBIT(&pos->queensBB[color], SQ64(sq));
+            CLRBIT(&pos->queensBB[BOTH], SQ64(sq));
+        }
+        else
+        {
+            CLRBIT(&pos->kingsBB[color], SQ64(sq));
+            CLRBIT(&pos->kingsBB[BOTH], SQ64(sq));
         }
     }
     else
-    {
-        CLRBIT(&pos->pawnsBB[col], SQ64(sq));
+    { // need to clear the bitboard for the pawns of the color of this piece
+        CLRBIT(&pos->pawnsBB[color], SQ64(sq));
         CLRBIT(&pos->pawnsBB[BOTH], SQ64(sq));
     }
+    CLRBIT(&pos->allPiecesBB[color], SQ64(sq));
+    CLRBIT(&pos->allPiecesBB[BOTH], SQ64(sq));
 
-    for (index = 0; index < pos->pieceNum[pce]; ++index)
+    /*
+        for the next part:
+            pos->pceNum[wP] == 5 looping from 0 to 4
+            pos->pList[pce][0] == sq0
+            pos->pList[pce][1] == sq1
+            pos->pList[pce][2] == sq2
+            pos->pList[pce][3] == sq3
+            pos->pList[pce][3] == sq4
+
+        so one of these square should be equal to the square that we put on argument
+        lets say it's sq3 so t_pceNum =3
+    */
+    int t_pieceNum = -1; // will be xplained later down in the piece lsit
+    for (int i = 0; i < pos->pieceNum[piece]; ++i)
     {
-        if (pos->pieceList[pce][index] == sq)
+        if (pos->pieceList[piece][i] == sq)
         {
-            t_pceNum = index;
+            t_pieceNum = i;
             break;
         }
     }
 
-    ASSERT(t_pceNum != -1);
-    ASSERT(t_pceNum >= 0 && t_pceNum < 10);
+    ASSERT(t_pieceNum != -1); // another check which isn't necessary but just in case the checkboard function didnt do its job
+    ASSERT(t_pieceNum >= 0 && t_pieceNum < 10);
 
-    pos->pieceNum[pce]--;
+    pos->pieceNum[piece]--;
+    // so now, we have pos->pieceNum[wP] == 4
 
-    pos->pieceList[pce][t_pceNum] = pos->pieceList[pce][pos->pieceNum[pce]];
+    pos->pieceList[piece][t_pieceNum] = pos->pieceList[piece][pos->pieceNum[piece]];
+    // pos->pList[pce][3] = pos->pList[wP][4] = sq4
+    // so the square3 value has been deleted and that's how we remove a piece from the baord
 }
 
-static void AddPiece(const int sq, S_BOARD *pos, const int pce)
+static void AddPiece(const int sq, S_BOARD *pos, const int piece)
 {
-
-    ASSERT(PieceValid(pce));
+    ASSERT(PieceValid(piece));
     ASSERT(SqOnBoard(sq));
 
-    int col = PieceColor[pce];
-    ASSERT(SideValid(col));
+    int color = PieceColor[piece];
+    ASSERT(SideValid(color));
 
-    HASH_PCE(pce, sq);
+    HASH_PIECE(piece, sq);
 
-    pos->pieces[sq] = pce;
+    pos->pieces[sq] = piece;
 
-    if (PieceIsBig[pce])
+    if (PieceIsBig[piece])
     {
-        pos->bigPiece[col]++;
-        if (PieceIsMajor[pce])
+        pos->bigPiece[color]++;
+        pos->bigPiece[BOTH]++;
+
+        if (PieceIsMajor[piece])
         {
-            pos->majorPiece[col]++;
+            pos->majorPiece[color]++;
+            pos->majorPiece[BOTH]++;
         }
         else
         {
-            pos->minorPiece[col]++;
+            pos->minorPiece[color]++;
+            pos->minorPiece[BOTH]++;
+        }
+
+        if (IsKnight(piece))
+        {
+            SETBIT(&pos->knightsBB[color], SQ64(sq));
+            SETBIT(&pos->knightsBB[BOTH], SQ64(sq));
+        }
+        else if (IsBishop(piece))
+        {
+            SETBIT(&pos->bishopsBB[color], SQ64(sq));
+            SETBIT(&pos->bishopsBB[BOTH], SQ64(sq));
+        }
+        else if (IsRook(piece))
+        {
+            SETBIT(&pos->rooksBB[color], SQ64(sq));
+            SETBIT(&pos->rooksBB[BOTH], SQ64(sq));
+        }
+        else if (IsQueen(piece))
+        {
+            SETBIT(&pos->queensBB[color], SQ64(sq));
+            SETBIT(&pos->queensBB[BOTH], SQ64(sq));
+        }
+        else
+        {
+            SETBIT(&pos->kingsBB[color], SQ64(sq));
+            SETBIT(&pos->kingsBB[BOTH], SQ64(sq));
         }
     }
     else
     {
-        SETBIT(&pos->pawnsBB[col], SQ64(sq));
+        SETBIT(&pos->pawnsBB[color], SQ64(sq));
         SETBIT(&pos->pawnsBB[BOTH], SQ64(sq));
     }
 
-    pos->material[col] += PieceValue[pce];
-    pos->pieceList[pce][pos->pieceNum[pce]++] = sq;
+    pos->material[color] += PieceValue[piece];
+    pos->material[BOTH] += PieceValue[piece];
+    pos->pieceList[piece][pos->pieceNum[piece]++] = sq;
 }
 
 static void MovePiece(const int from, const int to, S_BOARD *pos)
@@ -105,35 +177,73 @@ static void MovePiece(const int from, const int to, S_BOARD *pos)
     ASSERT(SqOnBoard(from));
     ASSERT(SqOnBoard(to));
 
-    int index = 0;
-    int pce = pos->pieces[from];
-    int col = PieceColor[pce];
-    ASSERT(SideValid(col));
-    ASSERT(PieceValid(pce));
+    int piece = pos->pieces[from];
+    int color = PieceColor[piece];
+
+    ASSERT(SideValid(color));
+    ASSERT(PieceValid(piece));
 
 #ifdef DEBUG
-    int t_PieceNum = FALSE;
+    int t_PieceNum = FALSE; // make sure that we find what we're looking for
 #endif
 
-    HASH_PCE(pce, from);
+    HASH_PIECE(piece, from);
     pos->pieces[from] = EMPTY;
 
-    HASH_PCE(pce, to);
-    pos->pieces[to] = pce;
+    HASH_PIECE(piece, to);
+    pos->pieces[to] = piece;
 
-    if (!PieceIsBig[pce])
+    if (!PieceIsBig[piece])
     {
-        CLRBIT(&pos->pawnsBB[col], SQ64(from));
+        CLRBIT(&pos->pawnsBB[color], SQ64(from));
         CLRBIT(&pos->pawnsBB[BOTH], SQ64(from));
-        SETBIT(&pos->pawnsBB[col], SQ64(to));
+        SETBIT(&pos->pawnsBB[color], SQ64(to));
         SETBIT(&pos->pawnsBB[BOTH], SQ64(to));
     }
-
-    for (index = 0; index < pos->pieceNum[pce]; ++index)
+    else
     {
-        if (pos->pieceList[pce][index] == from)
+        if (IsKnight(piece))
         {
-            pos->pieceList[pce][index] = to;
+            CLRBIT(&pos->knightsBB[color], SQ64(from));
+            CLRBIT(&pos->knightsBB[BOTH], SQ64(from));
+            SETBIT(&pos->knightsBB[color], SQ64(to));
+            SETBIT(&pos->knightsBB[BOTH], SQ64(to));
+        }
+        else if (IsBishop(piece))
+        {
+            CLRBIT(&pos->bishopsBB[color], SQ64(from));
+            CLRBIT(&pos->bishopsBB[BOTH], SQ64(from));
+            SETBIT(&pos->bishopsBB[color], SQ64(to));
+            SETBIT(&pos->bishopsBB[BOTH], SQ64(to));
+        }
+        else if (IsRook(piece))
+        {
+            CLRBIT(&pos->rooksBB[color], SQ64(from));
+            CLRBIT(&pos->rooksBB[BOTH], SQ64(from));
+            SETBIT(&pos->rooksBB[color], SQ64(to));
+            SETBIT(&pos->rooksBB[BOTH], SQ64(to));
+        }
+        else if (IsQueen(piece))
+        {
+            CLRBIT(&pos->queensBB[color], SQ64(from));
+            CLRBIT(&pos->queensBB[BOTH], SQ64(from));
+            SETBIT(&pos->queensBB[color], SQ64(to));
+            SETBIT(&pos->queensBB[BOTH], SQ64(to));
+        }
+        else
+        {
+            CLRBIT(&pos->kingsBB[color], SQ64(from));
+            CLRBIT(&pos->kingsBB[BOTH], SQ64(from));
+            SETBIT(&pos->kingsBB[color], SQ64(to));
+            SETBIT(&pos->kingsBB[BOTH], SQ64(to));
+        }
+    }
+
+    for (int i = 0; i < pos->pieceNum[piece]; ++i)
+    {
+        if (pos->pieceList[piece][i] == from)
+        {
+            pos->pieceList[piece][i] = to;
 #ifdef DEBUG
             t_PieceNum = TRUE;
 #endif
@@ -143,37 +253,41 @@ static void MovePiece(const int from, const int to, S_BOARD *pos)
     ASSERT(t_PieceNum);
 }
 
-int MakeMove(S_BOARD *pos, int move)
+bool MakeMove(S_BOARD *pos, int move)
 {
-
     ASSERT(CheckBoard(pos));
 
     int from = FROMSQ(move);
     int to = TOSQ(move);
     int side = pos->side;
+    // int piece = pos->pieces[from];
+    // if (piece == EMPTY || PieceColor[piece] != side) {
+    // 	return FALSE;
+    // }
 
     ASSERT(SqOnBoard(from));
     ASSERT(SqOnBoard(to));
     ASSERT(SideValid(side));
     ASSERT(PieceValid(pos->pieces[from]));
-    ASSERT(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-    ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
     pos->history[pos->hisPly].posKey = pos->posKey;
 
-    if (move & MFLAGEP)
-    {
+    if (move & MOVEFLAG_EP)
+    { // if the move ends with the enpassant flag
         if (side == WHITE)
         {
-            ClearPiece(to - 10, pos);
+            // std::cout << "*********************\n";
+            // std::cout << move << ' ' << PrintMove(move) << '\n';
+            // PrintBoard(pos);
+            ClearPiece(to - 10, pos); // remove the black pawn which is at the to square minus 10
         }
         else
         {
-            ClearPiece(to + 10, pos);
+            ClearPiece(to + 10, pos); // opposite if it's white's play
         }
     }
-    else if (move & MFLAGCA)
-    {
+    else if (move & MOVEFLAG_CASTLE)
+    { // if its a castling move, check all possibilities
         switch (to)
         {
         case C1:
@@ -195,8 +309,8 @@ int MakeMove(S_BOARD *pos, int move)
     }
 
     if (pos->enPas != NO_SQ)
-        HASH_EP;
-    HASH_CA;
+        HASH_EP; // if the current en passant square is set, then we'll hashout the en passant square
+    HASH_CASTLE; // we also hash the castling position
 
     pos->history[pos->hisPly].move = move;
     pos->history[pos->hisPly].fiftyMove = pos->fiftyMove;
@@ -207,7 +321,7 @@ int MakeMove(S_BOARD *pos, int move)
     pos->castlePerm &= CastlePerm[to];
     pos->enPas = NO_SQ;
 
-    HASH_CA;
+    HASH_CASTLE;
 
     int captured = CAPTURED(move);
     pos->fiftyMove++;
@@ -215,20 +329,18 @@ int MakeMove(S_BOARD *pos, int move)
     if (captured != EMPTY)
     {
         ASSERT(PieceValid(captured));
+        // std::cout << "******";
         ClearPiece(to, pos);
         pos->fiftyMove = 0;
     }
 
-    pos->hisPly++;
+    pos->hisPly++; // self explanatory
     pos->ply++;
 
-    ASSERT(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-    ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
-
     if (PieceIsPawn[pos->pieces[from]])
-    {
+    { // set the new en passant square if its a pawn move
         pos->fiftyMove = 0;
-        if (move & MFLAGPS)
+        if (move & MOVEFLAG_PAWNSTART)
         {
             if (side == WHITE)
             {
@@ -244,14 +356,14 @@ int MakeMove(S_BOARD *pos, int move)
         }
     }
 
-    MovePiece(from, to, pos);
+    MovePiece(from, to, pos); // now we can actually move the piece
 
-    int prPce = PROMOTED(move);
-    if (prPce != EMPTY)
+    int promotedPiece = PROMOTED(move);
+    if (promotedPiece != EMPTY)
     {
-        ASSERT(PieceValid(prPce) && !PieceIsPawn[prPce]);
+        ASSERT(PieceValid(promotedPiece) && !PieceIsPawn[promotedPiece]);
         ClearPiece(to, pos);
-        AddPiece(to, pos, prPce);
+        AddPiece(to, pos, promotedPiece);
     }
 
     if (PieceIsKing[pos->pieces[to]])
@@ -275,7 +387,6 @@ int MakeMove(S_BOARD *pos, int move)
 
 void TakeMove(S_BOARD *pos)
 {
-
     ASSERT(CheckBoard(pos));
 
     pos->hisPly--;
@@ -293,7 +404,7 @@ void TakeMove(S_BOARD *pos)
 
     if (pos->enPas != NO_SQ)
         HASH_EP;
-    HASH_CA;
+    HASH_CASTLE;
 
     pos->castlePerm = pos->history[pos->hisPly].castlePerm;
     pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
@@ -301,12 +412,12 @@ void TakeMove(S_BOARD *pos)
 
     if (pos->enPas != NO_SQ)
         HASH_EP;
-    HASH_CA;
+    HASH_CASTLE;
 
     pos->side ^= 1;
     HASH_SIDE;
 
-    if (MFLAGEP & move)
+    if (MOVEFLAG_EP & move)
     {
         if (pos->side == WHITE)
         {
@@ -317,7 +428,7 @@ void TakeMove(S_BOARD *pos)
             AddPiece(to + 10, pos, wP);
         }
     }
-    else if (MFLAGCA & move)
+    else if (MOVEFLAG_CASTLE & move)
     {
         switch (to)
         {
@@ -339,25 +450,26 @@ void TakeMove(S_BOARD *pos)
         }
     }
 
-    MovePiece(to, from, pos);
+    MovePiece(to, from, pos); // before capture
 
     if (PieceIsKing[pos->pieces[from]])
     {
         pos->kingSquare[pos->side] = from;
     }
 
-    int captured = CAPTURED(move);
+    int captured = CAPTURED(move); // check if we captured anything
     if (captured != EMPTY)
     {
         ASSERT(PieceValid(captured));
         AddPiece(to, pos, captured);
     }
 
-    if (PROMOTED(move) != EMPTY)
+    int promotedPiece = PROMOTED(move);
+    if (promotedPiece != EMPTY)
     {
-        ASSERT(PieceValid(PROMOTED(move)) && !PieceIsPawn[PROMOTED(move)]);
-        ClearPiece(from, pos);
-        AddPiece(from, pos, (PieceColor[PROMOTED(move)] == WHITE ? wP : bP));
+        ASSERT(PieceValid(promotedPiece) && !PieceIsPawn[promotedPiece]);
+        ClearPiece(from, pos); // clear the from position if we promoted
+        AddPiece(from, pos, (PieceColor[promotedPiece] == WHITE ? wP : bP));
     }
 
     ASSERT(CheckBoard(pos));

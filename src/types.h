@@ -187,6 +187,24 @@ enum Piece
     bQ,
     bK,
     PIECE_NB
+        wP,
+    wN,
+    wB,
+    wR,
+    wQ,
+    wK,
+    bP,
+    bN,
+    bB,
+    bR,
+    bQ,
+    bK,
+    PIECE_NB = 13
+};
+
+enum Move : int
+{
+    NOMOVE = 0
 };
 
 /* GAME MOVE */
@@ -216,29 +234,27 @@ enum Piece
 /* MACROS */
 
 #define FR2SQ(f, r) ((21 + (f)) + ((r) * 10)) // for a given file (f) and rank (r) returns the equivalent square in the 120 square 2D array
-#define POP(b) PopBit(b)
-#define CNT(b) CountBits(b)
 
-#define IsBQ(p) (PieceBishopQueen[(p)])
-#define IsRQ(p) (PieceRookQueen[(p)])
-#define IsKn(p) (PieceKnight[(p)])
-#define IsKi(p) (PieceKing[(p)])
+/*
+0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
+0000 0000 0000 0011 1111 1000 0000 -> To >> 7, 0x7F
+0000 0000 0011 1100 0000 0000 0000 -> Captured >> 14, 0xF
+0000 0000 0100 0000 0000 0000 0000 -> EP 0x40000
+0000 0000 1000 0000 0000 0000 0000 -> Pawn Start 0x80000
+0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece >> 20, 0xF
+0001 0000 0000 0000 0000 0000 0000 -> Castle 0x1000000
+*/
+#define FROMSQ(m) ((m) & 0x7F)
+#define TOSQ(m) (((m) >> 7) & 0x7F)     // for move
+#define CAPTURED(m) (((m) >> 14) & 0xF) // the piece captured in a move
+#define PROMOTED(m) (((m) >> 20) & 0xF)
 
-/* Global */
-extern int PieceBig[13];
-extern int PieceMaj[13];
-extern int PieceMin[13];
-extern int PieceVal[13];
-extern int PieceCol[13];
-extern int PiecePawn[13];
+#define MOVEFLAG_EP 0x40000
+#define MOVEFLAG_PAWNSTART 0x80000
+#define MOVEFLAG_CASTLE 0x1000000
 
-extern int PieceKing[13];
-extern int PieceRookQueen[13];
-extern int PieceBishopQueen[13];
-extern int PieceKnight[13];
-
-extern int FilesBrd[BRD_SQ_NUM];
-extern int RanksBrd[BRD_SQ_NUM];
+#define MOVEFLAG_CAPTURED 0x7C000
+#define MOVEFLAG_PROMOTED 0xF00000
 
 /* FUNCTIONS */
 #define ENABLE_BASE_OPERATORS_ON(T)                                    \

@@ -2,13 +2,14 @@
 #define VALIDATE_H
 
 #include "types.h"
-#include "io.h"
 
-int SqOnBoard(const int sq);
-int SideValid(const int side);
-int PieceValidEmpty(const int pce);
-int PieceValid(const int pce);
-int SqIs120(const int sq);
-int PceValidEmptyOffbrd(const int pce);
-int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos);
+bool SqOnBoard(const int sq);
+
+bool SideValid(const int side);
+
+bool FileRankValid(const int fr);
+
+bool PieceValidEmpty(const int pce);
+
+bool PieceValid(const int pce);
 #endif

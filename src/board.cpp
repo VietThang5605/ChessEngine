@@ -1,4 +1,8 @@
 #include "board.h"
+#include "init.h"
+#include "hashkeys.h"
+#include "bitboards.h"
+#include "data.h"
 
 #include <iostream>
 #include <iomanip>
@@ -10,6 +14,10 @@ bool CheckBoard(const S_BOARD *pos)
     int t_majorPiece[3] = {0, 0, 0};
     int t_minorPiece[3] = {0, 0, 0};
     int t_material[2] = {0, 0};
+    int t_bigPiece[3] = {0, 0, 0}; // self explanbatory
+    int t_majorPiece[3] = {0, 0, 0};
+    int t_minorPiece[3] = {0, 0, 0};
+    int t_material[3] = {0, 0, 0};
 
     U64 t_pawnsBB[3] = {0ULL, 0ULL, 0ULL};
     t_pawnsBB[WHITE] = pos->pawnsBB[WHITE];
@@ -71,6 +79,7 @@ bool CheckBoard(const S_BOARD *pos)
     t_bigPiece[BOTH] = t_bigPiece[WHITE] + t_bigPiece[BLACK];
     t_minorPiece[BOTH] = t_minorPiece[WHITE] + t_minorPiece[BLACK];
     t_majorPiece[BOTH] = t_majorPiece[WHITE] + t_majorPiece[BLACK];
+    t_material[BOTH] = t_material[WHITE] + t_material[BLACK];
 
     for (Piece t_piece = wP; t_piece <= bK; ++t_piece)
     {
@@ -247,6 +256,10 @@ bool CheckBoard(const S_BOARD *pos)
     ASSERT(t_minorPiece[WHITE] == pos->minorPiece[WHITE] && t_minorPiece[BLACK] == pos->minorPiece[BLACK] && t_minorPiece[BOTH] == pos->minorPiece[BOTH]);
     ASSERT(t_majorPiece[WHITE] == pos->majorPiece[WHITE] && t_majorPiece[BLACK] == pos->majorPiece[BLACK] && t_majorPiece[BOTH] == pos->majorPiece[BOTH]);
     ASSERT(t_bigPiece[WHITE] == pos->bigPiece[WHITE] && t_bigPiece[BLACK] == pos->bigPiece[BLACK] && t_bigPiece[BOTH] == pos->bigPiece[BOTH]);
+    ASSERT(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK] && t_material[BOTH] == pos->material[BOTH]);
+    ASSERT(t_minorPiece[WHITE] == pos->minorPiece[WHITE] && t_minorPiece[BLACK] == pos->minorPiece[BLACK] && t_minorPiece[BOTH] == pos->minorPiece[BOTH]);
+    ASSERT(t_majorPiece[WHITE] == pos->majorPiece[WHITE] && t_majorPiece[BLACK] == pos->majorPiece[BLACK] && t_majorPiece[BOTH] == pos->majorPiece[BOTH]);
+    ASSERT(t_bigPiece[WHITE] == pos->bigPiece[WHITE] && t_bigPiece[BLACK] == pos->bigPiece[BLACK] && t_bigPiece[BOTH] == pos->bigPiece[BOTH]);
 
     ASSERT(pos->side == WHITE || pos->side == BLACK);
     ASSERT(GeneratePosKey(pos) == pos->posKey); // the psition key should be the same as the genreated key
@@ -405,6 +418,7 @@ void UpdateListsMaterial(S_BOARD *pos)
     pos->bigPiece[BOTH] = pos->bigPiece[WHITE] + pos->bigPiece[BLACK];
     pos->majorPiece[BOTH] = pos->majorPiece[WHITE] + pos->majorPiece[BLACK];
     pos->minorPiece[BOTH] = pos->minorPiece[WHITE] + pos->minorPiece[BLACK];
+    pos->material[BOTH] = pos->material[WHITE] + pos->material[BLACK];
 }
 
 int ParseFen(char *fen, S_BOARD *pos)
@@ -569,6 +583,7 @@ void ResetBoard(S_BOARD *pos)
     for (int i = 0; i < 2; ++i)
     {
         pos->material[i] = 0; // set material scores to 0
+        pos->material[i] = 0; // set material scores to 0
     }
 
     for (int i = 0; i < 3; i++)
@@ -598,6 +613,8 @@ void ResetBoard(S_BOARD *pos)
     pos->castlePerm = 0;
 
     pos->posKey = 0ULL;
+
+    InitPvTable(pos->PvTable);
 }
 
 void PrintBoard(const S_BOARD *pos)
@@ -634,4 +651,6 @@ void PrintBoard(const S_BOARD *pos)
               << '\n';
     std::cout << "PosKey: ";
     std::cout << std::hex << std::uppercase << pos->posKey << '\n'; // hexa cuz easier to read
+    std::cout << std::hex << std::uppercase << pos->posKey << '\n'
+              << std::dec; // hexa cuz easier to read
 }

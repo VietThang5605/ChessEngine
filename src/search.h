@@ -2,28 +2,39 @@
 #define SEARCH_H
 
 #include "types.h"
-#include "init.h"
+#include "board.h"
 
-typedef struct
+struct S_SEARCHINFO
 {
+    int startTime;
+    int stopTime;
 
-    int starttime;
-    int stoptime;
     int depth;
-    int timeset;
-    int movestogo;
+    int depthSet;
 
-    long nodes;
+    int timeSet;
+    int movesToGo;
+    int infinite;
 
-    int quit;
-    int stopped;
+    long long nodes;
+
+    bool quit;
+    bool stopped;
 
     float fh;
     float fhf;
-    int nullCut;
+};
 
-    int GAME_MODE;
-    int POST_THINKING;
+static void CheckUp(S_SEARCHINFO *info);
 
-} S_SEARCHINFO;
+bool IsRepetition(const S_BOARD *pos);
+
+static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info);
+
+static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info);
+
+static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, int DoNull);
+
+void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info);
+
 #endif
