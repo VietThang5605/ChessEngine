@@ -15,7 +15,7 @@ int GetPvLine(const int depth, S_BOARD *pos) {
     //or until we reached the maxdepth
 		ASSERT(count < MAXDEPTH);
 	
-		if (MoveExists(pos, move) ) {  // if it exists, we add it in the array
+		if (MoveExists(pos, move)) {  // if it exists, we add it in the array
 			MakeMove(pos, move);
 			pos->PvArray[count++] = move;
 		} else {

@@ -7,8 +7,10 @@
 struct S_SEARCHINFO {
     int startTime;
     int stopTime;
+
     int depth;
     int depthSet;
+    
     int timeSet;
     int movesToGo;
     int infinite;
@@ -17,6 +19,9 @@ struct S_SEARCHINFO {
 
     bool quit;
     bool stopped;
+
+    float fh;
+    float fhf;
 };
 
 static void CheckUp(S_SEARCHINFO *info);

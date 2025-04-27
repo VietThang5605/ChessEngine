@@ -64,7 +64,7 @@ int EvalPosition(const S_BOARD *pos) {
 
 	}
 
-    std::cout << "Found a " << piece << " on " << sq << " score: " << score << '\n';
+    // std::cout << "Found a " << piece << " on " << sq << " score: " << score << '\n';
 	if (pos->side == WHITE) {
 		return score;
 	} else {

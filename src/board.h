@@ -58,7 +58,7 @@ struct S_BOARD {
 
     U64 posKey; //or hashkey again will be used to represent the position of the board
 
-    int pieceNum[13]; // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
+    int pieceNum[PIECE_NB]; // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
     int bigPiece[3]; // number of "big" pieces (everything that's not a pawn)
     int majorPiece[3]; // major pieces (queen and rooqs)
     int minorPiece[3]; // minor pieces (knight and bishop)
@@ -74,7 +74,7 @@ struct S_BOARD {
     S_PVTABLE PvTable[1];
     int PvArray[MAXDEPTH];
 
-    int searchHistory[13][BRD_SQ_NUM];
+    int searchHistory[PIECE_NB][BRD_SQ_NUM];
     int searchKillers[2][MAXDEPTH];
 };
 

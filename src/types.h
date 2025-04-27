@@ -82,7 +82,7 @@ enum Piece {
     EMPTY,
     wP, wN, wB, wR, wQ, wK,
     bP, bN, bB, bR, bQ, bK,
-    PIECE_NB
+    PIECE_NB = 13
 };
 
 enum Move : int {
