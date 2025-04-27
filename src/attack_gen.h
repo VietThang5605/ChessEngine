@@ -12,6 +12,7 @@ namespace AttackGen {
     // --- Khai báo các bảng tấn công tính sẵn (extern) ---
     extern SF::Bitboard PseudoAttacks_KNIGHT[SF::SQUARE_NB];
     extern SF::Bitboard PseudoAttacks_KING[SF::SQUARE_NB];
+    extern SF::Bitboard PawnAttacks[SF::COLOR_NB][SF::SQUARE_NB];
 
     // --- KHAI BÁO EXTERN CHO CÁC MẢNG HƯỚNG ĐI ---
     extern const SF::Direction BishopDirections[4]; // Thêm extern const

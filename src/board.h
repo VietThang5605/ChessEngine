@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include "evaluation_types.h"
 
 struct S_Undo {
     int move;
@@ -33,6 +34,7 @@ struct S_Board {
                     // if we have  1 0 0 1, we can castle king side for whites & queen side for blacks
 
     U64 posKey; //or hashkey again will be used to represent the position of the board
+    U64 pawnKey; // key for pawns (tính toán từ các Tốt trên bàn cờ)
 
     int pceNum[13]; // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
     int bigPce[3]; // number of "big" pieces (everything that's not a pawn)
@@ -46,3 +48,6 @@ struct S_Board {
 
     int pList[PIECE_NB][10]; // 13 different pieeces which u can have maximum 10 each (like promoting all ur pawns to roks and u get 10 rooks)
 };
+
+// Khai báo hàm tính pawnKey ban đầu
+SF::Key calculate_initial_pawn_key(const S_Board* pos);

@@ -4,6 +4,12 @@
 #include <cstdint>   // Cho uint64_t và các kiểu số nguyên khác
 #include <algorithm> // Cho std::min, std::max
 #include <cassert>   // Cho assert
+#include <vector>   
+
+// Include header cần thiết cho các built-in intrinsics (nếu dùng)
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
 
 // Định nghĩa các kiểu cơ bản (lấy từ Stockfish)
 // Lưu ý: Các enum này có thể trùng tên với enum trong types.h gốc (kiểu Vice),
@@ -11,23 +17,21 @@
 
 namespace SF { // Đặt trong namespace SF (Stockfish) để tránh xung đột trực tiếp
 
+//----------------enum-----------------
 enum Color {
   WHITE, BLACK, COLOR_NB = 2
 };
-
 enum PieceType {
   NO_PIECE_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING,
   ALL_PIECES = 0, // Thường không dùng trực tiếp trong đánh giá
   PIECE_TYPE_NB = 8
 };
-
 enum Piece {
   NO_PIECE,
   W_PAWN = 1, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING, // 1-6
   B_PAWN = 9, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING, // 9-14
   PIECE_NB = 16
 };
-
 enum Square : int {
   SQ_A1, SQ_B1, SQ_C1, SQ_D1, SQ_E1, SQ_F1, SQ_G1, SQ_H1,
   SQ_A2, SQ_B2, SQ_C2, SQ_D2, SQ_E2, SQ_F2, SQ_G2, SQ_H2,
@@ -41,22 +45,24 @@ enum Square : int {
 
   SQUARE_NB = 64
 };
-
 enum File : int {
   FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NB
 };
-
 enum Rank : int {
   RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NB
 };
+enum Direction : int { NORTH = 8, EAST = 1, SOUTH = -NORTH, WEST = -EAST, NORTH_EAST = NORTH + EAST, SOUTH_EAST = SOUTH + EAST, SOUTH_WEST = SOUTH + WEST, NORTH_WEST = NORTH + WEST, NNE = 17, ENE = 10, ESE = -6, SSE = -15, SSW = -17, WSW = -10, WNW = 6, NNW = 15 };
 
-// Các hằng số và enum liên quan trực tiếp đến đánh giá
+// --- Kiểu Key và Hash Table ---
+typedef uint64_t Key;
+typedef uint64_t Bitboard; // Đặt Bitboard ở đây cho nhất quán
+
+// ---------------------Các hằng số và enum liên quan trực tiếp đến đánh giá
 enum Phase {
   PHASE_ENDGAME,      // Giá trị 0
   PHASE_MIDGAME = 128, // Giá trị max của phase, dùng để nội suy
   MG = 0, EG = 1, PHASE_NB = 2 // Index cho mảng giá trị MG/EG
 };
-
 // Giá trị tuyệt đối (không có MG/EG)
 enum Value : int {
   VALUE_ZERO      = 0,
@@ -67,7 +73,9 @@ enum Value : int {
   VALUE_INFINITE  = 32001,
   VALUE_NONE      = 32002,
 
-  // Giá trị quân cờ (lấy từ Stockfish)
+
+
+  // ----------------------Giá trị quân cờ (lấy từ Stockfish)
   PawnValueMg   = 128,   PawnValueEg   = 213,
   KnightValueMg = 781,   KnightValueEg = 854,
   BishopValueMg = 825,   BishopValueEg = 915,
@@ -78,8 +86,35 @@ enum Value : int {
   MidgameLimit  = 15258, EndgameLimit  = 3915
 };
 
+//---------------------hash_table----------------------------
+typedef uint64_t Key;
+template<class Entry, int Size>
+struct SimpleHashTable {
+    static_assert(((Size - 1) & Size) == 0, "Hash table size must be a power of 2");
 
-// Cấu trúc Score để lưu điểm MG và EG
+    Entry* operator[](Key k) {
+        // Dùng phép AND bit để lấy index trong phạm vi [0, Size-1]
+        return &table[static_cast<uint32_t>(k) & (Size - 1)];
+    }
+
+    // Xóa toàn bộ bảng (gán key về 0 hoặc giá trị không hợp lệ)
+    void clear() {
+      // Duyệt qua từng entry trong bảng
+      for (auto& entry : table) {
+          // Giả định rằng Entry luôn có thành viên 'key'
+          // Gán key = 0 để đánh dấu entry là trống/không hợp lệ
+          entry.key = 0;
+      }
+  }
+
+    // Constructor khởi tạo vector với kích thước Size
+    SimpleHashTable() : table(Size) {}
+
+private:
+    std::vector<Entry> table; // Dùng vector cấp phát trên heap
+};
+
+//----------- Cấu trúc Score để lưu điểm MG và EG
 enum Score : int { SCORE_ZERO };
 
 constexpr Score make_score(int mg, int eg) {
@@ -214,93 +249,137 @@ constexpr Color operator~(Color c) {
 
 
 //********** Định nghĩa các kiểu dữ liệu và hàm hỗ trợ cho đánh giá **********/
-typedef uint64_t Bitboard; // Định nghĩa Bitboard là uint64_t (64 bit)
-// Mảng lưu khoảng cách (cần khởi tạo)
-extern uint8_t SquareDistance[SQUARE_NB][SQUARE_NB]; // SQUARE_NB = 64
+// --- Các hằng số Bitboard ---
+constexpr Bitboard FileABB = 0x0101010101010101ULL;
+constexpr Bitboard FileBBB = FileABB << 1;
+constexpr Bitboard FileCBB = FileABB << 2;
+constexpr Bitboard FileDBB = FileABB << 3;
+constexpr Bitboard FileEBB = FileABB << 4;
+constexpr Bitboard FileFBB = FileABB << 5;
+constexpr Bitboard FileGBB = FileABB << 6;
+constexpr Bitboard FileHBB = FileABB << 7;
+constexpr Bitboard Rank1BB = 0xFFULL;
+constexpr Bitboard Rank2BB = Rank1BB << (8 * 1);
+constexpr Bitboard Rank3BB = Rank1BB << (8 * 2);
+constexpr Bitboard Rank4BB = Rank1BB << (8 * 3);
+constexpr Bitboard Rank5BB = Rank1BB << (8 * 4);
+constexpr Bitboard Rank6BB = Rank1BB << (8 * 5);
+constexpr Bitboard Rank7BB = Rank1BB << (8 * 6);
+constexpr Bitboard Rank8BB = Rank1BB << (8 * 7);
+constexpr Bitboard AllSquares = ~Bitboard(0); // Thêm hằng số này
+// Thêm các hằng số khác nếu cần (RankBB, Center, QueenSide,...)
 
-// Hàm template để lấy khoảng cách
-template<typename T1 = Square> // Mặc định là Square
-inline int distance(Square x, Square y);
+// --- Các hàm tiện ích Bitboard (Khai báo) ---
+// Mảng lưu khoảng cách (cần định nghĩa và khởi tạo ở .cpp)
+extern uint8_t SquareDistance[SQUARE_NB][SQUARE_NB];
+// Mảng lưu bitboard cho từng ô (cần định nghĩa và khởi tạo ở .cpp)
+extern Bitboard SquareBB[SQUARE_NB];
 
-// Chuyên biệt hóa cho Square
-template<>
-inline int distance<Square>(Square x, Square y) {
-    // Giả định SquareDistance đã được khởi tạo và x, y hợp lệ
-    return SquareDistance[x][y];
-}
+// Hàm khởi tạo các mảng trên (định nghĩa ở .cpp)
+void init_bitboard_utils();
 
-// Có thể thêm chuyên biệt hóa cho File, Rank nếu cần
+// Hàm lấy khoảng cách
+template<typename T1 = Square> inline int distance(Square x, Square y);
+template<> inline int distance<Square>(Square x, Square y) { return SquareDistance[x][y]; }
 template<> inline int distance<File>(Square x, Square y) { return std::abs(file_of(x) - file_of(y)); }
 template<> inline int distance<Rank>(Square x, Square y) { return std::abs(rank_of(x) - rank_of(y)); }
 
-// Hàm khởi tạo (đặt trong file .cpp tương ứng, ví dụ bitboard_utils.cpp)
-void init_bitboard_utils(); // Hàm này sẽ khởi tạo cả distance và square_bb
+// Hàm lấy bitboard của ô
+inline Bitboard square_bb(Square s) { return is_ok(s) ? SquareBB[s] : Bitboard(0); }
 
-//// Mảng lưu bitboard cho từng ô
-extern Bitboard SquareBB[SQUARE_NB];
-    inline Bitboard square_bb(Square s) {
-        // is_ok nên kiểm tra s >= SQ_A1 && s <= SQ_H8
-        // Bạn đã có is_ok trong evaluation_types.h
-        return is_ok(s) ? SquareBB[s] : Bitboard(0);
-    }
+// === ĐỊNH NGHĨA CÁC HÀM INLINE/CONSTEXPR TẠI ĐÂY ===
 
-//hướng
+// Hàm dịch chuyển bitboard
+template<Direction D>
+constexpr Bitboard shift(Bitboard b) {
+    // Đảm bảo các hằng số FileABB, FileHBB đã được định nghĩa ở trên
+    return D == NORTH      ?  b << 8 :
+           D == SOUTH      ?  b >> 8 :
+           D == EAST       ? (b & ~FileHBB) << 1 :
+           D == WEST       ? (b & ~FileABB) >> 1 :
+           D == NORTH_EAST ? (b & ~FileHBB) << 9 :
+           D == NORTH_WEST ? (b & ~FileABB) << 7 :
+           D == SOUTH_EAST ? (b & ~FileHBB) >> 7 :
+           D == SOUTH_WEST ? (b & ~FileABB) >> 9 :
+           // Thêm các hướng khác nếu cần
+           Bitboard(0);
+}
 
-// --- Các hướng di chuyển ---
-enum Direction : int {
-  NORTH = 8, EAST = 1, SOUTH = -NORTH, WEST = -EAST,
-  NORTH_EAST = NORTH + EAST, SOUTH_EAST = SOUTH + EAST,
-  SOUTH_WEST = SOUTH + WEST, NORTH_WEST = NORTH + WEST,
-
-  NNE = 17, ENE = 10, ESE = -6, SSE = -15,
-  SSW = -17, WSW = -10, WNW = 6, NNW = 15
-};
-constexpr Bitboard FileABB = 0x0101010101010101ULL;
-     constexpr Bitboard FileHBB = FileABB << 7;
-
-    template<Direction D>
-    constexpr Bitboard shift(Bitboard b) {
-      // Nên định nghĩa các hằng số Direction trực tiếp trong enum
-      // thay vì dựa vào tính toán trong template argument nếu có thể.
-      return D == NORTH      ?  b << 8 :
-             D == SOUTH      ?  b >> 8 :
-             D == EAST       ? (b & ~FileHBB) << 1 :
-             D == WEST       ? (b & ~FileABB) >> 1 :
-             D == NORTH_EAST ? (b & ~FileHBB) << 9 :
-             D == NORTH_WEST ? (b & ~FileABB) << 7 :
-             D == SOUTH_EAST ? (b & ~FileHBB) >> 7 :
-             D == SOUTH_WEST ? (b & ~FileABB) >> 9 :
-             // Thêm các hướng khác nếu cần (NNE, SSE...)
-             Bitboard(0);
-    }
-    inline Square lsb(Bitboard b) {
-      assert(b != 0); // Đảm bảo bitboard không rỗng
+// Hàm tìm bit thấp nhất
+inline Square lsb(Bitboard b) {
+    assert(b != 0);
 #if defined(_MSC_VER)
-      unsigned long idx;
-      #ifdef _WIN64
-      _BitScanForward64(&idx, b);
-      #else
-      // Triển khai cho 32-bit nếu cần
-      if (static_cast<uint32_t>(b)) { _BitScanForward(&idx, static_cast<uint32_t>(b)); }
-      else { _BitScanForward(&idx, static_cast<uint32_t>(b >> 32)); idx += 32; }
-      #endif
-      return static_cast<Square>(idx);
+    unsigned long idx;
+    #ifdef _WIN64
+    _BitScanForward64(&idx, b);
+    #else
+    if (static_cast<uint32_t>(b)) { _BitScanForward(&idx, static_cast<uint32_t>(b)); }
+    else { _BitScanForward(&idx, static_cast<uint32_t>(b >> 32)); idx += 32; }
+    #endif
+    return static_cast<Square>(idx);
 #elif defined(__GNUC__) || defined(__clang__)
-      return static_cast<Square>(__builtin_ctzll(b)); // Count Trailing Zeros
+    return static_cast<Square>(__builtin_ctzll(b));
 #else
-      // Fallback nếu không có built-in (chậm)
-      // (Có thể thay bằng cách hiệu quả hơn nếu cần)
-      for(int i=0; i<64; ++i) { if((b>>i)&1) return Square(i); }
-      return SQ_NONE; // Sẽ không xảy ra nếu b != 0
+    // Fallback chậm
+    for(int i=0; i<64; ++i) { if((b>>i)&1) return Square(i); }
+    return SQ_NONE;
 #endif
-  }
+}
 
-  // Hàm tìm và xóa LSB
-  inline Square pop_lsb(Bitboard* b) {
-      const Square s = lsb(*b);
-      *b &= (*b - 1); // Xóa bit thấp nhất bằng trick Brian Kernighan
-      return s;
-  }
+// Hàm tìm và xóa LSB
+inline Square pop_lsb(Bitboard* b) {
+    const Square s = lsb(*b);
+    *b &= (*b - 1); // Xóa bit thấp nhất
+    return s;
+}
+
+// Hàm đếm số bit 1
+inline int popcount(Bitboard b) {
+    #ifdef _MSC_VER
+        #ifdef _WIN64
+            // Cần #include <intrin.h> ở đầu file
+            return static_cast<int>(_mm_popcnt_u64(b));
+        #else
+            // Cần #include <intrin.h> ở đầu file
+            return static_cast<int>(__popcnt(static_cast<uint32_t>(b))) +
+                   static_cast<int>(__popcnt(static_cast<uint32_t>(b >> 32)));
+        #endif
+    #elif defined(__GNUC__) || defined(__clang__)
+        return __builtin_popcountll(b);
+    #else
+        int count = 0;
+        while (b) { b &= (b - 1); count++; }
+        return count;
+    #endif
+}
+
+// Hàm kiểm tra có nhiều hơn 1 bit 1
+inline bool more_than_one(Bitboard b) {
+    return (b & (b - 1)) != 0;
+}
+
+// === KHAI BÁO EXTERN CÁC HÀM TIỆN ÍCH KHÁC (ĐỊNH NGHĨA TRONG .CPP) ===
+extern Bitboard adjacent_files_bb(Square s);
+extern Bitboard rank_bb(Square s);
+extern Bitboard rank_bb(Rank r);
+extern Bitboard file_bb(File f);
+extern Bitboard file_bb(Square s);
+extern Bitboard forward_ranks_bb(Color c, Square s);
+extern Bitboard forward_file_bb(Color c, Square s);
+extern Bitboard passed_pawn_span(Color c, Square s);
+extern Bitboard pawn_attack_span(Color c, Square s);
+// ===================================================================
+
+// Các toán tử cho Bitboard và Square
+inline Bitboard  operator&( Bitboard  b, Square s) { return b &  square_bb(s); }
+inline Bitboard  operator|( Bitboard  b, Square s) { return b |  square_bb(s); }
+inline Bitboard  operator^( Bitboard  b, Square s) { return b ^  square_bb(s); }
+inline Bitboard& operator|=(Bitboard& b, Square s) { return b |= square_bb(s); }
+inline Bitboard& operator^=(Bitboard& b, Square s) { return b ^= square_bb(s); }
+inline Bitboard  operator&(Square s, Bitboard b) { return b & s; }
+inline Bitboard  operator|(Square s, Bitboard b) { return b | s; }
+inline Bitboard  operator^(Square s, Bitboard b) { return b ^ s; }
+
 
 // *** Đặt các #undef ở cuối cùng, trước khi kết thúc namespace ***
 #undef ENABLE_FULL_OPERATORS_ON

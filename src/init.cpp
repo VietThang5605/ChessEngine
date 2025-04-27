@@ -1,6 +1,7 @@
 #include "types.h"
 #include "evaluation_types.h"
 #include "attack_gen.h"
+#include "zobrist.h"
 
 #include <stdlib.h>
 
@@ -42,5 +43,5 @@ void AllInit() {
     PSQT::init(); // Gọi hàm init() từ namespace PSQT
     SF::init_bitboard_utils(); // Khởi tạo các hàm bitboard
     AttackGen::init_attack_tables(); // Khởi tạo các bảng tấn công
-    
+    Zobrist::init(); // Khởi tạo các số Zobrist
 }

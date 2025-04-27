@@ -14,6 +14,7 @@ namespace AttackGen {
 // --- Định nghĩa các bảng tấn công toàn cục ---
 SF::Bitboard PseudoAttacks_KNIGHT[SF::SQUARE_NB];
 SF::Bitboard PseudoAttacks_KING[SF::SQUARE_NB];
+SF::Bitboard PawnAttacks[SF::COLOR_NB][SF::SQUARE_NB];
 
 
 const int KnightOffsets[8] = { SF::NNE, SF::ENE, SF::ESE, SF::SSE, SF::SSW, SF::WSW, SF::WNW, SF::NNW };
@@ -29,6 +30,8 @@ void init_attack_tables() {
         SF::Square s = static_cast<SF::Square>(s_int);
         PseudoAttacks_KNIGHT[s] = 0;
         PseudoAttacks_KING[s] = 0;
+        PawnAttacks[SF::WHITE][s] = 0; // Khởi tạo bằng 0
+        PawnAttacks[SF::BLACK][s] = 0; // Khởi tạo bằng 0
 
         // Knight attacks
         for (int offset : KnightOffsets) {
@@ -45,6 +48,23 @@ void init_attack_tables() {
                 PseudoAttacks_KING[s] |= SF::square_bb(to);
             }
         }
+
+        // === KHỞI TẠO PAWNATTACKS ===
+            // Tấn công Tốt trắng
+        SF::Square to_ne = static_cast<SF::Square>(s + SF::NORTH_EAST);
+        SF::Square to_nw = static_cast<SF::Square>(s + SF::NORTH_WEST);
+        if (SF::is_ok(to_ne) && SF::file_of(to_ne) > SF::file_of(s)) // Kiểm tra tràn cột H
+            PawnAttacks[SF::WHITE][s] |= SF::square_bb(to_ne);
+        if (SF::is_ok(to_nw) && SF::file_of(to_nw) < SF::file_of(s)) // Kiểm tra tràn cột A
+            PawnAttacks[SF::WHITE][s] |= SF::square_bb(to_nw);
+
+            // Tấn công Tốt đen
+        SF::Square to_se = static_cast<SF::Square>(s + SF::SOUTH_EAST);
+        SF::Square to_sw = static_cast<SF::Square>(s + SF::SOUTH_WEST);
+        if (SF::is_ok(to_se) && SF::file_of(to_se) > SF::file_of(s)) // Kiểm tra tràn cột H
+            PawnAttacks[SF::BLACK][s] |= SF::square_bb(to_se);
+        if (SF::is_ok(to_sw) && SF::file_of(to_sw) < SF::file_of(s)) // Kiểm tra tràn cột A
+            PawnAttacks[SF::BLACK][s] |= SF::square_bb(to_sw);
     }
 }
 
@@ -52,11 +72,17 @@ void init_attack_tables() {
 
 SF::Bitboard attacks_from_pawns(const S_Board* pos, SF::Color side) {
     SF::Bitboard pawns = pos->pawnsBB[side]; // Lấy bitboard Tốt từ S_BOARD
-    if (side == SF::WHITE) {
-        return SF::shift<SF::NORTH_WEST>(pawns) | SF::shift<SF::NORTH_EAST>(pawns);
-    } else { // BLACK
-        return SF::shift<SF::SOUTH_WEST>(pawns) | SF::shift<SF::SOUTH_EAST>(pawns);
+    // if (side == SF::WHITE) {
+    //     return SF::shift<SF::NORTH_WEST>(pawns) | SF::shift<SF::NORTH_EAST>(pawns);
+    // } else { // BLACK
+    //     return SF::shift<SF::SOUTH_WEST>(pawns) | SF::shift<SF::SOUTH_EAST>(pawns);
+    // }
+    SF::Bitboard attacks = 0;
+        // Tối ưu hơn là dùng bảng tính sẵn
+    while (pawns) {
+        attacks |= PawnAttacks[side][SF::pop_lsb(&pawns)];
     }
+    return attacks;
 }
 
 SF::Bitboard attacks_from_knights(const S_Board* pos, SF::Color side) {
