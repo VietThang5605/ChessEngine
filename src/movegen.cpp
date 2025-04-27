@@ -303,3 +303,122 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		piece = LoopNonSlidePiece[pieceIndex++];
 	}
 }
+
+void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
+    ASSERT(CheckBoard(pos));
+
+	list->count = 0;
+
+	int side = pos->side;
+
+	if (side == WHITE) {
+		for (int pieceNum = 0; pieceNum < pos->pieceNum[wP]; ++pieceNum) {
+			int sq = pos->pieceList[wP][pieceNum];
+			ASSERT(SqOnBoard(sq));
+
+			if (!SQOFFBOARD(sq + 9) && PieceColor[pos->pieces[sq + 9]] == BLACK) {
+				AddWhitePawnCapMove(pos, sq, sq+9, pos->pieces[sq + 9], list);
+			}
+			if (!SQOFFBOARD(sq + 11) && PieceColor[pos->pieces[sq + 11]] == BLACK) {
+				AddWhitePawnCapMove(pos, sq, sq+11, pos->pieces[sq + 11], list);
+			}
+
+			if (pos->enPas != NO_SQ) {
+				if(sq + 9 == pos->enPas) {
+					AddEnPassantMove(pos, MOVE(sq,sq + 9,EMPTY,EMPTY,MOVEFLAG_EP), list);
+				}
+				if(sq + 11 == pos->enPas) {
+					AddEnPassantMove(pos, MOVE(sq,sq + 11,EMPTY,EMPTY,MOVEFLAG_EP), list);
+				}
+			}
+		}
+
+	} else {
+        for (int pieceNum = 0; pieceNum < pos->pieceNum[bP]; ++pieceNum) {
+			int sq = pos->pieceList[bP][pieceNum];
+			ASSERT(SqOnBoard(sq));
+
+            if (!SQOFFBOARD(sq - 9) && PieceColor[pos->pieces[sq - 9]] == WHITE) {
+				AddBlackPawnCapMove(pos, sq, sq-9, pos->pieces[sq - 9], list);
+			}
+			if (!SQOFFBOARD(sq - 11) && PieceColor[pos->pieces[sq - 11]] == WHITE) {
+				AddBlackPawnCapMove(pos, sq, sq-11, pos->pieces[sq - 11], list);
+			}
+
+            if (pos->enPas != NO_SQ) {
+				if(sq - 9 == pos->enPas) {
+					AddEnPassantMove(pos, MOVE(sq,sq - 9,EMPTY,EMPTY,MOVEFLAG_EP), list);
+				}
+				if(sq - 11 == pos->enPas) {
+					AddEnPassantMove(pos, MOVE(sq,sq - 11,EMPTY,EMPTY,MOVEFLAG_EP), list);
+				}
+			}
+        }
+
+    }
+
+    /* Loop for slide pieces */
+	int pieceIndex = LoopSlideIndex[side];
+	int piece = LoopSlidePiece[pieceIndex++];
+    while (piece != 0) {
+        ASSERT(PieceValid(piece));
+        // std::cout << "sliders pieceIndex: " << pieceIndex << " piece: " << piece << '\n';
+
+        for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {
+			int sq = pos->pieceList[piece][pieceNum];
+			ASSERT(SqOnBoard(sq));
+            // std::cout << "Piece: " << PieceChar[piece] << " on " << PrintSquare(sq) << '\n';
+
+            for (int i = 0; i < NumDir[piece]; i++) {
+                int dir = PieceDir[piece][i]; //dir can't be 0 because we have i < NumDir[piece]
+				int t_sq = sq + dir;
+
+                while (!SQOFFBOARD(t_sq)) {
+                    // BLACK ^ 1 == WHITE       WHITE ^ 1 == BLACK
+                    if (pos->pieces[t_sq] != EMPTY) {
+                        if (PieceColor[pos->pieces[t_sq]] == (side ^ 1)) {
+                            AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
+                        }
+                        break;
+                    }
+                    t_sq += dir;
+                }
+            }
+        }
+
+		piece = LoopSlidePiece[pieceIndex++];
+	}
+
+    /* Loop for non slide */
+    pieceIndex = LoopNonSlideIndex[side];
+	piece = LoopNonSlidePiece[pieceIndex++];
+    while (piece != 0) {
+        ASSERT(PieceValid(piece));
+        // std::cout << "non-sliders pieceIndex: " << pieceIndex << " piece: " << piece << '\n';
+
+        for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {
+			int sq = pos->pieceList[piece][pieceNum];
+			ASSERT(SqOnBoard(sq));
+            // std::cout << "Piece: " << PieceChar[piece] << " on " << PrintSquare(sq) << '\n';
+
+            for (int i = 0; i < NumDir[piece]; i++) {
+                int dir = PieceDir[piece][i];
+				int t_sq = sq + dir;
+
+                if (SQOFFBOARD(t_sq)) {
+				    continue;
+				}
+
+                // BLACK ^ 1 == WHITE       WHITE ^ 1 == BLACK
+				if (pos->pieces[t_sq] != EMPTY) {
+					if (PieceColor[pos->pieces[t_sq]] == (side ^ 1)) {
+						AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
+					}
+					continue;
+				}
+            }
+        }
+
+		piece = LoopNonSlidePiece[pieceIndex++];
+	}
+}

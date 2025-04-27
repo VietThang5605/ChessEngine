@@ -61,4 +61,6 @@ static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to
 static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list);
 
 void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list);
+
+void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list);
 #endif
