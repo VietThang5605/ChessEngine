@@ -14,6 +14,26 @@ static void CheckUp(S_SEARCHINFO *info) { //will be called every 4k node or so
 
 }
 
+static void PickNextMove(int moveNum, S_MOVELIST *list) {
+	int bestScore = 0;
+	int bestNum = moveNum;
+
+	for (int i = moveNum; i < list->count; ++i) {
+		if (list->moves[i].score > bestScore) {
+			bestScore = list->moves[i].score;
+			bestNum = i;
+		}
+	}
+
+	ASSERT(moveNum >= 0 && moveNum < list->count);
+	ASSERT(bestNum >= 0 && bestNum < list->count);
+	ASSERT(bestNum >= moveNum);
+
+	S_MOVE temp = list->moves[moveNum];
+	list->moves[moveNum] = list->moves[bestNum];
+	list->moves[bestNum] = temp;
+}
+
 bool IsRepetition(const S_BOARD *pos) {
     for (int i = pos->hisPly - pos->fiftyMove; i < pos->hisPly - 1; ++i) {
 		ASSERT(i >= 0 && i < MAXGAMEMOVES);
@@ -79,6 +99,8 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	int PvMove = ProbePvTable(pos);
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+		PickNextMove(MoveNum, list);
+
 		if (!MakeMove(pos, list->moves[MoveNum].move)) {
 			continue;
 		}

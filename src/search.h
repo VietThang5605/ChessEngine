@@ -26,6 +26,8 @@ struct S_SEARCHINFO {
 
 static void CheckUp(S_SEARCHINFO *info);
 
+static void PickNextMove(int moveNum, S_MOVELIST *list);
+
 bool IsRepetition(const S_BOARD *pos);
 
 static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info);

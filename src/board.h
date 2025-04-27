@@ -76,6 +76,14 @@ struct S_BOARD {
 
     int searchHistory[PIECE_NB][BRD_SQ_NUM];
     int searchKillers[2][MAXDEPTH];
+
+    S_BOARD() {
+        InitPvTable(PvTable);
+    }
+
+    ~S_BOARD() {
+        delete[] PvTable->pTable;
+    }
 };
 
 bool CheckBoard(const S_BOARD *pos);

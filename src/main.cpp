@@ -91,6 +91,7 @@
 
 //FEN for testing search
 #define FEN_WAC1 "2rr3k/pp3pp1/1nnqbN1p/3pN3/2pP4/2P3Q1/PPB4P/R4RK1 w - - 0 1"
+#define FEN_WAC2 "r1b1k2r/ppppnppp/2n2q2/2b5/3NP3/2P1B3/PP3PPP/RN1QKB1R w KQkq - 0 1"
 
 #define FEN_MATEIN2_1 "r1bq2r1/b4pk1/p1pp1p2/1p2pP2/1P2P1PB/3P4/1PPQ2P1/R3K2R w - - 0 1"
 #define FEN_MATEIN2_2 "r2qk2r/pb4pp/1n2Pb2/2B2Q2/p1p5/2P5/2B2PPP/RN2R1K1 w - - 1 0"
@@ -103,6 +104,9 @@
 #define FEN_MATEIN3_3 "r3k2r/ppp2Npp/1b5n/4p2b/2B1P2q/BQP2P2/P5PP/RN5K w kq - 1 0"
 #define FEN_MATEIN3_4 "rnbqk1nr/2p2pp1/p3p3/2bp3p/7P/2N2P1N/1PPPP1P1/R1BQKB1R b Kkq - 2 8"
 #define FEN_MATEIN3_5 "rn2k2r/p3q2p/B1p1bp1n/P5pP/1b6/5N2/1PPN1PP1/R1BQK2R b KQkq - 4 15"
+
+#define FEN_MATEIN5_1 "2rq4/3r1kb1/p2R4/1PB1np1p/1P6/5pP1/7P/1N1QRK2 w - - 3 43"
+#define FEN_MATEIN5_2 "r1Q5/5bk1/3p1pp1/3n1p1p/7P/4PNPB/1r3PRK/R7 w - - 1 46"
 
 using namespace std;
 
@@ -713,18 +717,71 @@ int main() {
     // }
 
     //Part 60
+    // S_BOARD board[1];
+    // S_MOVELIST list[1];
+    // S_SEARCHINFO info[1];
+
+    // // ParseFen(START_FEN, board);
+    // // ParseFen(FEN_WAC1, board);
+
+    // // ParseFen(FEN_MATEIN2_1, board);
+    // // ParseFen(FEN_MATEIN2_2, board);
+    // // ParseFen(FEN_MATEIN2_3, board);
+    // // ParseFen(FEN_MATEIN2_4, board);
+    // ParseFen(FEN_MATEIN2_5, board);
+
+    // char input[6];
+    // int move = NOMOVE;
+    // int Max = 0;
+
+    // while (true) {
+    //     PrintBoard(board);
+    //     std:: cout << "Please enter a move > ";
+    //     std::cin.getline(input, sizeof(input));
+
+    //     if (input[0] == 'q') {
+    //         break;
+    //     } else if (input[0] == 't') {
+    //         TakeMove(board);
+    //     } else if (input[0] == 's') {
+    //         info->depth = 4;
+    //         SearchPosition(board, info);
+    //     } else {
+    //         move = ParseMove(input, board);
+    //         if (move != NOMOVE) {
+    //             StorePvMove(board, move);
+    //             MakeMove(board, move);
+    //             // if (IsRepetition(board)) {
+    //             //     std::cout << "REP SEEN\n";
+    //             // }
+    //         } else {
+    //             std::cout << "Illegal move\n";
+    //         }
+    //     }
+
+    //     if (std::cin.fail()) {
+    //         std::cout << "Please enter the move with correct length. Input was too long!\n";
+    //         std::cin.clear();
+    //     }
+                
+    //     std::cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    // }
+
+    //Part 61
     S_BOARD board[1];
+    // InitPvTable(board->PvTable); -> move to S_BOARD constructor
+
     S_MOVELIST list[1];
     S_SEARCHINFO info[1];
 
-    // ParseFen(START_FEN, board);
     // ParseFen(FEN_WAC1, board);
-
-    // ParseFen(FEN_MATEIN2_1, board);
-    // ParseFen(FEN_MATEIN2_2, board);
-    // ParseFen(FEN_MATEIN2_3, board);
-    // ParseFen(FEN_MATEIN2_4, board);
-    ParseFen(FEN_MATEIN2_5, board);
+    // ParseFen(FEN_WAC2, board);
+    
+    // ParseFen(FEN_MATEIN3_1, board);
+    // ParseFen(FEN_MATEIN3_2, board);
+    
+    ParseFen(FEN_MATEIN5_1, board);
+    // ParseFen(FEN_MATEIN5_2, board);
 
     char input[6];
     int move = NOMOVE;
@@ -740,7 +797,7 @@ int main() {
         } else if (input[0] == 't') {
             TakeMove(board);
         } else if (input[0] == 's') {
-            info->depth = 4;
+            info->depth = 6;
             SearchPosition(board, info);
         } else {
             move = ParseMove(input, board);

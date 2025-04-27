@@ -5,6 +5,20 @@
 #include "attack.h"
 #include "data.h"
 
+void InitMvvLva() {
+	for (int Attacker = wP; Attacker <= bK; ++Attacker) {
+		for (int Victim = wP; Victim <= bK; ++Victim) {
+			MvvLvaScores[Victim][Attacker] = VictimScore[Victim] + 6 - (VictimScore[Attacker] / 100);
+		}
+	}
+
+	// for (int Victim = wP; Victim <= bK; ++Victim) {
+	// 	for (int Attacker = wP; Attacker <= bK; ++Attacker) {
+	// 		std::cout << PieceChar[Attacker] << " x " << PieceChar[Victim] << " = " << MvvLvaScores[Victim][Attacker] << '\n';
+	// 	}
+	// }
+}
+
 int MoveExists(S_BOARD *pos, const int move) {
 	S_MOVELIST list[1];
     GenerateAllMoves(pos,list);
@@ -29,13 +43,13 @@ static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
 static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
     list->moves[list->count].move = move;
-    list->moves[list->count].score = 0;
+    list->moves[list->count].score = MvvLvaScores[CAPTURED(move)][pos->pieces[FROMSQ(move)]];
     list->count++;
 }
 
 static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
     list->moves[list->count].move = move;
-    list->moves[list->count].score = 0;
+    list->moves[list->count].score = 105;
     list->count++;
 }
 

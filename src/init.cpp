@@ -1,4 +1,5 @@
 #include "init.h"
+#include "movegen.h"
 
 #include <iostream>
 #include <iomanip>
@@ -102,4 +103,5 @@ void AllInit() {
     InitBitMasks();
     InitHashKeys();
     InitFilesRanksBrd();
+    InitMvvLva();
 }
