@@ -19,7 +19,7 @@ DARK_BROWN = (139, 69, 19)
 BLUE = (100, 139, 186)
 
 HIGHLIGHT_COLOR = (50, 205, 50)
-font = pygame.font.Font(None, 48)
+font = pygame.font.SysFont('timenewromans', 48)
 
 move_sound = pygame.mixer.Sound("sound/move.wav")
 capture_sound = pygame.mixer.Sound("sound/capture.wav")
