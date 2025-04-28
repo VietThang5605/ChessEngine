@@ -9,9 +9,9 @@ struct S_SEARCHINFO {
     int stopTime;
 
     int depth;
-    int depthSet;
+    bool depthSet;
     
-    int timeSet;
+    bool timeSet;
     int movesToGo;
     int infinite;
 

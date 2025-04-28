@@ -11,7 +11,11 @@
 
 static void CheckUp(S_SEARCHINFO *info) { //will be called every 4k node or so
 	// .. check if time up, or interrupt from GUI
+	if (info->timeSet == TRUE && GetTimeMs() > info->stopTime) {
+		info->stopped = TRUE;
+	}
 
+	ReadInput(info);
 }
 
 static void PickNextMove(int moveNum, S_MOVELIST *list) {
@@ -60,7 +64,6 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 	ClearPvTable(pos->PvTable);
 	pos->ply = 0;
 
-	info->startTime = GetTimeMs();
 	info->stopped = 0;
 	info->nodes = 0;
 	info->fh = 0;
@@ -69,6 +72,11 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 
 static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 	ASSERT(CheckBoard(pos));
+
+	if ((info->nodes & 2047) == 0) {
+		CheckUp(info);
+	}
+
 	info->nodes++;
 
 	if ((IsRepetition(pos) || pos->fiftyMove >= 100)&& pos->ply) {
@@ -109,6 +117,10 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 		Score = -Quiescence(-beta, -alpha, pos, info);
 		TakeMove(pos);
 
+		if (info->stopped == TRUE) {
+			return 0;
+		}
+
 		if (Score > alpha) {
 			if (Score >= beta) {
 				if (Legal == 1) {
@@ -134,6 +146,10 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 	if (depth == 0) {
 		return Quiescence(alpha, beta, pos, info);
+	}
+
+	if ((info->nodes & 2047) == 0) {
+		CheckUp(info);
 	}
 
 	info->nodes++;
@@ -174,6 +190,10 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		Legal++;
 		Score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, TRUE);
 		TakeMove(pos);
+
+		if (info->stopped == TRUE) {
+			return 0;
+		}
 
 		if (Score > alpha) {
 			if (Score >= beta) {
@@ -231,14 +251,17 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 		std::cout << "Depth: " << currentDepth << " score: " << bestScore << " move: " 
 				<< PrintMove(bestMove) << " nodes: " << info->nodes << '\n';
 		
+		std::cout << "info score " << bestScore << " depth " << currentDepth << " nodes " << info->nodes << " time " << GetTimeMs() - info->startTime << " ";
+		
 		//**************
 		info->movesToGo = bestMove;
 
-		std::cout << "PvLine of " << pvMoves << " Moves: ";
+		std::cout << "pv";
 		for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
 			std::cout << " " << PrintMove(pos->PvArray[pvNum]);
 		}
 		std::cout << '\n';
-		std::cout << "Ordering: " << std::fixed << std::setprecision(2) << (info->fhf / info->fh) << '\n';
+		// std::cout << "Ordering: " << std::fixed << std::setprecision(2) << (info->fhf / info->fh) << '\n';
 	}
+	std::cout << "bestmove " << PrintMove(bestMove) << '\n';
 }

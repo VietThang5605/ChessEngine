@@ -30,7 +30,7 @@ if(! (n)) { \
 // typedef unsigned long long U64;
 typedef uint64_t U64;
 
-#define NAME ChessEngine
+#define NAME "ChessEngine"
 #define BRD_SQ_NUM 120   // cuz 120 cases on the board (0 to 120)
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
