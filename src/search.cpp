@@ -230,6 +230,9 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 		bestMove = pos->PvArray[0];
 		std::cout << "Depth: " << currentDepth << " score: " << bestScore << " move: " 
 				<< PrintMove(bestMove) << " nodes: " << info->nodes << '\n';
+		
+		//**************
+		info->movesToGo = bestMove;
 
 		std::cout << "PvLine of " << pvMoves << " Moves: ";
 		for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {

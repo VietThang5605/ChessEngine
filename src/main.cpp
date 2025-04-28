@@ -821,13 +821,59 @@ int main() {
     // }
 
     //Part 64
+    // S_BOARD board[1];
+    // // InitPvTable(board->PvTable); -> move to S_BOARD constructor
+
+    // S_MOVELIST list[1];
+    // S_SEARCHINFO info[1];
+
+    // ParseFen(FEN_WAC2, board);
+
+    // char input[6];
+    // int move = NOMOVE;
+    // int Max = 0;
+
+    // while (true) {
+    //     PrintBoard(board);
+    //     std:: cout << "Please enter a move > ";
+    //     std::cin.getline(input, sizeof(input));
+
+    //     if (input[0] == 'q') {
+    //         break;
+    //     } else if (input[0] == 't') {
+    //         TakeMove(board);
+    //     } else if (input[0] == 's') {
+    //         info->depth = 6;
+    //         SearchPosition(board, info);
+    //     } else {
+    //         move = ParseMove(input, board);
+    //         if (move != NOMOVE) {
+    //             StorePvMove(board, move);
+    //             MakeMove(board, move);
+    //             // if (IsRepetition(board)) {
+    //             //     std::cout << "REP SEEN\n";
+    //             // }
+    //         } else {
+    //             std::cout << "Illegal move\n";
+    //         }
+    //     }
+
+    //     if (std::cin.fail()) {
+    //         std::cout << "Please enter the move with correct length. Input was too long!\n";
+    //         std::cin.clear();
+    //     }
+                
+    //     std::cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    // }
+
+    //Self-test
     S_BOARD board[1];
     // InitPvTable(board->PvTable); -> move to S_BOARD constructor
 
     S_MOVELIST list[1];
     S_SEARCHINFO info[1];
 
-    ParseFen(FEN_WAC2, board);
+    ParseFen(START_FEN, board);
 
     char input[6];
     int move = NOMOVE;
@@ -849,10 +895,14 @@ int main() {
             move = ParseMove(input, board);
             if (move != NOMOVE) {
                 StorePvMove(board, move);
-                MakeMove(board, move);
-                // if (IsRepetition(board)) {
-                //     std::cout << "REP SEEN\n";
-                // }
+                if (!MakeMove(board, move)) {
+                    std::cout << "Illegal move\n";    
+                } else {
+                    info->depth = 7;
+                    SearchPosition(board, info);
+                    MakeMove(board, info->movesToGo);
+                    std::cout << "Engine make move: " << PrintMove(info->movesToGo) << '\n';
+                }
             } else {
                 std::cout << "Illegal move\n";
             }
