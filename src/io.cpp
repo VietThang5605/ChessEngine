@@ -54,7 +54,7 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
     int from = FR2SQ(ptrChar[0] - 'a', ptrChar[1] - '1');
     int to = FR2SQ(ptrChar[2] - 'a', ptrChar[3] - '1');
 
-	std::cout << "prtChar:" << ptrChar << " from:" << from << " to:" << to << '\n';
+	// std::cout << "prtChar:" << ptrChar << " from:" << from << " to:" << to << '\n';
 
 	ASSERT(SqOnBoard(from) && SqOnBoard(to));
 

@@ -17,6 +17,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <ctime>
+#include <limits>
 
 #define FEN1 "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
 #define FEN2 "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
@@ -870,7 +871,6 @@ int main() {
 
     //Self-test
     // S_BOARD board[1];
-    // // InitPvTable(board->PvTable); -> move to S_BOARD constructor
 
     // S_MOVELIST list[1];
     // S_SEARCHINFO info[1];
@@ -880,6 +880,8 @@ int main() {
     // char input[6];
     // int move = NOMOVE;
     // int Max = 0;
+
+    // int timePerMove = 10000;
 
     // while (true) {
     //     PrintBoard(board);
@@ -891,25 +893,21 @@ int main() {
     //     } else if (input[0] == 't') {
     //         TakeMove(board);
     //     } else if (input[0] == 's') {
-    //         info->depth = 10;
+    //         // info->depth = 10;
+    //         // info->depthSet = TRUE;
     //         info->timeSet = TRUE;
     //         info->startTime = GetTimeMs();
-    //         info->stopTime = GetTimeMs() + 10000;
+    //         info->stopTime = info->startTime + timePerMove;
+    //         info->depth = MAXDEPTH;
     //         SearchPosition(board, info);
     //     } else {
     //         move = ParseMove(input, board);
     //         if (move != NOMOVE) {
     //             StorePvMove(board, move);
     //             if (!MakeMove(board, move)) {
-    //                 std::cout << "Illegal move\n";    
+    //                 std::cout << "Illegal move\n";
     //             } else {
-    //                 info->depth = 7;
-    //                 info->timeSet = TRUE;
-    //                 info->startTime = GetTimeMs();
-    //                 info->stopTime = GetTimeMs() + 20000;
-    //                 SearchPosition(board, info);
-    //                 MakeMove(board, info->movesToGo);
-    //                 std::cout << "Engine make move: " << PrintMove(info->movesToGo) << '\n';
+    //                 std::cout << "Engine make move: " << PrintMove(move) << '\n';
     //             }
     //         } else {
     //             std::cout << "Illegal move\n";
@@ -919,9 +917,8 @@ int main() {
     //     if (std::cin.fail()) {
     //         std::cout << "Please enter the move with correct length. Input was too long!\n";
     //         std::cin.clear();
+    //         std::cin.ignore(numeric_limits<streamsize>::max(), '\n');
     //     }
-                
-    //     std::cin.ignore(numeric_limits<streamsize>::max(), '\n');
     // }
 
     Uci_Loop();

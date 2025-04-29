@@ -79,7 +79,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 	info->nodes++;
 
-	if ((IsRepetition(pos) || pos->fiftyMove >= 100)&& pos->ply) {
+	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) {
 		return 0;
 	}
 
@@ -154,7 +154,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 	info->nodes++;
 
-	if (IsRepetition(pos) || pos->fiftyMove >= 100) {
+	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) { //its a draw
 		return 0;
 	}
 
@@ -248,13 +248,8 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		pvMoves = GetPvLine(currentDepth, pos);
 		bestMove = pos->PvArray[0];
-		std::cout << "Depth: " << currentDepth << " score: " << bestScore << " move: " 
-				<< PrintMove(bestMove) << " nodes: " << info->nodes << '\n';
 		
-		std::cout << "info score " << bestScore << " depth " << currentDepth << " nodes " << info->nodes << " time " << GetTimeMs() - info->startTime << " ";
-		
-		//**************
-		info->movesToGo = bestMove;
+		std::cout << "info score cp " << bestScore << " depth " << currentDepth << " nodes " << info->nodes << " time " << GetTimeMs() - info->startTime << " ";
 
 		std::cout << "pv";
 		for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {

@@ -5,8 +5,6 @@
 #include "board.h"
 #include "search.h"
 
-#include <cstring>
-
 #define INPUTBUFFER 400 * 6
 
 void ParseGo(char* line, S_SEARCHINFO *info, S_BOARD *pos);
