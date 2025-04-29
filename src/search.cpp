@@ -249,14 +249,37 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 		pvMoves = GetPvLine(currentDepth, pos);
 		bestMove = pos->PvArray[0];
 		
-		std::cout << "info score cp " << bestScore << " depth " << currentDepth << " nodes " << info->nodes << " time " << GetTimeMs() - info->startTime << " ";
-
-		std::cout << "pv";
-		for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
-			std::cout << " " << PrintMove(pos->PvArray[pvNum]);
+		if (info->GAME_MODE == UCIMODE) {
+			std::cout << "info score cp " << bestScore << " depth " << currentDepth << " nodes " << info->nodes << " time " << GetTimeMs() - info->startTime << " ";
+		} else if(info->GAME_MODE == XBOARDMODE && info->POST_THINKING == TRUE) {
+			std::cout << currentDepth << ' ' << bestScore << ' ' 
+				<< (GetTimeMs() - info->startTime) / 10 << ' ' << info->nodes << ' ';
+		} else if(info->POST_THINKING == TRUE) {
+			std::cout << "score:" << bestScore << " depth:" << currentDepth
+				<< " nodes:" << info->nodes << " time:" << GetTimeMs() - info->startTime << "(ms) ";
 		}
-		std::cout << '\n';
-		// std::cout << "Ordering: " << std::fixed << std::setprecision(2) << (info->fhf / info->fh) << '\n';
+
+		if (info->GAME_MODE == UCIMODE || info->POST_THINKING == TRUE) {
+			if (!(info->GAME_MODE == XBOARDMODE)) {
+				std::cout << "pv";
+			}
+
+			for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
+				std::cout << " " << PrintMove(pos->PvArray[pvNum]);
+			}
+			std::cout << '\n';
+			// std::cout << "Ordering: " << std::fixed << std::setprecision(2) << (info->fhf / info->fh) << '\n';
+		}
 	}
-	std::cout << "bestmove " << PrintMove(bestMove) << '\n';
+
+	if (info->GAME_MODE == UCIMODE) {
+		std::cout << "bestmove " << PrintMove(bestMove) << '\n';
+	} else if(info->GAME_MODE == XBOARDMODE) {
+		std::cout << "move " << PrintMove(bestMove) << '\n';
+		MakeMove(pos, bestMove);	
+	} else {
+		std::cout << "\n\n*** Engine makes move " << PrintMove(bestMove) << " ***\n\n";
+		MakeMove(pos, bestMove);
+		PrintBoard(pos);
+	}
 }

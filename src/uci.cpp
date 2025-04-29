@@ -105,7 +105,7 @@ void ParsePosition(char* lineIn, S_BOARD *pos) {
 	PrintBoard(pos);
 }
 
-void Uci_Loop() {
+void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
@@ -113,9 +113,6 @@ void Uci_Loop() {
 	std::cout << "id name " << NAME << '\n';
 	std::cout << "id author TelietTeam\n";
 	std::cout << "uciok\n";
-
-	S_BOARD pos[1];
-    S_SEARCHINFO info[1];
 
 	while (TRUE) {
 		if (!std::cin.getline(line, sizeof(line))) {

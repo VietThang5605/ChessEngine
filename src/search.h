@@ -22,6 +22,9 @@ struct S_SEARCHINFO {
 
     float fh;
     float fhf;
+
+    Mode GAME_MODE;
+    bool POST_THINKING;
 };
 
 static void CheckUp(S_SEARCHINFO *info);
