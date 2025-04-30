@@ -39,8 +39,8 @@ typedef uint64_t U64;
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 64
 
-#define INFINITE 30000
-#define MATE (INFINITE - MAXDEPTH)
+#define INF 30000
+#define MATE (INF - MAXDEPTH)
 
 enum Mode {
     UCIMODE, XBOARDMODE, CONSOLEMODE

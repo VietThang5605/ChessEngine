@@ -103,7 +103,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 	int Legal = 0;
 	int OldAlpha = alpha;
 	int BestMove = NOMOVE;
-	Score = -INFINITE; 
+	Score = -INF; 
 	// int PvMove = ProbePvTable(pos);
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
@@ -168,7 +168,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	int Legal = 0;
 	int OldAlpha = alpha;
 	int BestMove = NOMOVE;
-	int Score = -INFINITE; 
+	int Score = -INF; 
 	int PvMove = ProbePvTable(pos);
 
 	if (PvMove != NOMOVE) {
@@ -234,13 +234,13 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 	int bestMove = NOMOVE;
-	int bestScore = -INFINITE;
+	int bestScore = -INF;
 	int pvMoves = 0;
 
 	ClearForSearch(pos, info);
 
 	for (int currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
-		bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, TRUE);
+		bestScore = AlphaBeta(-INF, INF, currentDepth, pos, info, TRUE);
 
 		if (info->stopped == TRUE) {
 			break;
