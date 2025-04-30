@@ -17,6 +17,9 @@
 
 namespace SF { // Đặt trong namespace SF (Stockfish) để tránh xung đột trực tiếp
 
+  constexpr int MAX_MOVES = 256;
+  constexpr int MAX_PLY   = 246;
+
 //----------------enum-----------------
 enum Color {
   WHITE, BLACK, COLOR_NB = 2
@@ -53,6 +56,14 @@ enum Rank : int {
 };
 enum Direction : int { NORTH = 8, EAST = 1, SOUTH = -NORTH, WEST = -EAST, NORTH_EAST = NORTH + EAST, SOUTH_EAST = SOUTH + EAST, SOUTH_WEST = SOUTH + WEST, NORTH_WEST = NORTH + WEST, NNE = 17, ENE = 10, ESE = -6, SSE = -15, SSW = -17, WSW = -10, WNW = 6, NNW = 15 };
 
+enum ScaleFactor {
+  SCALE_FACTOR_DRAW    = 0,
+  SCALE_FACTOR_NORMAL  = 64,
+  SCALE_FACTOR_MAX     = 128,
+  SCALE_FACTOR_NONE    = 255
+};
+
+
 // --- Kiểu Key và Hash Table ---
 typedef uint64_t Key;
 typedef uint64_t Bitboard; // Đặt Bitboard ở đây cho nhất quán
@@ -73,7 +84,8 @@ enum Value : int {
   VALUE_INFINITE  = 32001,
   VALUE_NONE      = 32002,
 
-
+  VALUE_MATE_IN_MAX_PLY  =  VALUE_MATE - 2 * MAX_PLY,
+  VALUE_MATED_IN_MAX_PLY = -VALUE_MATE + 2 * MAX_PLY,
 
   // ----------------------Giá trị quân cờ (lấy từ Stockfish)
   PawnValueMg   = 128,   PawnValueEg   = 213,
@@ -332,6 +344,7 @@ inline Square pop_lsb(Bitboard* b) {
     *b &= (*b - 1); // Xóa bit thấp nhất
     return s;
 }
+
 
 // Hàm đếm số bit 1
 inline int popcount(Bitboard b) {

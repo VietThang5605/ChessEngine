@@ -152,9 +152,141 @@ PawnEntry* analyze_pawns(const S_Board* pos, PawnEntry* entry) {
     entry->pawnAttacks[SF::WHITE] = entry->pawnAttacks[SF::BLACK] = 0;
     entry->pawnAttacksSpan[SF::WHITE] = entry->pawnAttacksSpan[SF::BLACK] = 0;
 
+    entry->kingSafety[SF::WHITE] = CalculateKingShelterAndStorm(pos, SF::WHITE);
+    entry->kingSafety[SF::BLACK] = CalculateKingShelterAndStorm(pos, SF::BLACK);
+
+    int kingSqW = pos->KingSq[SF::WHITE];
+    int kingSqB = pos->KingSq[SF::BLACK];
+    entry->kingSquares[SF::WHITE] = (kingSqW >= 0 && kingSqW < BRD_SQ_NUM) ? static_cast<SF::Square>(Sq120ToSq64[kingSqW]) : SF::SQ_NONE;
+    entry->kingSquares[SF::BLACK] = (kingSqB >= 0 && kingSqB < BRD_SQ_NUM) ? static_cast<SF::Square>(Sq120ToSq64[kingSqB]) : SF::SQ_NONE;
+    entry->castlingRights[SF::WHITE] = pos->castlePerm & (WKCA | WQCA); // Giả sử WKCA=1, WQCA=2
+    entry->castlingRights[SF::BLACK] = pos->castlePerm & (BKCA | BQCA); // Giả sử BKCA=4, BQCA=8
+
     // Calculate structure scores and fill bitboards for both sides
     entry->scores[SF::WHITE] = evaluate_structure<SF::WHITE>(pos, entry); // Dùng SF::
     entry->scores[SF::BLACK] = evaluate_structure<SF::BLACK>(pos, entry); // Dùng SF::
 
     return entry;
+}
+
+
+
+
+
+
+
+namespace EvaluationConstants {
+    #define V SF::Value
+    #define S(mg, eg) SF::make_score(mg, eg)
+
+    // Strength of pawn shelter for our king by [distance from edge][rank].
+    const V ShelterStrength[4][SF::RANK_NB] = {
+        { V( -6), V( 81), V( 93), V( 58), V( 39), V( 18), V(  25), V(0) }, // File A/H (dist 0)
+        { V(-43), V( 61), V( 35), V(-49), V(-29), V(-11), V( -63), V(0) }, // File B/G (dist 1)
+        { V(-10), V( 75), V( 23), V( -2), V( 32), V(  3), V( -45), V(0) }, // File C/F (dist 2)
+        { V(-39), V(-13), V(-29), V(-52), V(-48), V(-67), V(-166),V(0) }  // File D/E (dist 3)
+    };
+
+    // Danger of enemy pawns moving toward our king by [distance from edge][rank].
+    const V UnblockedStorm[4][SF::RANK_NB] = {
+        { V( 85), V(-289), V(-166), V(97), V(50), V( 45), V( 50), V(0) }, // File A/H (dist 0)
+        { V( 46), V( -25), V( 122), V(45), V(37), V(-10), V( 20), V(0) }, // File B/G (dist 1)
+        { V( -6), V(  51), V( 168), V(34), V(-2), V(-22), V(-14), V(0) }, // File C/F (dist 2)
+        { V(-15), V( -11), V( 101), V( 4), V(11), V(-15), V(-29), V(0) }  // File D/E (dist 3)
+    };
+
+    const SF::Score BlockedStorm  = S(82, 82);
+
+    #undef V
+    #undef S
+}
+
+SF::Score CalculateKingShelterAndStorm(const S_Board* pos, SF::Color kingColor) {
+    int kingSq120 = pos->KingSq[kingColor];
+    int kingSq64 = Sq120ToSq64[kingSq120];
+    if (kingSq64 < 0 || kingSq64 >= 64) return SF::SCORE_ZERO;
+
+    SF::Square ksq = static_cast<SF::Square>(kingSq64);
+    SF::Color enemyColor = ~kingColor;
+
+    // Lấy Tốt của cả 2 bên không ở quá xa phía trước Vua
+    SF::Bitboard ourPawns   = pos->pawnsBB[kingColor];
+    SF::Bitboard theirPawns = pos->pawnsBB[enemyColor];
+    // Bitboard relevantPawns = (ourPawns | theirPawns) & ~SF::forward_ranks_bb(enemyColor, ksq);
+    // TODO: Cần hàm SF::forward_ranks_bb - Tạm thời lấy tất cả Tốt
+    SF::Bitboard relevantOurPawns = ourPawns;
+    SF::Bitboard relevantTheirPawns = theirPawns;
+
+
+    SF::Score shelterScore = SF::SCORE_ZERO; // Bắt đầu với điểm cơ sở
+    SF::File kingFile = SF::file_of(ksq);
+    SF::File centerFile = std::max(SF::FILE_B, std::min(kingFile, SF::FILE_G)); // Giới hạn file vua trong B-G
+
+    // Xét 3 cột: cột vua và 2 cột liền kề
+    for (int f_int = centerFile - 1; f_int <= centerFile + 1; ++f_int) {
+        SF::File f = static_cast<SF::File>(f_int);
+        SF::Bitboard fileBB = SF::file_bb(f); // Cần hàm file_bb
+
+        // Tìm Tốt của ta trên cột này
+        SF::Bitboard ourPawnsOnFile = relevantOurPawns & fileBB;
+        int ourPawnRank = 0; // Rank=0 nếu không có Tốt hoặc Tốt ở sau Vua
+        if (ourPawnsOnFile) {
+            SF::Square frontPawnSq = frontmost_sq(kingColor, ourPawnsOnFile);
+             // Chỉ tính nếu Tốt ở trước mặt Vua
+             if(SF::relative_rank(kingColor, frontPawnSq) > SF::relative_rank(kingColor, ksq)) {
+                  ourPawnRank = SF::relative_rank(kingColor, frontPawnSq);
+             }
+        }
+
+        // Tìm Tốt của địch trên cột này
+        SF::Bitboard theirPawnsOnFile = relevantTheirPawns & fileBB;
+        int theirPawnRank = 0;
+        if (theirPawnsOnFile) {
+             SF::Square frontPawnSq = frontmost_sq(kingColor, theirPawnsOnFile);
+              if(SF::relative_rank(kingColor, frontPawnSq) > SF::relative_rank(kingColor, ksq)) {
+                  theirPawnRank = SF::relative_rank(kingColor, frontPawnSq);
+             }
+        }
+
+        // Tính khoảng cách từ mép bàn cờ (0=A/H, 1=B/G, 2=C/F, 3=D/E)
+        int distFromEdge = std::min(static_cast<int>(f), static_cast<int>(SF::FILE_H) - static_cast<int>(f));
+
+        // Cộng điểm che chắn từ Tốt của ta
+        shelterScore += SF::make_score(EvaluationConstants::ShelterStrength[distFromEdge][ourPawnRank], 0);
+
+        // Trừ điểm nguy hiểm từ Tốt địch
+        // Nếu Tốt ta và Tốt địch đối đầu trực diện (cách nhau 1 rank)
+        if (ourPawnRank > 0 && theirPawnRank > 0 && ourPawnRank == theirPawnRank - 1) {
+            // Phạt nặng hơn nếu Tốt địch ở rank 3 của ta (rank 6 của địch nếu ta là Trắng)
+             shelterScore -= EvaluationConstants::BlockedStorm * int(theirPawnRank == SF::RANK_6);
+        } else {
+            // Phạt dựa trên vị trí Tốt địch không bị chặn
+             shelterScore -= SF::make_score(EvaluationConstants::UnblockedStorm[distFromEdge][theirPawnRank], 0);
+        }
+    }
+
+    // TODO: Xem xét điểm khi nhập thành (logic phức tạp hơn trong SF11 pawns.cpp)
+    // if (pos->can_castle(kingColor & KING_SIDE)) { ... }
+    // if (pos->can_castle(kingColor & QUEEN_SIDE)) { ... }
+
+    // Phạt thêm ở EndGame nếu Vua ở xa Tốt của mình (khuyến khích Vua hoạt động)
+     int minPawnDist = 8; // Giả sử xa nhất
+     SF::Bitboard ourPawnsForDist = pos->pawnsBB[kingColor];
+     if(ourPawnsForDist) {
+         minPawnDist = 8;
+         if (ourPawnsForDist & AttackGen::PseudoAttacks_KING[ksq]) { // Nếu Tốt ngay cạnh Vua
+              minPawnDist = 1;
+         } else {
+              while(ourPawnsForDist) {
+                  SF::Square psq = SF::pop_lsb(&ourPawnsForDist);
+                  minPawnDist = std::min(minPawnDist, SF::distance<SF::Square>(ksq, psq));
+              }
+         }
+     } else {
+         minPawnDist = 0; // Không có Tốt thì không phạt
+     }
+    shelterScore -= SF::make_score(0, 16 * minPawnDist); // Chỉ trừ vào EG
+
+
+    return shelterScore;
 }

@@ -1,21 +1,18 @@
-#ifndef EVALUATION_H_INCLUDED
-#define EVALUATION_H_INCLUDED
+#ifndef EVALUATE_PHASE3_H_INCLUDED
+#define EVALUATE_PHASE3_H_INCLUDED
 
-#include <string>
-#include "board.h" // Cần định nghĩa S_Board
-#include "evaluation_types.h"
+#include "board.h"            // Định nghĩa S_Board
+#include "evaluation_types.h" // Định nghĩa SF::Value, SF::Score, etc.
 
-class Position;
+// --- Khai báo hàm cần thiết ---
 
-namespace Eval {
+// Hàm đánh giá chính
+// Trả về điểm số theo góc nhìn của bên đang đi (pos->side)
+SF::Value EvaluatePosition(const S_Board* pos);
 
-    constexpr SF::Value Tempo = SF::Value(28); // Must be visible to search
-
-    std::string trace(const Position& pos);
-
-    SF::Value evaluate(const Position& pos);
+// (Tùy chọn) Namespace riêng cho việc đánh giá ở giai đoạn 3
+namespace EvalPhase3 {
+    // Có thể đặt các hàm helper hoặc lớp nội bộ ở đây nếu cần
 }
 
-
-
-#endif // EVALUATION_H_INCLUDED
+#endif // EVALUATE_PHASE3_H_INCLUDED

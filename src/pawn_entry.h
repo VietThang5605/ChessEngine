@@ -33,6 +33,10 @@ struct PawnEntry {
     // Các thành viên tùy chọn có thể thêm sau để lưu trữ chi tiết hơn, ví dụ:
     // SF::Bitboard candidatePawns[SF::COLOR_NB] = { 0, 0 }; // Tốt ứng viên thông
     // SF::Bitboard weakPawns[SF::COLOR_NB] = { 0, 0 }; // Ví dụ: isolated | backward
+
+    SF::Score kingSafety[SF::COLOR_NB] = { SF::SCORE_ZERO, SF::SCORE_ZERO };
+    SF::Square kingSquares[SF::COLOR_NB] = { SF::SQ_NONE, SF::SQ_NONE };
+    int castlingRights[SF::COLOR_NB] = { 0, 0 }; // Lưu cả quyền nhập thành khi tính key
 };
 
 #endif // PAWN_ENTRY_H_INCLUDED

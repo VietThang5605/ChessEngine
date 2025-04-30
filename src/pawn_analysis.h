@@ -42,4 +42,6 @@ PawnEntry* probe_pawn_table(const S_Board* pos);
  */
 PawnEntry* analyze_pawns(const S_Board* pos, PawnEntry* entry);
 
+SF::Score CalculateKingShelterAndStorm(const S_Board* pos, SF::Color kingColor);
+
 #endif // PAWN_ANALYSIS_H_INCLUDED
