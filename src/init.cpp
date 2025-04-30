@@ -1,5 +1,6 @@
 #include "init.h"
 #include "movegen.h"
+#include "bitboards.h"
 
 #include <iostream>
 #include <iomanip>
@@ -16,6 +17,30 @@ U64 CastleKeys[16];
 
 int FilesBrd[BRD_SQ_NUM];
 int RanksBrd[BRD_SQ_NUM];
+
+U64 FileBBMask[8];
+U64 RankBBMask[8];
+
+void InitEvalMasks() {
+    for (Rank rank = RANK_8; rank >= RANK_1; --rank) {
+        for (File file = FILE_A; file <= FILE_H; ++file) {
+            int sq = rank * 8 + file;
+            FileBBMask[file] |= (1ULL << sq);
+            RankBBMask[rank] |= (1ULL << sq);
+        }
+	}
+
+    for (Rank rank = RANK_1; rank <= RANK_8; ++rank) {
+        std::cout << "rank " << rank << '\n';
+        PrintBitBoard(RankBBMask[rank]);
+        std::cout << '\n';
+    }
+    
+    for (File file = FILE_A; file <= FILE_H; ++file) {
+        std::cout << "file " << file << '\n';
+        PrintBitBoard(FileBBMask[file]);
+    }
+}
 
 void InitFilesRanksBrd() {
 	for(int i = 0; i < BRD_SQ_NUM; ++i) {
@@ -103,5 +128,6 @@ void AllInit() {
     InitBitMasks();
     InitHashKeys();
     InitFilesRanksBrd();
+    InitEvalMasks();
     InitMvvLva();
 }

@@ -3,8 +3,9 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <cstdint>
 
-// #define DEBUG
+#define DEBUG
 
 #ifndef DEBUG
 #define ASSERT(n)

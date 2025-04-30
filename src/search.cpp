@@ -143,6 +143,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, int DoNull) {
 	ASSERT(CheckBoard(pos));
+	ASSERT(depth >= 0);
 
 	if (depth == 0) {
 		return Quiescence(alpha, beta, pos, info);
@@ -160,6 +161,12 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 	if (pos->ply > MAXDEPTH - 1) {
 		return EvalPosition(pos);
+	}
+
+	bool InCheck = SqAttacked(pos->kingSquare[pos->side], pos->side ^ 1, pos);
+
+	if (InCheck == TRUE) {
+		depth++;
 	}
 
 	S_MOVELIST list[1];
@@ -218,7 +225,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	}
 
 	if (Legal == 0) {
-		if (SqAttacked(pos->kingSquare[pos->side], pos->side ^ 1, pos)) {
+		if (InCheck) {
 			return -MATE + pos->ply;
 		} else {
 			return 0;
