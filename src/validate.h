@@ -2,6 +2,7 @@
 #define VALIDATE_H
 
 #include "types.h"
+#include "board.h"
 
 bool SqOnBoard(const int sq);
 
@@ -12,4 +13,6 @@ bool FileRankValid(const int fr);
 bool PieceValidEmpty(const int pce);
 
 bool PieceValid(const int pce);
+
+void MirrorEvalTest(S_BOARD *pos);
 #endif

@@ -43,6 +43,13 @@ extern U64 CastleKeys[16]; // 16 castle cases cuz bits are worth 1+2+4+8 = 16
 extern int FilesBrd[BRD_SQ_NUM];
 extern int RanksBrd[BRD_SQ_NUM];
 
+extern U64 FileBBMask[8];
+extern U64 RankBBMask[8];
+
+extern U64 BlackPassedMask[64];
+extern U64 WhitePassedMask[64];
+extern U64 IsolatedMask[64];
+
 void InitFilesRanksBrd();
 
 void InitHashKeys();

@@ -1,5 +1,6 @@
 #include "validate.h"
 #include "init.h"
+#include "evaluate.h"
 
 bool SqOnBoard(const int sq) { //checks if the square (which is supposed to be part of the 64 square array) is actually one of those
 	return FilesBrd[sq] == OFFBOARD ? FALSE : TRUE;
@@ -19,4 +20,43 @@ bool PieceValidEmpty(const int pce) { // basic, but it just says that any piece 
 
 bool PieceValid(const int pce) { // same but wiuthout the empty
 	return (pce >= wP && pce <= bK) ? TRUE : FALSE;
+}
+
+void MirrorEvalTest(S_BOARD *pos) {
+    FILE *file;
+    file = fopen("mirror.epd","r");
+    char lineIn [1024];
+    int ev1 = 0; int ev2 = 0;
+    int positions = 0;
+    if(file == NULL) {
+        std::cout << "mirrortest 404\n";
+        printf("File Not Found\n");
+        return;
+    }  else {
+        std::cout << "mirrortest ok\n";
+        while(fgets (lineIn , 1024 , file) != NULL) {
+            ParseFen(lineIn, pos);
+            positions++;
+            ev1 = EvalPosition(pos);
+            MirrorBoard(pos);
+            ev2 = EvalPosition(pos);
+
+            if(ev1 != ev2) {
+                printf("\n\n\n");
+                ParseFen(lineIn, pos);
+                PrintBoard(pos);
+                MirrorBoard(pos);
+                PrintBoard(pos);
+                printf("\n\nMirror Fail:\n%s\n",lineIn);
+                getchar();
+                return;
+            }
+
+            if( (positions % 10) == 0)  {
+                printf("position %d\n",positions);
+            }
+
+            memset(&lineIn[0], 0, sizeof(lineIn));
+        }
+    }
 }

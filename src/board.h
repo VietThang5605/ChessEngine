@@ -95,4 +95,6 @@ int ParseFen(char *fen, S_BOARD *pos);
 void ResetBoard(S_BOARD *pos);
 
 void PrintBoard(const S_BOARD *pos);
+
+void MirrorBoard(S_BOARD *pos);
 #endif

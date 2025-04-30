@@ -5,6 +5,7 @@
 #include "misc.h"
 #include "io.h"
 #include "evaluate.h"
+#include "validate.h"
 
 #include <iostream>
 
@@ -289,16 +290,16 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if(!strcmp(command, "mirror")) {
 			engineSide = BOTH;
-			// MirrorEvalTest(pos);
+			MirrorEvalTest(pos);
 			continue;
 		}
 
 		if(!strcmp(command, "eval")) {
 			PrintBoard(pos);
-			std::cout << "Eval:" << EvalPosition(pos);
-			// MirrorBoard(pos);
+			std::cout << "Eval:" << EvalPosition(pos) << '\n';
+			MirrorBoard(pos);
 			PrintBoard(pos);
-			std::cout << "Eval:" << EvalPosition(pos);
+			std::cout << "Eval:" << EvalPosition(pos) << '\n';
 			continue;
 		}
 

@@ -1,6 +1,7 @@
 #include "init.h"
 #include "movegen.h"
-#include "bitboards.h"
+// #include "bitboards.h" //print bitboard
+// #include "io.h" //print square
 
 #include <iostream>
 #include <iomanip>
@@ -21,6 +22,10 @@ int RanksBrd[BRD_SQ_NUM];
 U64 FileBBMask[8];
 U64 RankBBMask[8];
 
+U64 BlackPassedMask[64];
+U64 WhitePassedMask[64];
+U64 IsolatedMask[64];
+
 void InitEvalMasks() {
     for (Rank rank = RANK_8; rank >= RANK_1; --rank) {
         for (File file = FILE_A; file <= FILE_H; ++file) {
@@ -30,16 +35,72 @@ void InitEvalMasks() {
         }
 	}
 
-    for (Rank rank = RANK_1; rank <= RANK_8; ++rank) {
-        std::cout << "rank " << rank << '\n';
-        PrintBitBoard(RankBBMask[rank]);
-        std::cout << '\n';
-    }
+    // for (Rank rank = RANK_1; rank <= RANK_8; ++rank) {
+    //     std::cout << "rank " << rank << '\n';
+    //     PrintBitBoard(RankBBMask[rank]);
+    //     std::cout << '\n';
+    // }
     
-    for (File file = FILE_A; file <= FILE_H; ++file) {
-        std::cout << "file " << file << '\n';
-        PrintBitBoard(FileBBMask[file]);
-    }
+    // for (File file = FILE_A; file <= FILE_H; ++file) {
+    //     std::cout << "file " << file << '\n';
+    //     PrintBitBoard(FileBBMask[file]);
+    // }
+
+    for (int sq = 0; sq < 64; ++sq) {
+		int tsq = sq + 8;
+
+        while (tsq < 64) {
+            WhitePassedMask[sq] |= (1ULL << tsq);
+            tsq += 8;
+        }
+
+        tsq = sq - 8;
+        while (tsq >= 0) {
+            BlackPassedMask[sq] |= (1ULL << tsq);
+            tsq -= 8;
+        }
+
+        if (FilesBrd[SQ120(sq)] > FILE_A) {
+            IsolatedMask[sq] |= FileBBMask[FilesBrd[SQ120(sq)] - 1];
+
+            tsq = sq + 7;
+            while (tsq < 64) {
+                WhitePassedMask[sq] |= (1ULL << tsq);
+                tsq += 8;
+            }
+
+            tsq = sq - 9;
+            while (tsq >= 0) {
+                BlackPassedMask[sq] |= (1ULL << tsq);
+                tsq -= 8;
+            }
+        }
+
+        if (FilesBrd[SQ120(sq)] < FILE_H) {
+            IsolatedMask[sq] |= FileBBMask[FilesBrd[SQ120(sq)] + 1];
+
+            tsq = sq + 9;
+            while (tsq < 64) {
+                WhitePassedMask[sq] |= (1ULL << tsq);
+                tsq += 8;
+            }
+
+            tsq = sq - 7;
+            while (tsq >= 0) {
+                BlackPassedMask[sq] |= (1ULL << tsq);
+                tsq -= 8;
+            }
+        }
+
+        // std::cout << "square " << PrintSquare(SQ120(sq)) << '\n';
+        // std::cout << "isolated mask\n";
+        // PrintBitBoard(IsolatedMask[sq]);
+        // std::cout << "white passed mask\n";
+        // PrintBitBoard(WhitePassedMask[sq]);
+        // std::cout << "black passed mask\n";
+        // PrintBitBoard(BlackPassedMask[sq]);
+        // std::cout << '\n';
+	}
 }
 
 void InitFilesRanksBrd() {
