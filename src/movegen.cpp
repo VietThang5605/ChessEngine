@@ -302,6 +302,8 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 		piece = LoopNonSlidePiece[pieceIndex++];
 	}
+
+	ASSERT(MoveListOk(list, pos));
 }
 
 void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
@@ -421,4 +423,6 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 		piece = LoopNonSlidePiece[pieceIndex++];
 	}
+
+	ASSERT(MoveListOk(list, pos));
 }

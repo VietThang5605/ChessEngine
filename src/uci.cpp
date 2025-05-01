@@ -96,6 +96,7 @@ void ParsePosition(char* lineIn, S_BOARD *pos) {
         while (*ptrChar) {
               move = ParseMove(ptrChar,pos);
 			  if (move == NOMOVE) break;
+			  std::cout << "MOVE: " << PrintMove(move) << '\n';
 			  MakeMove(pos, move);
               pos->ply=0;
               while (*ptrChar && *ptrChar!= ' ') ptrChar++;
@@ -112,7 +113,10 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	char line[INPUTBUFFER];
 	std::cout << "id name " << NAME << '\n';
 	std::cout << "id author TelietTeam\n";
+	printf("option name Hash type spin default 64 min 4 max %d\n", MAX_HASH);
 	std::cout << "uciok\n";
+
+	int MB = 64;
 
 	while (TRUE) {
 		if (!std::cin.getline(line, sizeof(line))) {
@@ -145,6 +149,13 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			std::cout << "id name " << NAME << '\n';
 			std::cout << "id author TelietTeam\n";
 			std::cout << "uciok\n";
+
+		} else if (!strncmp(line, "setoption name Hash value ", 26)) {			
+			sscanf(line,"%*s %*s %*s %*s %d", &MB);
+			if (MB < 4) MB = 4;
+			if (MB > MAX_HASH) MB = MAX_HASH;
+			std::cout << "Set Hash to " << MB << " MB\n";
+			InitHashTable(pos->HashTable, MB);
 		}
 
 		if (info->quit)

@@ -71,18 +71,18 @@ struct S_BOARD {
     but its not very fast, so we do a piece list*/ 
     int pieceList[PIECE_NB][10]; // 13 different pieces which u can have maximum 10 each (like promoting all ur pawns to roks and u get 10 rooks)
 
-    S_PVTABLE PvTable[1];
+    S_HASHTABLE HashTable[1];
     int PvArray[MAXDEPTH];
 
     int searchHistory[PIECE_NB][BRD_SQ_NUM];
     int searchKillers[2][MAXDEPTH];
 
     S_BOARD() {
-        InitPvTable(PvTable);
+        InitHashTable(HashTable, 64);
     }
 
     ~S_BOARD() {
-        delete[] PvTable->pTable;
+        delete[] HashTable->pTable;
     }
 };
 

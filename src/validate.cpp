@@ -22,6 +22,26 @@ bool PieceValid(const int pce) { // same but wiuthout the empty
 	return (pce >= wP && pce <= bK) ? TRUE : FALSE;
 }
 
+bool MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
+	if (list->count < 0 || list->count >= MAXPOSITIONMOVES) {
+		return FALSE;
+	}
+
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+		int to = TOSQ(list->moves[MoveNum].move);
+		int from = FROMSQ(list->moves[MoveNum].move);
+		if (!SqOnBoard(to) || !SqOnBoard(from)) {
+			return FALSE;
+		}
+		if (!PieceValid(pos->pieces[from])) {
+			PrintBoard(pos);
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
 void MirrorEvalTest(S_BOARD *pos) {
     FILE *file;
     file = fopen("mirror.epd","r");

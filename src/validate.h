@@ -14,5 +14,7 @@ bool PieceValidEmpty(const int pce);
 
 bool PieceValid(const int pce);
 
+bool MoveListOk(const S_MOVELIST *list,  const S_BOARD *pos);
+
 void MirrorEvalTest(S_BOARD *pos);
 #endif

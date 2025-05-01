@@ -927,6 +927,7 @@ int main() {
     //Part 73
     S_BOARD board[1];
     S_SEARCHINFO info[1];
+    info->quit = FALSE;
 
     setbuf(stdin, NULL);
     setbuf(stdout, NULL);

@@ -43,6 +43,8 @@ typedef uint64_t U64;
 #define INF 30000
 #define ISMATE (INF - MAXDEPTH)
 
+#define MAX_HASH 1024
+
 enum Mode {
     UCIMODE, XBOARDMODE, CONSOLEMODE
 };
@@ -88,6 +90,10 @@ enum Piece {
 
 enum Move : int {
     NOMOVE = 0
+};
+
+enum HASHFLAG {
+    HFNONE, HFALPHA, HFBETA, HFEXACT
 };
 
 /* MACROS */
