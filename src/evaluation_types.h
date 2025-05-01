@@ -317,6 +317,20 @@ constexpr Bitboard shift(Bitboard b) {
            Bitboard(0);
 }
 
+inline Bitboard shift(Bitboard b, Direction D) {
+  // Đảm bảo các hằng số FileABB, FileHBB đã được định nghĩa ở trên
+  return D == NORTH      ?  b << 8 :
+         D == SOUTH      ?  b >> 8 :
+         D == EAST       ? (b & ~FileHBB) << 1 :
+         D == WEST       ? (b & ~FileABB) >> 1 :
+         D == NORTH_EAST ? (b & ~FileHBB) << 9 :
+         D == NORTH_WEST ? (b & ~FileABB) << 7 :
+         D == SOUTH_EAST ? (b & ~FileHBB) >> 7 :
+         D == SOUTH_WEST ? (b & ~FileABB) >> 9 :
+         // Thêm các hướng khác nếu cần
+         Bitboard(0);
+}
+
 // Hàm tìm bit thấp nhất
 inline Square lsb(Bitboard b) {
     assert(b != 0);
@@ -345,6 +359,47 @@ inline Square pop_lsb(Bitboard* b) {
     return s;
 }
 
+// --- Hàm tìm bit cao nhất (MSB - Most Significant Bit) ---
+// Trả về index (0-63) của bit 1 cao nhất.
+// Trả về giá trị không xác định nếu b = 0.
+inline Square msb(Bitboard b) {
+  assert(b != 0); // Đảm bảo bitboard không rỗng
+#if defined(_MSC_VER) // Trình biên dịch Microsoft Visual C++
+  unsigned long idx;
+  #ifdef _WIN64 // Phiên bản 64-bit
+  _BitScanReverse64(&idx, b);
+  #else // Phiên bản 32-bit
+  if (b >> 32) {
+      _BitScanReverse(&idx, static_cast<unsigned long>(b >> 32));
+      idx += 32;
+  } else {
+      _BitScanReverse(&idx, static_cast<unsigned long>(b));
+  }
+  #endif
+  return static_cast<Square>(idx);
+#elif defined(__GNUC__) || defined(__clang__) // Trình biên dịch GCC hoặc Clang
+  // __builtin_clzll đếm số bit 0 ở đầu
+  // Index MSB = 63 - số bit 0 ở đầu
+  return static_cast<Square>(63 - __builtin_clzll(b));
+#else
+  // Fallback nếu không có intrinsics (chậm hơn)
+  Square idx = SQ_H8; // Bắt đầu từ ô cao nhất
+  Bitboard checkBit = Bitboard(1) << 63;
+  while (checkBit) {
+      if (b & checkBit) return idx;
+      checkBit >>= 1;
+      idx = static_cast<Square>(idx - 1);
+  }
+  return SQ_NONE; // Không nên xảy ra nếu b != 0
+#endif
+}
+
+// --- Hàm tìm ô Tốt ở hàng trước nhất ---
+// Trả về ô của Tốt ở hàng cao nhất (cho Trắng) hoặc thấp nhất (cho Đen)
+inline Square frontmost_sq(Color c, Bitboard b) {
+  assert(b != 0); // Đảm bảo bitboard không rỗng
+  return (c == WHITE) ? msb(b) : lsb(b);
+}
 
 // Hàm đếm số bit 1
 inline int popcount(Bitboard b) {

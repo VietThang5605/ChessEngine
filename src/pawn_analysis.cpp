@@ -174,7 +174,7 @@ PawnEntry* analyze_pawns(const S_Board* pos, PawnEntry* entry) {
 
 
 
-
+// --- Hằng số cho King Safety (Lấy từ Stockfish 11 pawns.cpp) ---
 namespace EvaluationConstants {
     #define V SF::Value
     #define S(mg, eg) SF::make_score(mg, eg)
@@ -231,7 +231,7 @@ SF::Score CalculateKingShelterAndStorm(const S_Board* pos, SF::Color kingColor) 
         SF::Bitboard ourPawnsOnFile = relevantOurPawns & fileBB;
         int ourPawnRank = 0; // Rank=0 nếu không có Tốt hoặc Tốt ở sau Vua
         if (ourPawnsOnFile) {
-            SF::Square frontPawnSq = frontmost_sq(kingColor, ourPawnsOnFile);
+            SF::Square frontPawnSq = SF::frontmost_sq(kingColor, ourPawnsOnFile);
              // Chỉ tính nếu Tốt ở trước mặt Vua
              if(SF::relative_rank(kingColor, frontPawnSq) > SF::relative_rank(kingColor, ksq)) {
                   ourPawnRank = SF::relative_rank(kingColor, frontPawnSq);
@@ -242,7 +242,7 @@ SF::Score CalculateKingShelterAndStorm(const S_Board* pos, SF::Color kingColor) 
         SF::Bitboard theirPawnsOnFile = relevantTheirPawns & fileBB;
         int theirPawnRank = 0;
         if (theirPawnsOnFile) {
-             SF::Square frontPawnSq = frontmost_sq(kingColor, theirPawnsOnFile);
+             SF::Square frontPawnSq = SF::frontmost_sq(kingColor, theirPawnsOnFile);
               if(SF::relative_rank(kingColor, frontPawnSq) > SF::relative_rank(kingColor, ksq)) {
                   theirPawnRank = SF::relative_rank(kingColor, frontPawnSq);
              }

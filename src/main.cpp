@@ -392,193 +392,401 @@
 
 
 
-// main.cpp - Modified for Material Analysis Debugging
-#include "types.h"             // Enum Piece (wP, bK), S_Board, BRD_SQ_NUM, etc.
-#include "evaluation_types.h"  // SF:: types, Score, Phase, Value, etc.
-#include "board.h"             // S_Board definition
-#include "material_analysis.h" // probe_material_table, MaterialEntry
-#include "material_entry.h"    // MaterialEntry definition
+// // main.cpp - Modified for Material Analysis Debugging
+// #include "types.h"             // Enum Piece (wP, bK), S_Board, BRD_SQ_NUM, etc.
+// #include "evaluation_types.h"  // SF:: types, Score, Phase, Value, etc.
+// #include "board.h"             // S_Board definition
+// #include "material_analysis.h" // probe_material_table, MaterialEntry
+// #include "material_entry.h"    // MaterialEntry definition
+
+// #include <iostream>
+// #include <iomanip>
+// #include <cstring>            // Cho std::memset
+// #include <cassert>            // Cho assert
+
+// // --- Helper Function to setup board and piece counts ---
+// // Quan trọng: Hàm này cần cập nhật cả pceNum và material
+// void SetupBoardForMaterialTest(S_Board* pos, const std::vector<std::pair<int, SF::Square>>& pieces) {
+//     // 1. Clear board state completely
+//     std::memset(pos, 0, sizeof(S_Board));
+//     for (int i = 0; i < BRD_SQ_NUM; ++i) pos->pieces[i] = OFFBOARD;
+//     for (int i = 0; i < 64; ++i) pos->pieces[SQ120(i)] = NO_PIECE;
+//     for (int i = 0; i < 13; ++i) pos->pceNum[i] = 0; // Rất quan trọng
+//     pos->material[WHITE] = 0;
+//     pos->material[BLACK] = 0;
+//     pos->side = WHITE; // Mặc định
+//     pos->enPas = NO_SQ;
+//     // Các giá trị khác có thể để mặc định (0) vì material analysis không dùng
+
+//     // Giá trị vật chất tham khảo (chỉ dùng để cập nhật pos->material)
+//     // Lấy từ SF:: nhưng dùng index của Vice Piece enum
+//     const int pieceMaterialValue[13] = {
+//         0, SF::PawnValueMg, SF::KnightValueMg, SF::BishopValueMg, SF::RookValueMg, SF::QueenValueMg, 0 /*King*/,
+//            SF::PawnValueMg, SF::KnightValueMg, SF::BishopValueMg, SF::RookValueMg, SF::QueenValueMg, 0 /*King*/
+//     };
+
+//     // 2. Place pieces and update counts/material
+//     for (const auto& p : pieces) {
+//         int vicePiece = p.first;
+//         SF::Square sq64 = p.second;
+//         int sq120 = SQ120(sq64);
+
+//         if (sq120 != OFFBOARD && sq120 != NO_SQ && vicePiece >= wP && vicePiece <= bK) {
+//             pos->pieces[sq120] = vicePiece;
+//             pos->pceNum[vicePiece]++; // Cập nhật số lượng
+
+//             SF::Color color = (vicePiece >= wP && vicePiece <= wK) ? SF::WHITE : SF::BLACK;
+//             pos->material[color] += pieceMaterialValue[vicePiece]; // Cập nhật vật chất (chỉ để tham khảo)
+
+//             // Cập nhật bitboards nếu cần cho non_pawn_material (nếu nó dùng BB thay vì pceNum)
+//             // Hiện tại non_pawn_material dùng pceNum nên không cần cập nhật BB ở đây
+//         }
+//     }
+// }
+
+// int main() {
+//     // 1. Initialize Engine Subsystems
+//     AllInit(); // Rất quan trọng! Gọi một lần duy nhất.
+//     std::cout << "--- Debugging Material Analysis ---" << std::endl;
+
+//     // 2. Create Board Structure
+//     S_Board board;
+
+//     // 3. Setup Material Configuration for Testing
+//     // Ví dụ 1: KRN vs KR (Trắng mạnh hơn)
+//     std::vector<std::pair<int, SF::Square>> setup1 = {
+//         {wK, SF::SQ_E1}, {wR, SF::SQ_A1}, {wN, SF::SQ_G1},
+//         {bK, SF::SQ_E8}, {bR, SF::SQ_H8}
+//     };
+//     std::cout << "\n--- Test Case 1: KRN vs KR ---" << std::endl;
+//     SetupBoardForMaterialTest(&board, setup1);
+
+//     // --- Print piece counts for verification ---
+//     std::cout << "Piece Counts (pceNum):" << std::endl;
+//     std::cout << "  wP:" << board.pceNum[wP] << " wN:" << board.pceNum[wN] << " wB:" << board.pceNum[wB]
+//               << " wR:" << board.pceNum[wR] << " wQ:" << board.pceNum[wQ] << " wK:" << board.pceNum[wK] << std::endl;
+//     std::cout << "  bP:" << board.pceNum[bP] << " bN:" << board.pceNum[bN] << " bB:" << board.pceNum[bB]
+//               << " bR:" << board.pceNum[bR] << " bQ:" << board.pceNum[bQ] << " bK:" << board.pceNum[bK] << std::endl;
+//     // --- End print piece counts ---
+
+//     // 4. Probe the Material Hash Table
+//     std::cout << "Probing Material Table..." << std::endl;
+//     MaterialEntry* entry1 = probe_material_table(&board); // Hàm này sẽ tự tính key
+
+//     // 5. Print the results from MaterialEntry
+//     if (entry1) {
+//         SF::Key currentKey = calculate_material_key(&board); // Tính lại key để so sánh
+//         std::cout << "Material Entry Found/Calculated." << std::endl;
+//         std::cout << "  Calculated Key: 0x" << std::hex << currentKey << std::dec << std::endl;
+//         std::cout << "  Key in Entry:   0x" << std::hex << entry1->key << std::dec << std::endl;
+//         assert(entry1->key == currentKey && "Material key mismatch!"); // Kiểm tra key khớp
+
+//         std::cout << "  Game Phase:     " << static_cast<int>(entry1->gamePhase)
+//                   << " (0=EG, 128=MG)"<< std::endl;
+
+//         std::cout << "  Imbalance Val:  " << std::setw(5) << entry1->imbalance_value << std::endl;
+//         SF::Score imbalanceScore = entry1->imbalance();
+//         std::cout << "  Imbalance Score: MG=" << std::setw(5) << SF::mg_value(imbalanceScore)
+//                   << " EG=" << std::setw(5) << SF::eg_value(imbalanceScore) << std::endl;
+
+//         std::cout << "  Default Factors: White=" << static_cast<int>(entry1->factor[SF::WHITE])
+//                   << " Black=" << static_cast<int>(entry1->factor[SF::BLACK])
+//                   << " (64=Normal, 0=Draw)" << std::endl;
+//         // Test scale_factor function (hiện tại trả về normal)
+//         std::cout << "  ScaleFactor(W): " << static_cast<int>(entry1->scale_factor(SF::WHITE)) << std::endl;
+//         std::cout << "  ScaleFactor(B): " << static_cast<int>(entry1->scale_factor(SF::BLACK)) << std::endl;
+
+//     } else {
+//         std::cerr << "Error: probe_material_table returned nullptr for Test Case 1!" << std::endl;
+//     }
+
+//     // Ví dụ 2: KB vs K (Trắng không có Tốt, nên factor[WHITE] có thể bị scale)
+//     std::vector<std::pair<int, SF::Square>> setup2 = {
+//         {wK, SF::SQ_E1}, {wB, SF::SQ_C1},
+//         {bK, SF::SQ_E8}
+//     };
+//     std::cout << "\n--- Test Case 2: KB vs K ---" << std::endl;
+//     SetupBoardForMaterialTest(&board, setup2);
+
+//     // --- Print piece counts for verification ---
+//     std::cout << "Piece Counts (pceNum):" << std::endl;
+//     std::cout << "  wP:" << board.pceNum[wP] << " wN:" << board.pceNum[wN] << " wB:" << board.pceNum[wB]
+//               << " wR:" << board.pceNum[wR] << " wQ:" << board.pceNum[wQ] << " wK:" << board.pceNum[wK] << std::endl;
+//     std::cout << "  bP:" << board.pceNum[bP] << " bN:" << board.pceNum[bN] << " bB:" << board.pceNum[bB]
+//               << " bR:" << board.pceNum[bR] << " bQ:" << board.pceNum[bQ] << " bK:" << board.pceNum[bK] << std::endl;
+//     // --- End print piece counts ---
+
+//     std::cout << "Probing Material Table..." << std::endl;
+//     MaterialEntry* entry2 = probe_material_table(&board);
+
+//     if (entry2) {
+//          SF::Key currentKey = calculate_material_key(&board);
+//          std::cout << "Material Entry Found/Calculated." << std::endl;
+//          std::cout << "  Calculated Key: 0x" << std::hex << currentKey << std::dec << std::endl;
+//          std::cout << "  Key in Entry:   0x" << std::hex << entry2->key << std::dec << std::endl;
+//          assert(entry2->key == currentKey && "Material key mismatch!");
+
+//          std::cout << "  Game Phase:     " << static_cast<int>(entry2->gamePhase) << std::endl;
+//          std::cout << "  Imbalance Val:  " << std::setw(5) << entry2->imbalance_value << std::endl;
+//          SF::Score imbalanceScore = entry2->imbalance();
+//          std::cout << "  Imbalance Score: MG=" << std::setw(5) << SF::mg_value(imbalanceScore)
+//                    << " EG=" << std::setw(5) << SF::eg_value(imbalanceScore) << std::endl;
+//          // Chú ý giá trị factor[WHITE] ở đây!
+//          std::cout << "  Default Factors: White=" << static_cast<int>(entry2->factor[SF::WHITE])
+//                    << " Black=" << static_cast<int>(entry2->factor[SF::BLACK]) << std::endl;
+
+//     } else {
+//          std::cerr << "Error: probe_material_table returned nullptr for Test Case 2!" << std::endl;
+//     }
+
+
+//      // Ví dụ 3: KQ vs KPPPP (Kiểm tra imbalance và phase)
+//      std::vector<std::pair<int, SF::Square>> setup3 = {
+//         {wK, SF::SQ_E1}, {wQ, SF::SQ_D1},
+//         {bK, SF::SQ_E8}, {bP, SF::SQ_A7}, {bP, SF::SQ_B7}, {bP, SF::SQ_C7}, {bP, SF::SQ_D7}
+//      };
+//     std::cout << "\n--- Test Case 3: KQ vs KPPPP ---" << std::endl;
+//     SetupBoardForMaterialTest(&board, setup3);
+
+//      // --- Print piece counts for verification ---
+//      std::cout << "Piece Counts (pceNum):" << std::endl;
+//      std::cout << "  wP:" << board.pceNum[wP] << " wN:" << board.pceNum[wN] << " wB:" << board.pceNum[wB]
+//                << " wR:" << board.pceNum[wR] << " wQ:" << board.pceNum[wQ] << " wK:" << board.pceNum[wK] << std::endl;
+//      std::cout << "  bP:" << board.pceNum[bP] << " bN:" << board.pceNum[bN] << " bB:" << board.pceNum[bB]
+//                << " bR:" << board.pceNum[bR] << " bQ:" << board.pceNum[bQ] << " bK:" << board.pceNum[bK] << std::endl;
+//      // --- End print piece counts ---
+
+//      std::cout << "Probing Material Table..." << std::endl;
+//      MaterialEntry* entry3 = probe_material_table(&board);
+
+//      if (entry3) {
+//          SF::Key currentKey = calculate_material_key(&board);
+//          std::cout << "Material Entry Found/Calculated." << std::endl;
+//          std::cout << "  Calculated Key: 0x" << std::hex << currentKey << std::dec << std::endl;
+//          std::cout << "  Key in Entry:   0x" << std::hex << entry3->key << std::dec << std::endl;
+//          assert(entry3->key == currentKey && "Material key mismatch!");
+
+//          std::cout << "  Game Phase:     " << static_cast<int>(entry3->gamePhase) << std::endl;
+//          std::cout << "  Imbalance Val:  " << std::setw(5) << entry3->imbalance_value << std::endl;
+//          SF::Score imbalanceScore = entry3->imbalance();
+//          std::cout << "  Imbalance Score: MG=" << std::setw(5) << SF::mg_value(imbalanceScore)
+//                    << " EG=" << std::setw(5) << SF::eg_value(imbalanceScore) << std::endl;
+//          std::cout << "  Default Factors: White=" << static_cast<int>(entry3->factor[SF::WHITE])
+//                    << " Black=" << static_cast<int>(entry3->factor[SF::BLACK]) << std::endl;
+//      } else {
+//          std::cerr << "Error: probe_material_table returned nullptr for Test Case 3!" << std::endl;
+//      }
+
+
+//     std::cout << "\n--- Material Analysis Debugging Finished ---" << std::endl;
+
+//     return 0;
+// }
+
+
+
+
+
+
+// main.cpp (Hoặc một tệp test riêng)
 
 #include <iostream>
-#include <iomanip>
-#include <cstring>            // Cho std::memset
-#include <cassert>            // Cho assert
+#include <iomanip> // Để dùng std::fixed, std::setprecision
+#include <cstring> // Để dùng std::memset
+#include <vector>  // Nếu cần dùng vector
 
-// --- Helper Function to setup board and piece counts ---
-// Quan trọng: Hàm này cần cập nhật cả pceNum và material
-void SetupBoardForMaterialTest(S_Board* pos, const std::vector<std::pair<int, SF::Square>>& pieces) {
-    // 1. Clear board state completely
-    std::memset(pos, 0, sizeof(S_Board));
-    for (int i = 0; i < BRD_SQ_NUM; ++i) pos->pieces[i] = OFFBOARD;
-    for (int i = 0; i < 64; ++i) pos->pieces[SQ120(i)] = NO_PIECE;
-    for (int i = 0; i < 13; ++i) pos->pceNum[i] = 0; // Rất quan trọng
-    pos->material[WHITE] = 0;
-    pos->material[BLACK] = 0;
-    pos->side = WHITE; // Mặc định
+// Include các tệp header cần thiết từ dự án của bạn
+#include "types.h"             // Định nghĩa S_Board, các enum, macro, START_FEN
+#include "evaluation_types.h"  // Định nghĩa SF::Value, SF::Score, etc.
+                               // TỐT NHẤT: Tạo init.h khai báo extern void AllInit(); và include init.h
+#include "board.h"             // Khai báo calculate_initial_pawn_key, cần thêm hàm tính posKey
+#include "evaluation.h"      // Chứa khai báo EvaluatePosition
+#include "zobrist.h"           // Cần cho việc tính hash key
+#include "bitboards.h"         // Chứa PrintBitBoard (nếu muốn debug)
+
+// --- Khai báo các hàm chưa có trong header (Nếu cần) ---
+// Ví dụ: Nếu chưa có hàm tính posKey đầy đủ
+// extern SF::Key CalculatePositionKey(const S_Board* pos);
+// extern void ResetBoard(S_Board* pos); // Hàm helper để reset board
+// extern void UpdateListsMaterialKeys(S_Board *pos); // Hàm cập nhật pList, material, keys
+
+
+// --- Hàm Helper cơ bản để Reset Board (Ví dụ) ---
+// Bạn nên có hàm này trong board.cpp hoặc một file tiện ích
+void ResetBoard(S_Board* pos) {
+    std::memset(pos, 0, sizeof(S_Board)); // Xóa sạch board
+    for (int i = 0; i < BRD_SQ_NUM; ++i) {
+        pos->pieces[i] = OFFBOARD;
+    }
+    for (int i = 0; i < 64; ++i) {
+        pos->pieces[Sq64ToSq120[i]] = NO_PIECE;
+    }
+    pos->side = BOTH; // Chưa xác định
     pos->enPas = NO_SQ;
-    // Các giá trị khác có thể để mặc định (0) vì material analysis không dùng
+    pos->ply = 0;
+    pos->hisPly = 0;
+    pos->castlePerm = 0;
+    pos->fiftyMove = 0;
+    pos->posKey = 0ULL;
+    pos->pawnKey = 0ULL;
+
+    // Reset các thành phần khác nếu cần (pList, pceNum, ...)
+    for(int i=0; i<13; ++i) pos->pceNum[i] = 0;
+    pos->material[WHITE] = 0; pos->material[BLACK] = 0;
+    pos->bigPce[WHITE] = 0; pos->bigPce[BLACK] = 0; pos->bigPce[BOTH] = 0;
+    // ... reset majPce, minPce ...
+    for(int pc=0; pc<PIECE_NB; ++pc) for(int p=0; p<10; ++p) pos->pList[pc][p] = NO_SQ;
+}
+
+// --- Hàm Helper cập nhật pList, material, keys (QUAN TRỌNG) ---
+// Bạn cần có hàm này để đảm bảo S_Board hợp lệ sau khi đặt quân
+// (Hàm này thường phức tạp và nên nằm trong board.cpp)
+void UpdateListsMaterialKeys(S_Board *pos) {
+    // 1. Reset pceNum, pList, material, bigPce, majPce, minPce
+    for(int i=0; i<13; ++i) pos->pceNum[i] = 0;
+    pos->material[WHITE] = 0; pos->material[BLACK] = 0;
+    pos->bigPce[WHITE] = 0; pos->bigPce[BLACK] = 0; pos->bigPce[BOTH] = 0;
+    pos->majPce[WHITE] = 0; pos->majPce[BLACK] = 0; pos->majPce[BOTH] = 0;
+    pos->minPce[WHITE] = 0; pos->minPce[BLACK] = 0; pos->minPce[BOTH] = 0;
+    for(int pc=wP; pc<=bK; ++pc) for(int p=0; p<10; ++p) pos->pList[pc][p] = NO_SQ;
 
     // Giá trị vật chất tham khảo (chỉ dùng để cập nhật pos->material)
-    // Lấy từ SF:: nhưng dùng index của Vice Piece enum
     const int pieceMaterialValue[13] = {
         0, SF::PawnValueMg, SF::KnightValueMg, SF::BishopValueMg, SF::RookValueMg, SF::QueenValueMg, 0 /*King*/,
            SF::PawnValueMg, SF::KnightValueMg, SF::BishopValueMg, SF::RookValueMg, SF::QueenValueMg, 0 /*King*/
-    };
+    }; // Lấy từ evaluation_types.h
 
-    // 2. Place pieces and update counts/material
-    for (const auto& p : pieces) {
-        int vicePiece = p.first;
-        SF::Square sq64 = p.second;
-        int sq120 = SQ120(sq64);
+    // 2. Duyệt bàn cờ, cập nhật pList, pceNum, material, big/maj/min pieces
+    for (int sq64 = 0; sq64 < 64; ++sq64) {
+        int sq120 = Sq64ToSq120[sq64];
+        int piece = pos->pieces[sq120];
+        if (piece != NO_PIECE) {
+            SF::Color color = (piece >= wP && piece <= wK) ? SF::WHITE : SF::BLACK;
 
-        if (sq120 != OFFBOARD && sq120 != NO_SQ && vicePiece >= wP && vicePiece <= bK) {
-            pos->pieces[sq120] = vicePiece;
-            pos->pceNum[vicePiece]++; // Cập nhật số lượng
+            pos->pList[piece][pos->pceNum[piece]] = sq120;
+            pos->pceNum[piece]++;
+            pos->material[color] += pieceMaterialValue[piece];
 
-            SF::Color color = (vicePiece >= wP && vicePiece <= wK) ? SF::WHITE : SF::BLACK;
-            pos->material[color] += pieceMaterialValue[vicePiece]; // Cập nhật vật chất (chỉ để tham khảo)
-
-            // Cập nhật bitboards nếu cần cho non_pawn_material (nếu nó dùng BB thay vì pceNum)
-            // Hiện tại non_pawn_material dùng pceNum nên không cần cập nhật BB ở đây
+            if (piece != wP && piece != bP) {
+                pos->bigPce[color]++;
+                pos->bigPce[BOTH]++;
+                if (piece == wR || piece == wQ || piece == bR || piece == bQ) {
+                    pos->majPce[color]++;
+                    pos->majPce[BOTH]++;
+                } else if (piece == wN || piece == wB || piece == bN || piece == bB) {
+                    pos->minPce[color]++;
+                    pos->minPce[BOTH]++;
+                }
+            }
         }
     }
+
+    // 3. Tính toán hash keys (Cần Zobrist::init() đã chạy)
+    pos->pawnKey = calculate_initial_pawn_key(pos); // Hàm này bạn đã có
+
+    // TODO: Tính posKey đầy đủ (cần hàm CalculatePositionKey)
+    // pos->posKey = CalculatePositionKey(pos);
+    // Hàm CalculatePositionKey cần lặp qua tất cả quân, ô enPas, quyền nhập thành, bên đi...
+    // và XOR với các giá trị Zobrist tương ứng.
+    // Tạm thời gán bằng pawnKey để tránh lỗi runtime nếu hash table dùng posKey = 0
+     pos->posKey = pos->pawnKey; // <<-- CẦN THAY THẾ BẰNG HÀM TÍNH POSKEY ĐÚNG
+     std::cout << "Warning: Using pawnKey as posKey for testing purposes." << std::endl;
+
 }
 
+
 int main() {
-    // 1. Initialize Engine Subsystems
-    AllInit(); // Rất quan trọng! Gọi một lần duy nhất.
-    std::cout << "--- Debugging Material Analysis ---" << std::endl;
+    std::cout << "Initializing engine components..." << std::endl;
+    AllInit(); // Rất quan trọng! Khởi tạo PSQT, Attack Tables, Zobrist keys...
+    std::cout << "Initialization complete." << std::endl;
 
-    // 2. Create Board Structure
     S_Board board;
+    ResetBoard(&board);
 
-    // 3. Setup Material Configuration for Testing
-    // Ví dụ 1: KRN vs KR (Trắng mạnh hơn)
-    std::vector<std::pair<int, SF::Square>> setup1 = {
-        {wK, SF::SQ_E1}, {wR, SF::SQ_A1}, {wN, SF::SQ_G1},
-        {bK, SF::SQ_E8}, {bR, SF::SQ_H8}
-    };
-    std::cout << "\n--- Test Case 1: KRN vs KR ---" << std::endl;
-    SetupBoardForMaterialTest(&board, setup1);
+    std::cout << "Setting up starting position..." << std::endl;
 
-    // --- Print piece counts for verification ---
-    std::cout << "Piece Counts (pceNum):" << std::endl;
-    std::cout << "  wP:" << board.pceNum[wP] << " wN:" << board.pceNum[wN] << " wB:" << board.pceNum[wB]
-              << " wR:" << board.pceNum[wR] << " wQ:" << board.pceNum[wQ] << " wK:" << board.pceNum[wK] << std::endl;
-    std::cout << "  bP:" << board.pceNum[bP] << " bN:" << board.pceNum[bN] << " bB:" << board.pceNum[bB]
-              << " bR:" << board.pceNum[bR] << " bQ:" << board.pceNum[bQ] << " bK:" << board.pceNum[bK] << std::endl;
-    // --- End print piece counts ---
-
-    // 4. Probe the Material Hash Table
-    std::cout << "Probing Material Table..." << std::endl;
-    MaterialEntry* entry1 = probe_material_table(&board); // Hàm này sẽ tự tính key
-
-    // 5. Print the results from MaterialEntry
-    if (entry1) {
-        SF::Key currentKey = calculate_material_key(&board); // Tính lại key để so sánh
-        std::cout << "Material Entry Found/Calculated." << std::endl;
-        std::cout << "  Calculated Key: 0x" << std::hex << currentKey << std::dec << std::endl;
-        std::cout << "  Key in Entry:   0x" << std::hex << entry1->key << std::dec << std::endl;
-        assert(entry1->key == currentKey && "Material key mismatch!"); // Kiểm tra key khớp
-
-        std::cout << "  Game Phase:     " << static_cast<int>(entry1->gamePhase)
-                  << " (0=EG, 128=MG)"<< std::endl;
-
-        std::cout << "  Imbalance Val:  " << std::setw(5) << entry1->imbalance_value << std::endl;
-        SF::Score imbalanceScore = entry1->imbalance();
-        std::cout << "  Imbalance Score: MG=" << std::setw(5) << SF::mg_value(imbalanceScore)
-                  << " EG=" << std::setw(5) << SF::eg_value(imbalanceScore) << std::endl;
-
-        std::cout << "  Default Factors: White=" << static_cast<int>(entry1->factor[SF::WHITE])
-                  << " Black=" << static_cast<int>(entry1->factor[SF::BLACK])
-                  << " (64=Normal, 0=Draw)" << std::endl;
-        // Test scale_factor function (hiện tại trả về normal)
-        std::cout << "  ScaleFactor(W): " << static_cast<int>(entry1->scale_factor(SF::WHITE)) << std::endl;
-        std::cout << "  ScaleFactor(B): " << static_cast<int>(entry1->scale_factor(SF::BLACK)) << std::endl;
-
-    } else {
-        std::cerr << "Error: probe_material_table returned nullptr for Test Case 1!" << std::endl;
+    // --- Thiết lập thế cờ ban đầu (Ví dụ) ---
+    // Đặt quân Tốt
+    for (int f = FILE_A; f <= FILE_H; ++f) {
+        board.pieces[FR2SQ(f, RANK_2)] = wP;
+        board.pieces[FR2SQ(f, RANK_7)] = bP;
+        board.pawnsBB[SF::WHITE] |= SF::square_bb(SF::make_square(static_cast<SF::File>(f), SF::RANK_2));
+        board.pawnsBB[SF::BLACK] |= SF::square_bb(SF::make_square(static_cast<SF::File>(f), SF::RANK_7));
     }
+    // Đặt quân khác (Ví dụ cho quân Trắng, tự thêm quân Đen tương tự)
+    board.pieces[A1] = wR; board.rooksBB[SF::WHITE]   |= SF::square_bb(SF::SQ_A1);
+    board.pieces[B1] = wN; board.knightsBB[SF::WHITE] |= SF::square_bb(SF::SQ_B1);
+    board.pieces[C1] = wB; board.bishopsBB[SF::WHITE] |= SF::square_bb(SF::SQ_C1);
+    board.pieces[D1] = wQ; board.queensBB[SF::WHITE]  |= SF::square_bb(SF::SQ_D1);
+    board.pieces[E1] = wK; board.kingsBB[SF::WHITE]   |= SF::square_bb(SF::SQ_E1); board.KingSq[WHITE] = E1;
+    board.pieces[F1] = wB; board.bishopsBB[SF::WHITE] |= SF::square_bb(SF::SQ_F1);
+    board.pieces[G1] = wN; board.knightsBB[SF::WHITE] |= SF::square_bb(SF::SQ_G1);
+    board.pieces[H1] = wR; board.rooksBB[SF::WHITE]   |= SF::square_bb(SF::SQ_H1);
 
-    // Ví dụ 2: KB vs K (Trắng không có Tốt, nên factor[WHITE] có thể bị scale)
-    std::vector<std::pair<int, SF::Square>> setup2 = {
-        {wK, SF::SQ_E1}, {wB, SF::SQ_C1},
-        {bK, SF::SQ_E8}
-    };
-    std::cout << "\n--- Test Case 2: KB vs K ---" << std::endl;
-    SetupBoardForMaterialTest(&board, setup2);
+    board.pieces[A8] = bR; board.rooksBB[SF::BLACK]   |= SF::square_bb(SF::SQ_A8);
+    board.pieces[B8] = bN; board.knightsBB[SF::BLACK] |= SF::square_bb(SF::SQ_B8);
+    board.pieces[C8] = bB; board.bishopsBB[SF::BLACK] |= SF::square_bb(SF::SQ_C8);
+    board.pieces[D8] = bQ; board.queensBB[SF::BLACK]  |= SF::square_bb(SF::SQ_D8);
+    board.pieces[E8] = bK; board.kingsBB[SF::BLACK]   |= SF::square_bb(SF::SQ_E8); board.KingSq[BLACK] = E8;
+    board.pieces[F8] = bB; board.bishopsBB[SF::BLACK] |= SF::square_bb(SF::SQ_F8);
+    board.pieces[G8] = bN; board.knightsBB[SF::BLACK] |= SF::square_bb(SF::SQ_G8);
+    board.pieces[H8] = bR; board.rooksBB[SF::BLACK]   |= SF::square_bb(SF::SQ_H8);
 
-    // --- Print piece counts for verification ---
-    std::cout << "Piece Counts (pceNum):" << std::endl;
-    std::cout << "  wP:" << board.pceNum[wP] << " wN:" << board.pceNum[wN] << " wB:" << board.pceNum[wB]
-              << " wR:" << board.pceNum[wR] << " wQ:" << board.pceNum[wQ] << " wK:" << board.pceNum[wK] << std::endl;
-    std::cout << "  bP:" << board.pceNum[bP] << " bN:" << board.pceNum[bN] << " bB:" << board.pceNum[bB]
-              << " bR:" << board.pceNum[bR] << " bQ:" << board.pceNum[bQ] << " bK:" << board.pceNum[bK] << std::endl;
-    // --- End print piece counts ---
+    // Cập nhật bitboard tổng
+    board.allPiecesBB[SF::WHITE] = board.pawnsBB[SF::WHITE] | board.knightsBB[SF::WHITE] | board.bishopsBB[SF::WHITE] | board.rooksBB[SF::WHITE] | board.queensBB[SF::WHITE] | board.kingsBB[SF::WHITE];
+    board.allPiecesBB[SF::BLACK] = board.pawnsBB[SF::BLACK] | board.knightsBB[SF::BLACK] | board.bishopsBB[SF::BLACK] | board.rooksBB[SF::BLACK] | board.queensBB[SF::BLACK] | board.kingsBB[SF::BLACK];
+    board.allPiecesBB[2] = board.allPiecesBB[SF::WHITE] | board.allPiecesBB[SF::BLACK];
 
-    std::cout << "Probing Material Table..." << std::endl;
-    MaterialEntry* entry2 = probe_material_table(&board);
+    // Thiết lập trạng thái khác
+    board.side = WHITE;
+    board.enPas = NO_SQ;
+    board.fiftyMove = 0;
+    board.ply = 0;
+    board.hisPly = 0;
+    board.castlePerm = WKCA | WQCA | BKCA | BQCA;
 
-    if (entry2) {
-         SF::Key currentKey = calculate_material_key(&board);
-         std::cout << "Material Entry Found/Calculated." << std::endl;
-         std::cout << "  Calculated Key: 0x" << std::hex << currentKey << std::dec << std::endl;
-         std::cout << "  Key in Entry:   0x" << std::hex << entry2->key << std::dec << std::endl;
-         assert(entry2->key == currentKey && "Material key mismatch!");
-
-         std::cout << "  Game Phase:     " << static_cast<int>(entry2->gamePhase) << std::endl;
-         std::cout << "  Imbalance Val:  " << std::setw(5) << entry2->imbalance_value << std::endl;
-         SF::Score imbalanceScore = entry2->imbalance();
-         std::cout << "  Imbalance Score: MG=" << std::setw(5) << SF::mg_value(imbalanceScore)
-                   << " EG=" << std::setw(5) << SF::eg_value(imbalanceScore) << std::endl;
-         // Chú ý giá trị factor[WHITE] ở đây!
-         std::cout << "  Default Factors: White=" << static_cast<int>(entry2->factor[SF::WHITE])
-                   << " Black=" << static_cast<int>(entry2->factor[SF::BLACK]) << std::endl;
-
-    } else {
-         std::cerr << "Error: probe_material_table returned nullptr for Test Case 2!" << std::endl;
-    }
+    // *** CẬP NHẬT pList, material, keys *** (RẤT QUAN TRỌNG)
+    UpdateListsMaterialKeys(&board);
+    std::cout << "Board setup complete. Pawn Key: 0x" << std::hex << board.pawnKey << std::dec << std::endl;
+    std::cout << "                     Pos Key : 0x" << std::hex << board.posKey << std::dec << std::endl;
 
 
-     // Ví dụ 3: KQ vs KPPPP (Kiểm tra imbalance và phase)
-     std::vector<std::pair<int, SF::Square>> setup3 = {
-        {wK, SF::SQ_E1}, {wQ, SF::SQ_D1},
-        {bK, SF::SQ_E8}, {bP, SF::SQ_A7}, {bP, SF::SQ_B7}, {bP, SF::SQ_C7}, {bP, SF::SQ_D7}
-     };
-    std::cout << "\n--- Test Case 3: KQ vs KPPPP ---" << std::endl;
-    SetupBoardForMaterialTest(&board, setup3);
-
-     // --- Print piece counts for verification ---
-     std::cout << "Piece Counts (pceNum):" << std::endl;
-     std::cout << "  wP:" << board.pceNum[wP] << " wN:" << board.pceNum[wN] << " wB:" << board.pceNum[wB]
-               << " wR:" << board.pceNum[wR] << " wQ:" << board.pceNum[wQ] << " wK:" << board.pceNum[wK] << std::endl;
-     std::cout << "  bP:" << board.pceNum[bP] << " bN:" << board.pceNum[bN] << " bB:" << board.pceNum[bB]
-               << " bR:" << board.pceNum[bR] << " bQ:" << board.pceNum[bQ] << " bK:" << board.pceNum[bK] << std::endl;
-     // --- End print piece counts ---
-
-     std::cout << "Probing Material Table..." << std::endl;
-     MaterialEntry* entry3 = probe_material_table(&board);
-
-     if (entry3) {
-         SF::Key currentKey = calculate_material_key(&board);
-         std::cout << "Material Entry Found/Calculated." << std::endl;
-         std::cout << "  Calculated Key: 0x" << std::hex << currentKey << std::dec << std::endl;
-         std::cout << "  Key in Entry:   0x" << std::hex << entry3->key << std::dec << std::endl;
-         assert(entry3->key == currentKey && "Material key mismatch!");
-
-         std::cout << "  Game Phase:     " << static_cast<int>(entry3->gamePhase) << std::endl;
-         std::cout << "  Imbalance Val:  " << std::setw(5) << entry3->imbalance_value << std::endl;
-         SF::Score imbalanceScore = entry3->imbalance();
-         std::cout << "  Imbalance Score: MG=" << std::setw(5) << SF::mg_value(imbalanceScore)
-                   << " EG=" << std::setw(5) << SF::eg_value(imbalanceScore) << std::endl;
-         std::cout << "  Default Factors: White=" << static_cast<int>(entry3->factor[SF::WHITE])
-                   << " Black=" << static_cast<int>(entry3->factor[SF::BLACK]) << std::endl;
-     } else {
-         std::cerr << "Error: probe_material_table returned nullptr for Test Case 3!" << std::endl;
-     }
+    // (Tùy chọn) In bàn cờ để kiểm tra
+    // std::cout << "White Pawns:" << std::endl; PrintBitBoard(board.pawnsBB[SF::WHITE]);
+    // std::cout << "Black Pawns:" << std::endl; PrintBitBoard(board.pawnsBB[SF::BLACK]);
+    // std::cout << "All Pieces:" << std::endl; PrintBitBoard(board.allPiecesBB[SF::BOTH]);
 
 
-    std::cout << "\n--- Material Analysis Debugging Finished ---" << std::endl;
+    std::cout << "\nEvaluating position..." << std::endl;
+    // Gọi hàm đánh giá
+    SF::Value score = EvaluatePosition(&board); // Gọi hàm bạn đã viết
+
+    std::cout << "------------------------------------" << std::endl;
+    std::cout << "Evaluation score: " << score << std::endl;
+
+    // Chuyển đổi sang centipawn để dễ đọc hơn (100 cp = 1 điểm Tốt)
+    // Giá trị dương là lợi thế cho Trắng, âm là lợi thế cho Đen
+    double score_cp = static_cast<double>(score) * 100.0 / SF::PawnValueEg; // Chia cho giá trị Tốt EG
+    std::cout << "Evaluation (cp) : " << std::fixed << std::setprecision(2) << score_cp << " (from " << (board.side == WHITE ? "White" : "Black") << "'s perspective)" << std::endl;
+    std::cout << "------------------------------------" << std::endl;
+
+
+    // --- Test với một thế cờ khác (ví dụ) ---
+    /*
+    std::cout << "\nSetting up custom position (e.g., Sicilian Najdorf)..." << std::endl;
+    ResetBoard(&board);
+    // TODO: Thiết lập một FEN khác ở đây bằng cách đặt quân và gọi UpdateListsMaterialKeys
+    // Ví dụ: "rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"
+    // ... (code đặt quân) ...
+    UpdateListsMaterialKeys(&board);
+    score = EvaluatePosition(&board);
+    score_cp = static_cast<double>(score) * 100.0 / SF::PawnValueEg;
+    std::cout << "Evaluation score: " << score << std::endl;
+    std::cout << "Evaluation (cp) : " << std::fixed << std::setprecision(2) << score_cp << " (from " << (board.side == WHITE ? "White" : "Black") << "'s perspective)" << std::endl;
+    std::cout << "------------------------------------" << std::endl;
+    */
 
     return 0;
 }
+
+

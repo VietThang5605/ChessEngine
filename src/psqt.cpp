@@ -2,6 +2,7 @@
 #include <cassert> // Nên include nếu bạn dùng assert
 
 #include "evaluation_types.h"
+#include "psqt.h" // Định nghĩa PSQT::init() và các biến toàn cục
 
 SF::Value PieceValue[SF::PHASE_NB][SF::PIECE_NB] = {
     { SF::VALUE_ZERO, SF::PawnValueMg, SF::KnightValueMg, SF::BishopValueMg, SF::RookValueMg, SF::QueenValueMg },
@@ -15,7 +16,7 @@ using namespace SF;
 #define S(mg, eg) make_score(mg, eg) // Macro tiện ích
 
 // Định nghĩa các mảng Bonus và PBonus (Dùng const thay constexpr cho an toàn)
-constexpr Score Bonus[PIECE_TYPE_NB][RANK_NB][FILE_NB / 2] = {
+constexpr Score Bonus[SF::PIECE_TYPE_NB][SF::RANK_NB][SF::FILE_NB / 2] = {
   { }, { }, // NO_PIECE_TYPE, PAWN (không dùng Bonus trực tiếp cho Pawn)
   { // Knight 
    { S(-175, -96), S(-92,-65), S(-74,-49), S(-73,-21) },
@@ -70,7 +71,7 @@ constexpr Score Bonus[PIECE_TYPE_NB][RANK_NB][FILE_NB / 2] = {
   // Index 7 (ALL_PIECES) không dùng
 };
 
-constexpr Score PBonus[RANK_NB][FILE_NB] = { //pawn bonus
+constexpr Score PBonus[SF::RANK_NB][SF::FILE_NB] = { //pawn bonus
   { }, // Rank 1 (chỉ số 0) - không dùng
   { // Rank 2 (chỉ số 1)
     S(  3,-10), S(  3, -6), S( 10, 10), S( 19,  0), S( 16, 14), S( 19,  7), S(  7, -5), S( -5,-19) },
@@ -89,12 +90,12 @@ constexpr Score PBonus[RANK_NB][FILE_NB] = { //pawn bonus
 #undef S
 
 // Bảng PSQ cuối cùng (nên khai báo trong .h nếu cần truy cập từ bên ngoài, ví dụ: extern Score psq[...];)
-Score psq[PIECE_NB][SQUARE_NB]; // PIECE_NB=16, SQUARE_NB=64
+Score psq[SF::PIECE_NB][SF::SQUARE_NB]; // PIECE_NB=16, SQUARE_NB=64
 
 // Hàm khởi tạo bảng PSQ
 void init() { // Giữ tên init() nếu bạn muốn giống Stockfish
 
-    for (Piece pc = W_PAWN; pc <= W_KING; ++pc)
+    for (SF::Piece pc = W_PAWN; pc <= W_KING; ++pc)
     {
         // Sao chép giá trị vật chất từ quân trắng sang quân đen
         PieceValue[MG][~pc] = PieceValue[MG][pc];
@@ -104,11 +105,11 @@ void init() { // Giữ tên init() nếu bạn muốn giống Stockfish
         Score score = make_score(PieceValue[MG][pc], PieceValue[EG][pc]);
     
         // Duyệt qua các ô để tính điểm vị trí
-        for (Square s = SQ_A1; s <= SQ_H8; ++s)
+        for (SF::Square s = SQ_A1; s <= SQ_H8; ++s)
         {
-            File f = file_of(s); // Lấy file thực tế
-            Rank r = rank_of(s); // Lấy rank thực tế
-            File qf = map_to_queenside(f); // Lấy file đối xứng bên cánh Hậu (A-D)
+          SF::File f = file_of(s); // Lấy file thực tế
+          SF::Rank r = rank_of(s); // Lấy rank thực tế
+          SF::File qf = map_to_queenside(f); // Lấy file đối xứng bên cánh Hậu (A-D)
             
             // Tính điểm PSQ cho quân trắng
             // SỬA ĐỔI Ở ĐÂY: Dùng type_of(pc) để truy cập Bonus
@@ -116,7 +117,7 @@ void init() { // Giữ tên init() nếu bạn muốn giống Stockfish
                                                         : Bonus[type_of(pc)][r][qf]); // Dùng type_of(pc) và file đối xứng 'qf'
 
             // Tính điểm PSQ cho quân đen (bằng cách lật ô và đảo dấu)
-            Square flipped_s = flip_vertically(s);
+            SF::Square flipped_s = flip_vertically(s);
             if (is_ok(flipped_s)) { // Chỉ gán nếu ô lật hợp lệ
                  psq[~pc][flipped_s] = -psq[pc][s];
             }

@@ -72,11 +72,6 @@ void init_attack_tables() {
 
 SF::Bitboard attacks_from_pawns(const S_Board* pos, SF::Color side) {
     SF::Bitboard pawns = pos->pawnsBB[side]; // Lấy bitboard Tốt từ S_BOARD
-    // if (side == SF::WHITE) {
-    //     return SF::shift<SF::NORTH_WEST>(pawns) | SF::shift<SF::NORTH_EAST>(pawns);
-    // } else { // BLACK
-    //     return SF::shift<SF::SOUTH_WEST>(pawns) | SF::shift<SF::SOUTH_EAST>(pawns);
-    // }
     SF::Bitboard attacks = 0;
         // Tối ưu hơn là dùng bảng tính sẵn
     while (pawns) {
@@ -98,69 +93,6 @@ SF::Bitboard attacks_from_king(const S_Board* pos, SF::Color side) {
     SF::Square kingSq = static_cast<SF::Square>(pos->KingSq[side]); // Lấy ô Vua từ S_BOARD
     return SF::is_ok(kingSq) ? PseudoAttacks_KING[kingSq] : 0;
 }
-
-// Hàm helper tính toán tấn công cho quân trượt
-// Hàm helper tính toán tấn công cho quân trượt
-// SF::Bitboard attacks_from_sliding(SF::Bitboard sliders, SF::Bitboard occupied, const SF::Direction steps[], int numSteps) {
-//     SF::Bitboard attacks = 0;
-//     SF::Bitboard b = sliders;
-//     while (b) {
-//         SF::Square from = SF::pop_lsb(&b);
-
-//         if (from == SF::SQ_A1) {
-//             std::cout << "  DEBUG SLIDING from A1:" << std::endl;
-//             std::cout << "    Occupied passed in:" << std::endl;
-//             PrintBitBoard(occupied);
-//         }
-
-//         for (int i = 0; i < numSteps; ++i) {
-//             SF::Direction dir = steps[i];
-
-//             if (from == SF::SQ_A1 && dir == SF::EAST) {
-//                 std::cout << "    Checking Direction: EAST" << std::endl;
-//             }
-
-//             SF::Square to = static_cast<SF::Square>(from + dir);
-//             while (SF::is_ok(to)) {
-//                 bool is_occupied = (occupied & SF::square_bb(to));
-//                 if (from == SF::SQ_A1 && dir == SF::EAST) {
-//                     std::cout << "      Considering square 'to': " << static_cast<int>(to)
-//                               << " (Occupied: " << is_occupied << ")" << std::endl;
-//                 }
-
-//                 // --- DEBUG TRƯỚC KHI THÊM Ô ---
-//                 if (from == SF::SQ_A1 && dir == SF::EAST && to == SF::SQ_E1) {
-//                     std::cout << "      DEBUG OR: attacks BEFORE |=" << std::endl;
-//                     PrintBitBoard(attacks);
-//                 }
-
-//                 attacks |= SF::square_bb(to); // Thêm ô vào kết quả
-
-//                 // --- DEBUG SAU KHI THÊM Ô ---
-//                 if (from == SF::SQ_A1 && dir == SF::EAST && to == SF::SQ_E1) {
-//                     std::cout << "      DEBUG OR: attacks AFTER |=" << std::endl;
-//                     PrintBitBoard(attacks);
-//                 }
-
-//                 if (is_occupied) {
-//                     if (from == SF::SQ_A1 && dir == SF::EAST) {
-//                         std::cout << "      Breaking because occupied." << std::endl;
-//                     }
-//                     break;
-//                 }
-//                 to = static_cast<SF::Square>(to + dir);
-//                 if (SF::distance<SF::Square>(to, static_cast<SF::Square>(to - dir)) != 1) break;
-//             }
-//         }
-//     }
-
-//     if (sliders == SF::square_bb(SF::SQ_A1)) {
-//         std::cout << "  DEBUG SLIDING from A1 RETURN VALUE:" << std::endl;
-//         PrintBitBoard(attacks);
-//     }
-//     return attacks;
-// }
-
 
 SF::Bitboard attacks_from_sliding(SF::Bitboard sliders, SF::Bitboard occupied, const SF::Direction steps[], int numSteps) {
     SF::Bitboard attacks = 0;

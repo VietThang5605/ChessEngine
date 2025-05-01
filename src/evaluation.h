@@ -1,5 +1,5 @@
-#ifndef EVALUATE_PHASE3_H_INCLUDED
-#define EVALUATE_PHASE3_H_INCLUDED
+#ifndef EVALUATION_INCLUDED
+#define EVALUATION_INCLUDED
 
 #include "board.h"            // Định nghĩa S_Board
 #include "evaluation_types.h" // Định nghĩa SF::Value, SF::Score, etc.
@@ -15,4 +15,4 @@ namespace EvalPhase3 {
     // Có thể đặt các hàm helper hoặc lớp nội bộ ở đây nếu cần
 }
 
-#endif // EVALUATE_PHASE3_H_INCLUDED
+#endif // EVALUATION_INCLUDED

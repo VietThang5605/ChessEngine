@@ -78,13 +78,80 @@ namespace {
 } // end anonymous namespace
 
 // --- Hàm tính Material Key (Giữ nguyên) ---
-SF::Key calculate_material_key(const S_Board* pos) { /* ... giữ nguyên ... */ }
+// --- Hàm tính Material Key ---
+SF::Key calculate_material_key(const S_Board* pos) {
+     SF::Key key = 0;
+     // Tạo key dựa trên số lượng quân.
+     // Cần Zobrist keys riêng cho việc này (ví dụ: Zobrist::MaterialKey[piece_enum])
+     // Hoặc dùng tạm Zobrist::Psq[piece_enum][count] nếu đã khởi tạo đủ.
+     // Ví dụ đơn giản: XOR key của loại quân với số lượng quân đó.
+     // Đảm bảo Zobrist::init() đã khởi tạo các key cần thiết.
+ 
+     for (int pc = wP; pc <= bK; ++pc) { // Lặp qua các enum quân của Vice
+         if (pos->pceNum[pc] > 0) {
+             // Lấy key cho loại quân pc (ví dụ dùng index 0 làm key loại quân)
+             SF::Key pieceTypeKey = Zobrist::Psq[pc][0];
+             if (pieceTypeKey != 0) {
+                 // XOR key này vào 'pos->pceNum[pc]' lần
+                 for (int i = 0; i < pos->pceNum[pc]; ++i) {
+                      // XOR đơn giản cho mỗi quân. Một cách khác là có key cho (quân, số lượng).
+                      // Cách này có thể gây trùng lặp key (ví dụ 2 Mã và 1 Xe có thể trùng key với 1 Mã và 2 Xe nếu key Mã = key Xe).
+                      // Cần thiết kế hệ thống Zobrist key cẩn thận hơn cho material.
+                     key ^= pieceTypeKey;
+                 }
+             }
+         }
+     }
+     // Trả về key, đảm bảo không phải là 0 (vì 0 thường dùng cho entry trống)
+     return (key == 0) ? SF::Key(1) : key; // Trả về 1 nếu key tình cờ = 0
+ }
 
-// --- Hàm tính vật chất không phải Tốt (Giữ nguyên logic đã sửa) ---
-SF::Value non_pawn_material(const S_Board* pos, SF::Color c) { /* ... giữ nguyên logic đã sửa ... */ }
+ // --- Probe function ---
+// Tìm hoặc tính toán MaterialEntry trong hash table
+MaterialEntry* probe_material_table(const S_Board* pos) {
+     assert(pos != nullptr); // Đảm bảo con trỏ board hợp lệ
+ 
+     // Tính key dựa trên số lượng quân (gọi hàm bạn đã định nghĩa)
+     SF::Key key = calculate_material_key(pos);
+ 
+     // Truy cập bảng băm toàn cục (materialTableInstance đã định nghĩa trong namespace ẩn danh)
+     // Sử dụng operator[] của SimpleHashTable để lấy con trỏ tới entry tiềm năng
+     MaterialEntry* entry = materialTableInstance[key];
+ 
+     // Cache hit: Nếu key của entry khớp với key vừa tính và key khác 0
+     if (entry->key == key && key != 0) {
+         return entry; // Trả về entry đã tìm thấy trong cache
+     }
+ 
+     // Cache miss: Nếu không tìm thấy hoặc key không khớp (hoặc key=0)
+     // Gọi hàm analyze_material để tính toán dữ liệu cho entry này
+     // Hàm analyze_material (bạn đã có) sẽ điền dữ liệu vào 'entry'
+     analyze_material(pos, entry);
+ 
+     // Lưu key vừa tính vào entry mới để đánh dấu nó là hợp lệ cho lần probe sau
+     entry->key = key;
+ 
+     // Trả về con trỏ tới entry đã được tính toán và cập nhật
+     return entry;
+ }
 
-// --- Probe function (Giữ nguyên) ---
-MaterialEntry* probe_material_table(const S_Board* pos) { /* ... giữ nguyên ... */ }
+// --- Hàm tính vật chất không phải Tốt ---
+SF::Value non_pawn_material(const S_Board* pos, SF::Color c) {
+     SF::Value totalValue = SF::VALUE_ZERO;
+     int start_pc = (c == SF::WHITE) ? wN : bN; // Bắt đầu từ Mã
+     int end_pc   = (c == SF::WHITE) ? wK : bK; // Kết thúc ở Vua
+ 
+     // Giá trị vật chất tham khảo MG (lấy từ evaluation_types.h)
+     const int pieceMaterialValueMg[13] = {
+         0, 0 /*Pawn*/, SF::KnightValueMg, SF::BishopValueMg, SF::RookValueMg, SF::QueenValueMg, 0 /*King*/,
+            0 /*Pawn*/, SF::KnightValueMg, SF::BishopValueMg, SF::RookValueMg, SF::QueenValueMg, 0 /*King*/
+     };
+ 
+     for (int pc = start_pc; pc <= end_pc; ++pc) {
+         totalValue = static_cast<SF::Value>(static_cast<int>(totalValue) + pos->pceNum[pc] * pieceMaterialValueMg[pc]);
+     }
+     return totalValue;
+ }
 
 // --- Main analysis function (Đã sửa lỗi tràn số) ---
 MaterialEntry* analyze_material(const S_Board* pos, MaterialEntry* entry) {
