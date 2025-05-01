@@ -9,49 +9,31 @@ from tkinter import Tk, filedialog, simpledialog
 
 from config import SCREEN, WIDTH, HEIGHT, BOARD_WIDTH, HISTORY_PANEL_WIDTH
 from config import WHITE, BLACK, LIGHT_BROWN, DARK_BROWN, BLUE, HIGHLIGHT_COLOR, SQUARE_SIZE, font, pieces_img
-from config import move_sound, capture_sound, PIECE_SIZE
+from config import move_sound, capture_sound, PIECE_SIZE, captured_white, captured_black
 
-from general import draw_board, draw_captured_pieces, show_game_result, get_engine_move
+from general import draw_board, draw_captured_pieces, show_game_result, get_engine_move, draw_info
 
 INFO_HEIGHT = 150
 HISTORY_Y_START = INFO_HEIGHT
 timer = pygame.time.Clock()
 fps = 60
+board = chess.Board()
 
-def draw_engine_info(config, white_time, black_time):
+# def draw_clock(white_time, black_time, white_name, black_name):
+#     fontClock = pygame.font.SysFont(None, 28)
 
-    pygame.draw.rect(SCREEN, BLUE, (BOARD_WIDTH, 0, HISTORY_PANEL_WIDTH, INFO_HEIGHT))
+#     # Chuyển đổi thời gian sang phút:giây
+#     def format_time(ms):
+#         minutes = ms // 60000
+#         seconds = (ms // 1000) % 60
+#         return f"{minutes}:{seconds:02d}"
 
-    name_font = pygame.font.SysFont('timesnewroman', 22)
-    time_font = pygame.font.SysFont('timesnewroman', 20)
+#     white_text = fontClock.render(f"(white) {white_name}: {format_time(white_time)}", True, WHITE)
+#     black_text = fontClock.render(f"(black) {black_name}: {format_time(black_time)}", True, WHITE)
 
-    white_text = name_font.render(f"{config['white']['name']} (White)", True, WHITE)
-    black_text = name_font.render(f"{config['black']['name']} (Black)", True, WHITE)
-
-    white_clock = time_font.render(f"{white_time//60:02d}:{white_time%60:02d}", True, WHITE)
-    black_clock = time_font.render(f"{black_time//60:02d}:{black_time%60:02d}", True, WHITE)
-
-    SCREEN.blit(white_text, (BOARD_WIDTH + 10, 10))
-    SCREEN.blit(white_clock, (BOARD_WIDTH + 10, 35))
-    SCREEN.blit(black_text, (BOARD_WIDTH + 10, 70))
-    SCREEN.blit(black_clock, (BOARD_WIDTH + 10, 95))
-
-
-def draw_clock(white_time, black_time, white_name, black_name):
-    fontClock = pygame.font.SysFont(None, 28)
-
-    # Chuyển đổi thời gian sang phút:giây
-    def format_time(ms):
-        minutes = ms // 60000
-        seconds = (ms // 1000) % 60
-        return f"{minutes}:{seconds:02d}"
-
-    white_text = fontClock.render(f"(white) {white_name}: {format_time(white_time)}", True, WHITE)
-    black_text = fontClock.render(f"(black) {black_name}: {format_time(black_time)}", True, WHITE)
-
-    # Hiển thị ở góc dưới panel bên phải
-    SCREEN.blit(white_text, (BOARD_WIDTH + 10, HEIGHT - 60))
-    SCREEN.blit(black_text, (BOARD_WIDTH + 10, HEIGHT - 30))
+#     # Hiển thị ở góc dưới panel bên phải
+#     SCREEN.blit(white_text, (BOARD_WIDTH + 10, HEIGHT - 60))
+#     SCREEN.blit(black_text, (BOARD_WIDTH + 10, HEIGHT - 30))
 
 
 def show_engine_selection_dialog():
@@ -115,8 +97,8 @@ def show_engine_selection_dialog():
             return {
                 "engine_white_path": engine_white_path.get(),
                 "engine_black_path": engine_black_path.get(),
-                "engine_white_name": engine_white_name.get(),
-                "engine_black_name": engine_black_name.get(),
+                "white_name": engine_white_name.get(),
+                "black_name": engine_black_name.get(),
                 "move_time": move_time_val,
                 "match_time": match_time_val
             }
@@ -125,16 +107,38 @@ def show_engine_selection_dialog():
             return None
     return None
 
+def engine_play(current_engine, white_remaining, black_remaining, move_time, last_move_squares):
+    move_uci = get_engine_move(current_engine, board.fen(), white_remaining, black_remaining, move_time)
+    
+    try:
+        move = chess.Move.from_uci(move_uci)
+        if move in board.legal_moves:
+            piece_captured = board.is_capture(move)
+                
+            if piece_captured:
+                captured_piece = board.piece_at(move.to_square)
+                if captured_piece:
+                    if captured_piece.color == chess.WHITE:
+                        captured_white.append(captured_piece.symbol())
+                    else:
+                        captured_black.append(captured_piece.symbol())
+                capture_sound.play()
+            else:
+                move_sound.play()
+            board.push(move)
+            last_move_squares = [
+                (7 - move.from_square // 8, move.from_square % 8),
+                (7 - move.to_square // 8, move.to_square % 8),
+            ]
+    except Exception as e:
+        print("Lỗi khi thực hiện nước đi:", e)
+    
+
 def ai_vs_ai():
     config = show_engine_selection_dialog()
     if not config:
         print("Engine không được chọn đầy đủ.")
         return
-
-    board = chess.Board()
-    last_move_squares = None
-    captured_white = []
-    captured_black = []
 
     engine1 = subprocess.Popen(config["engine_white_path"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     engine2 = subprocess.Popen(config["engine_black_path"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -151,6 +155,7 @@ def ai_vs_ai():
 
     white_remaining = match_time
     black_remaining = match_time
+    last_move_squares = None
 
     clock = pygame.time.Clock()
     scroll_offset = 0
@@ -159,8 +164,7 @@ def ai_vs_ai():
     is_paused = False
 
     font_button = pygame.font.SysFont('timesnewroman', 24)
-    last_time_check = time.time()  # Thời gian lần cuối kiểm tra để cập nhật clock
-
+    
     running = True
     while running and not board.is_game_over(claim_draw=True):
         timer.tick(fps)
@@ -177,10 +181,8 @@ def ai_vs_ai():
             continue
 
         draw_board(board, last_move_squares)
-        draw_engine_info({
-            "white": {"name": config["engine_white_name"]},
-            "black": {"name": config["engine_black_name"]},
-        }, white_remaining, black_remaining)
+        draw_info(config['white_name'], config['black_name'], white_remaining, black_remaining)
+        # draw_clock(white_remaining, black_remaining, config['white_name'], config['black_name'])
         draw_captured_pieces(captured_white, captured_black)
 
         # Nút tạm dừng / tiếp tục
@@ -196,38 +198,16 @@ def ai_vs_ai():
         current_engine = engine1 if board.turn == chess.WHITE else engine2
         
         start_move_time = time.time()
-        move_uci = get_engine_move(current_engine, board.fen(), white_remaining, black_remaining, move_time)
+        engine_play(current_engine, white_remaining, black_remaining, move_time, last_move_squares)
         
         elapsed_time = time.time() - start_move_time
         elapsed_seconds = int(elapsed_time)
         
-        if board.turn == chess.WHITE:
-            white_remaining = max(0, white_remaining - elapsed_seconds)
-        else:
-            black_remaining = max(0, black_remaining - elapsed_seconds)
+        # if board.turn == chess.WHITE:
+        #     white_remaining = max(0, white_remaining - elapsed_seconds)
 
-        try:
-            move = chess.Move.from_uci(move_uci)
-            if move in board.legal_moves:
-                piece_captured = board.is_capture(move)
-                
-                if piece_captured:
-                    captured_piece = board.piece_at(move.to_square)
-                    if captured_piece:
-                        if captured_piece.color == chess.WHITE:
-                            captured_white.append(captured_piece.symbol())
-                        else:
-                            captured_black.append(captured_piece.symbol())
-                    capture_sound.play()
-                else:
-                    move_sound.play()
-                board.push(move)
-                last_move_squares = [
-                    (7 - move.from_square // 8, move.from_square % 8),
-                    (7 - move.to_square // 8, move.to_square % 8),
-                ]
-        except Exception as e:
-            print("Lỗi khi thực hiện nước đi:", e)
+        # else:
+        #     black_remaining = max(0, black_remaining - elapsed_seconds)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -237,20 +217,11 @@ def ai_vs_ai():
                     is_paused = True
                 elif resume_button_rect.collidepoint(event.pos):
                     is_paused = False
-                    last_time_check = time.time()
-            elif event.type == pygame.MOUSEWHEEL:
-                # Cuộn thanh trượt lịch sử nước đi
-                scroll_offset = max(0, min(scroll_offset - event.y, max_scroll))
-
-        clock.tick(60)
 
     # Hiển thị bàn cờ cuối cùng nếu chiếu hết
     if board.is_checkmate():
         draw_board(board, last_move_squares)
-        draw_engine_info({
-            "white": {"name": config["engine_white_name"]},
-            "black": {"name": config["engine_black_name"]},
-        }, white_remaining, black_remaining)
+        draw_info(config['white_name'], config['black_name'], white_remaining, black_remaining)
         pygame.display.flip()
         pygame.time.wait(500)
 
@@ -261,7 +232,7 @@ def ai_vs_ai():
         winner = "Draw"
     else:
         if (white_remaining == 0 or black_remaining == 0): winner = "Drawn"
-        else: winner = "Unknown"
+        else: winner = 'Unknown'
 
     engine1.kill()
     engine2.kill()
@@ -269,6 +240,7 @@ def ai_vs_ai():
     result = show_game_result(winner)
     captured_white.clear()
     captured_black.clear()
+    last_move_squares = None
     if result == 'new_game':
         ai_vs_ai()
 

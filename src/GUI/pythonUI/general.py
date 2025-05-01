@@ -1,7 +1,6 @@
 import pygame
 import subprocess
 import threading
-import chess
 import os
 import sys
 import time
@@ -91,17 +90,34 @@ def show_game_result(winner):
                 elif event.key == pygame.K_2:
                     return "exit"
                 
+
+def draw_info(white_name, black_name, white_time, black_time):
+
+    pygame.draw.rect(SCREEN, BLUE, (BOARD_WIDTH, 0, HISTORY_PANEL_WIDTH, INFO_HEIGHT))
+
+    name_font = pygame.font.SysFont('timesnewroman', 22)
+    time_font = pygame.font.SysFont('timesnewroman', 20)
+
+    white_text = name_font.render(f"{white_name} (White)", True, WHITE)
+    black_text = name_font.render(f"{black_name} (Black)", True, WHITE)
+
+    white_clock = time_font.render(f"{white_time//60:02d}:{white_time%60:02d}", True, WHITE)
+    black_clock = time_font.render(f"{black_time//60:02d}:{black_time%60:02d}", True, WHITE)
+
+    SCREEN.blit(white_text, (BOARD_WIDTH + 10, 10))
+    SCREEN.blit(white_clock, (BOARD_WIDTH + 10, 35))
+    SCREEN.blit(black_text, (BOARD_WIDTH + 10, 70))
+    SCREEN.blit(black_clock, (BOARD_WIDTH + 10, 95))
+                
 def get_engine_move(engine, fen, white_time, black_time, move_time):
     engine.stdin.write(f"position fen {fen}\n".encode())
     
-    engine.stdin.write(f"go wtime {white_time * 1000} btime {black_time * 1000} winc 0 binc 0\n".encode())
+    # engine.stdin.write(f"go wtime {white_time * 1000} btime {black_time * 1000} winc 0 binc 0\n".encode())
+    engine.stdin.write(f"go movetime {move_time}\n".encode())
     engine.stdin.flush()
-    
-    time.sleep(0.1)
-    response = engine.stdout.readline().decode().strip()
-    
-    while not response.startswith("bestmove"):
+     
+    while True:
         response = engine.stdout.readline().decode().strip()
-    best_move = response.split()[1]
-    
-    return best_move
+        if response.startswith("bestmove"):
+            best_move = response.split()[1]
+            return best_move

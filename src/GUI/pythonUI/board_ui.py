@@ -3,6 +3,7 @@ import chess
 import pygame
 
 from AI_AI_mode import ai_vs_ai
+from HUMAN_AI_mode import human_vs_ai
 # from ai_test import ai_vs_ai
 from config import *
 
@@ -20,53 +21,7 @@ DARK_BROWN = (139, 69, 19)
 BUTTON_COLOR = (0, 128, 0)
 HOVER_COLOR = (0, 255, 0)
 
-#board
-
-# start_board = [
-#     ["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
-#     ["bp"] * 8,
-#     [""] * 8,
-#     [""] * 8,
-#     [""] * 8,
-#     [""] * 8,
-#     ["wp"] * 8,
-#     ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"]
-# ]
-
-#upload piece_image
-# def load_piece(name):
-#     image = pygame.image.load(name)
-#     return pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))
-
-# pieces = {
-#     "wp": load_piece("images/white_Pawn.png"),
-#     "wr": load_piece("images/white_Rook.png"),
-#     "wn": load_piece("images/white_Knight.png"),
-#     "wb": load_piece("images/white_Bishop.png"),
-#     "wq": load_piece("images/white_Queen.png"),
-#     "wk": load_piece("images/white_King.png"),
-#     "bp": load_piece("images/black_Pawn.png"),
-#     "br": load_piece("images/black_Rook.png"),
-#     "bn": load_piece("images/black_Knight.png"),
-#     "bb": load_piece("images/black_Bishop.png"),
-#     "bq": load_piece("images/black_Queen.png"),
-#     "bk": load_piece("images/black_King.png"),
-# }
-
 button_font = pygame.font.Font(None, 48)
-
-# def draw_board():
-#     for row in range(8):
-#         for col in range(8):
-#             color = LIGHT_BROWN if (row + col) % 2 == 0 else DARK_BROWN
-#             pygame.draw.rect(SCREEN, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-
-# def draw_pieces(board):
-#     for row in range(8):
-#         for col in range(8):
-#             piece = board[row][col]
-#             if piece != "":
-#                 SCREEN.blit(pieces[piece], (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
 #draw_button
 def draw_button(text, x, y, width, height):
@@ -103,17 +58,12 @@ def game_menu():
                 # if btn1.collidepoint(event.pos):
                 #     pass  # Sau này xử lý Người vs Người
                 if btn2.collidepoint(event.pos):
-                    player_vs_ai()
+                    human_vs_ai()
                 elif btn3.collidepoint(event.pos):
                     ai_vs_ai()
 
         pygame.display.update()
 
 #Game Mode
-def player_vs_player():
-    pass
-
-def player_vs_ai():
-    pass
 
 game_menu()
