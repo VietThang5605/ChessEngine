@@ -41,7 +41,7 @@ typedef uint64_t U64;
 #define MAXDEPTH 64
 
 #define INF 30000
-#define MATE (INF - MAXDEPTH)
+#define ISMATE (INF - MAXDEPTH)
 
 enum Mode {
     UCIMODE, XBOARDMODE, CONSOLEMODE

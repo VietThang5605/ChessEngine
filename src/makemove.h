@@ -36,4 +36,8 @@ bool MakeMove(S_BOARD *pos, int move);
 
 void TakeMove(S_BOARD *pos); // similar to makemove, not a lot to explain
 
+void MakeNullMove(S_BOARD *pos);
+
+void TakeNullMove(S_BOARD *pos);
+
 #endif

@@ -9,6 +9,8 @@
 
 #include <iomanip>
 
+#define reducedDepth 3
+
 static void CheckUp(S_SEARCHINFO *info) { //will be called every 4k node or so
 	// .. check if time up, or interrupt from GUI
 	if (info->timeSet == TRUE && GetTimeMs() > info->stopTime) {
@@ -169,13 +171,29 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		depth++;
 	}
 
+	int Score = -INF;
+
+	if (DoNull && !InCheck && pos->ply && depth >= reducedDepth) {
+		MakeNullMove(pos);
+		Score = -AlphaBeta( -beta, -beta + 1, depth - reducedDepth, pos, info, FALSE);
+		TakeNullMove(pos);
+
+		if(info->stopped == TRUE) {
+			return 0;
+		}
+
+		if (Score >= beta && abs(Score) < ISMATE) {
+			info->nullCut++;
+			return beta;
+		}
+	}
+
 	S_MOVELIST list[1];
     GenerateAllMoves(pos, list);
 
 	int Legal = 0;
 	int OldAlpha = alpha;
 	int BestMove = NOMOVE;
-	int Score = -INF; 
 	int PvMove = ProbePvTable(pos);
 
 	if (PvMove != NOMOVE) {
@@ -226,7 +244,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 	if (Legal == 0) {
 		if (InCheck) {
-			return -MATE + pos->ply;
+			return -ISMATE + pos->ply;
 		} else {
 			return 0;
 		}
