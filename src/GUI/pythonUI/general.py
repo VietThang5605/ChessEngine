@@ -13,6 +13,8 @@ from config import PIECE_SIZE
 INFO_HEIGHT = 150
 
 def draw_board(board, last_move):
+    label_font = pygame.font.SysFont("arial", 18)
+
     for row in range(8):
         for col in range(8):
             color = LIGHT_BROWN if (row + col) % 2 == 0 else DARK_BROWN
@@ -39,6 +41,21 @@ def draw_board(board, last_move):
                 piece_str = piece.symbol()
                 key = ('w' if piece_str.isupper() else 'b') + piece_str.lower()
                 SCREEN.blit(pieces_img[key], (col * SQUARE_SIZE, row * SQUARE_SIZE))
+    
+    for col in range(8):
+        letter = chr(ord('a') + col)
+        label = label_font.render(letter, True, (0, 0, 0))
+        x = col * SQUARE_SIZE + SQUARE_SIZE // 2 - label.get_width() // 2
+        y = 8 * SQUARE_SIZE + 5  # cách dưới 5px
+        SCREEN.blit(label, (x, y))
+        
+    for row in range(8):
+        number = str(8 - row)
+        label = label_font.render(number, True, (0, 0, 0))
+        x = 2  # lề trái
+        y = row * SQUARE_SIZE + SQUARE_SIZE // 2 - label.get_height() // 2
+        SCREEN.blit(label, (x, y))
+
 
 def draw_captured_pieces(captured_white, captured_black):
     panel_rect = pygame.Rect(BOARD_WIDTH, INFO_HEIGHT, HISTORY_PANEL_WIDTH, HEIGHT - INFO_HEIGHT - 80)

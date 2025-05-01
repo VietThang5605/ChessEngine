@@ -11,8 +11,7 @@ from tkinter import filedialog, simpledialog
 from config import SCREEN, WIDTH, HEIGHT, BOARD_WIDTH, HISTORY_PANEL_WIDTH, SQUARE_SIZE
 from config import WHITE, BLACK, LIGHT_BROWN, DARK_BROWN, BLUE, HIGHLIGHT_COLOR, SQUARE_SIZE, font, pieces_img
 from config import move_sound, capture_sound, PIECE_SIZE, captured_white, captured_black
-from general import draw_board, draw_captured_pieces, show_game_result, draw_info
-from AI_AI_mode import engine_play
+from general import draw_board, draw_captured_pieces, show_game_result, draw_info, get_engine_move
 # from logic import check_options, check_valid_moves, draw_valid, white_pieces, white_locations, black_pieces, black_locations
 
 
@@ -87,43 +86,46 @@ selected_square = None
 def get_human_move():
     global selected_square, last_move_squares
     
-    for event in pygame.event.get():
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            cols = event.pos[0] // SQUARE_SIZE
-            rows = 7 - (event.pos[1] // SQUARE_SIZE)
-            clicked_square = chess.square(cols, rows)
-            pygame.draw.rect(SCREEN, HIGHLIGHT_COLOR, (cols * SQUARE_SIZE, rows * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-            print(f"Click tại ô: {chess.square_name(clicked_square)}")
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                cols = event.pos[0] // SQUARE_SIZE
+                rows = 7 - (event.pos[1] // SQUARE_SIZE)
+                clicked_square = chess.square(cols, rows)
+                pygame.draw.rect(SCREEN, HIGHLIGHT_COLOR, (cols * SQUARE_SIZE, rows * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                print(f"Click tại ô: {chess.square_name(clicked_square)}")
 
-            if board.turn != player_color:
-                continue
+                # Kiểm tra lượt chơi của người
+                if board.turn != player_color:
+                    continue
 
-            if selected_square is None:
-                piece = board.piece_at(clicked_square)
-                if piece is not None and piece.color == player_color:
-                    selected_square = clicked_square
-            else:
-                move = chess.Move(selected_square, clicked_square)
-                if move in board.legal_moves:
-                    print(f"Người chơi di chuyển: {board.san(move)}")
-                    is_captured = board.is_capture(move)
-                    
-                    if(is_captured):
-                        captured_piece = board.piece_at(move.to_square)
-                        if captured_piece:
-                            if captured_piece.color == chess.WHITE:
-                                captured_white.append(captured_piece.symbol())
-                            else:
-                                captured_black.append(captured_piece.symbol())
-                        capture_sound.play()
-                    else:
-                        move_sound.play()   
-                                
-                    board.push(move)
-                    last_move_squares = [selected_square, clicked_square]
-                    selected_square = None
+                if selected_square is None:
+                    piece = board.piece_at(clicked_square)
+                    if piece is not None and piece.color == player_color:
+                        selected_square = clicked_square
                 else:
-                    selected_square = None
+                    move = chess.Move(selected_square, clicked_square)
+                    if move in board.legal_moves:
+                        print(f"Người chơi di chuyển: {board.san(move)}")
+                        is_captured = board.is_capture(move)
+                        
+                        if is_captured:
+                            captured_piece = board.piece_at(move.to_square)
+                            if captured_piece:
+                                if captured_piece.color == chess.WHITE:
+                                    captured_white.append(captured_piece.symbol())
+                                else:
+                                    captured_black.append(captured_piece.symbol())
+                            capture_sound.play()
+                        else:
+                            move_sound.play()
+                        
+                        board.push(move)
+                        last_move_squares = [selected_square, clicked_square]
+                        selected_square = None
+                        return  # Khi di chuyển thành công, thoát vòng lặp và tiếp tục game
+                    else:
+                        selected_square = None
 
 def human_vs_ai():
     setting = show_human_vs_ai_dialog()
@@ -150,16 +152,19 @@ def human_vs_ai():
     
     name_white = ""
     name_black = ""
+    global human_turn
     global player_color 
     
     if (setting["human_color"] == 'white'):
         name_black = setting['engine_name']
         name_white = 'Human'
+        human_turn = True
         player_color = chess.WHITE
         print("Human is white")
     else:
         name_white = setting['engine_name']
         name_black = 'Human'
+        human_turn = False
         player_color = chess.BLACK
         print("Human is black")
         
@@ -204,16 +209,12 @@ def human_vs_ai():
                 elif resume_button_rect.collidepoint(event.pos):
                     is_paused = False
                     
-        if board.turn == chess. WHITE:
-            if (player_color == chess.WHITE):
-                get_human_move()
-            else:
-                engine_play(engine, white_remaining, black_remaining, move_time, last_move_squares)
+        if human_turn:
+            get_human_move()
+            human_turn = False
         else:
-            if (player_color == chess.BLACK):
-                get_human_move()
-            else:
-                 engine_play(engine, white_remaining, black_remaining, move_time, last_move_squares)
+            engine_play(engine, white_remaining, black_remaining, move_time, last_move_squares)
+            human_turn = True
         
     if board.is_checkmate():
         draw_board(board, last_move_squares)
@@ -222,7 +223,7 @@ def human_vs_ai():
         pygame.time.wait(500)
 
     if board.is_checkmate():
-        winner = "White" if board.turn == chess.BLACK else "Black"
+        winner = name_white if board.turn == chess.BLACK else name_black
     elif board.is_stalemate() or board.is_insufficient_material() or board.is_seventyfive_moves() or board.is_fivefold_repetition():
         winner = "Draw"
     else:
@@ -238,3 +239,29 @@ def human_vs_ai():
     last_move_squares = None
     if result == 'new_game':
         human_vs_ai()
+
+def engine_play(current_engine, white_remaining, black_remaining, move_time, last_move_squares):
+    move_uci = get_engine_move(current_engine, board.fen(), white_remaining, black_remaining, move_time)
+    
+    try:
+        move = chess.Move.from_uci(move_uci)
+        if move in board.legal_moves:
+            piece_captured = board.is_capture(move)
+                
+            if piece_captured:
+                captured_piece = board.piece_at(move.to_square)
+                if captured_piece:
+                    if captured_piece.color == chess.WHITE:
+                        captured_white.append(captured_piece.symbol())
+                    else:
+                        captured_black.append(captured_piece.symbol())
+                capture_sound.play()
+            else:
+                move_sound.play()
+            board.push(move)
+            last_move_squares = [
+                (7 - move.from_square // 8, move.from_square % 8),
+                (7 - move.to_square // 8, move.to_square % 8),
+            ]
+    except Exception as e:
+        print("Lỗi khi thực hiện nước đi:", e)

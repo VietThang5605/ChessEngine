@@ -232,7 +232,7 @@ def ai_vs_ai():
         winner = "Draw"
     else:
         if (white_remaining == 0 or black_remaining == 0): winner = "Drawn"
-        else: winner = 'Unknown'
+        else: winner = 'nknown'
 
     engine1.kill()
     engine2.kill()
