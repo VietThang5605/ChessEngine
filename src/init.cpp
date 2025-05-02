@@ -1,5 +1,6 @@
 #include "init.h"
 #include "movegen.h"
+#include "polybook.h"
 // #include "bitboards.h" //print bitboard
 // #include "io.h" //print square
 
@@ -191,4 +192,5 @@ void AllInit() {
     InitFilesRanksBrd();
     InitEvalMasks();
     InitMvvLva();
+    InitPolyBook();
 }

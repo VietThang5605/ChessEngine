@@ -963,5 +963,7 @@ int main() {
 		}
 	}
 
+    CleanPolyBook();
+
     return 0;
 }

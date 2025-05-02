@@ -6,6 +6,42 @@ const int PolyKindOfPiece[13] = {
 	-1, 1, 3, 5, 7, 9, 11, 0, 2, 4, 6, 8, 10
 };
 
+long long NumEntries = 0;
+
+S_POLY_BOOK_ENTRY *entries = NULL;
+
+void InitPolyBook() {
+	FILE *pFile = fopen("performance.bin", "rb");
+	
+	if(pFile == NULL) {
+		std::cout << "Book File Not Read\n";
+	} else {
+		fseek(pFile, 0, SEEK_END);
+		long long position = ftell(pFile);
+		
+		if (position < sizeof(S_POLY_BOOK_ENTRY)) {
+			std::cout << "No Entries Found\n";
+			return;
+		}
+		
+		NumEntries = position / sizeof(S_POLY_BOOK_ENTRY);
+		std::cout << NumEntries << " Entries Found In File\n";
+		
+        entries = new S_POLY_BOOK_ENTRY[NumEntries];
+		rewind(pFile);
+		
+		size_t returnValue;
+		returnValue = fread(entries, sizeof(S_POLY_BOOK_ENTRY), NumEntries, pFile);
+		std::cout << "fread() " << returnValue << " Entries Read in from file\n";
+	}
+}
+
+void CleanPolyBook() {
+    if (entries != NULL) {
+	    delete[] entries;
+    }
+}
+
 bool HasPawnForCapture(const S_BOARD *board) {
 	int sqWithPawn = 0;
 	int targetPiece = (board->side == WHITE) ? wP : bP;
