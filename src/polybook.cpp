@@ -1,6 +1,7 @@
 #include "polybook.h"
 #include "polykeys.h"
 #include "init.h"
+#include "io.h"
 #include "data.h" //for print move
 
 const int PolyKindOfPiece[13] = {
@@ -99,13 +100,13 @@ U64 PolyKeyFromBoard(const S_BOARD *board) {
 	return finalKey;
 }
 
-unsigned short endian_swap_u16(unsigned short x) { //big -> small endian
+static unsigned short endian_swap_u16(unsigned short x) { //big -> small endian
     x = (x>>8) | 
         (x<<8); 
     return x;
 } 
 
-unsigned int endian_swap_u32(unsigned int x) {
+static unsigned int endian_swap_u32(unsigned int x) {
     x = (x>>24) | 
         ((x<<8) & 0x00FF0000) | 
         ((x>>8) & 0x0000FF00) | 
@@ -113,7 +114,7 @@ unsigned int endian_swap_u32(unsigned int x) {
     return x;
 } 
 
-U64 endian_swap_u64(U64 x) {
+static U64 endian_swap_u64(U64 x) {
     x = (x>>56) | 
         ((x<<40) & 0x00FF000000000000) | 
         ((x<<24) & 0x0000FF0000000000) | 
@@ -125,22 +126,60 @@ U64 endian_swap_u64(U64 x) {
     return x;
 }
 
-void ListBookMoves(U64 polyKey) {
-    int start = 0;
+static int ConvertPolyMoveToInternalMove(unsigned short polyMove, S_BOARD *board) {
+	int fromFile = (polyMove >> 6) & 7;
+	int fromRank = (polyMove >> 9) & 7;
+	int toFile = (polyMove >> 0) & 7;
+	int toRank = (polyMove >> 3) & 7;
+	int promotedPiece = (polyMove >> 12) & 7;
+	
+	char moveString[6];
+	if (promotedPiece == 0) {
+		snprintf(moveString, sizeof(moveString), "%c%c%c%c",
+            FileChar[fromFile],
+            RankChar[fromRank],
+            FileChar[toFile],
+            RankChar[toRank]);
+
+	} else {
+		char promChar = 'q';
+		switch (promotedPiece) {
+			case 1: promChar = 'n'; break;
+			case 2: promChar = 'b'; break;
+			case 3: promChar = 'r'; break;
+		}
+		snprintf(moveString, sizeof(moveString), "%c%c%c%c%c",
+            FileChar[fromFile],
+            RankChar[fromRank],
+            FileChar[toFile],
+            RankChar[toRank],
+            promChar);
+	}
+	
+	return ParseMove(moveString, board);
+}
+
+void ListBookMoves(U64 polyKey, S_BOARD *board) {
     unsigned short move;
+    const int MAXBOOKMOVES = 32;
+    int bookMoves[MAXBOOKMOVES];
+    int tempMove;
+    int count = 0;
     for (S_POLY_BOOK_ENTRY *entry = entries; entry < entries + NumEntries; entry++) {
         if (polyKey == endian_swap_u64(entry->key)) {
             move = endian_swap_u16(entry->move);
-            std::cout << std::hex << "Key:" << endian_swap_u64(entry->key)
-            << std::dec << " Index:" << start
-            << " Move:"
-            << FileChar[(move >> 6) & 7]
-            << RankChar[(move >> 9) & 7]
-            << FileChar[(move >> 0) & 7]
-            << RankChar[(move >> 3) & 7]
-            << '\n';
+            tempMove = ConvertPolyMoveToInternalMove(move, board);
+            if (tempMove != NOMOVE) {
+                bookMoves[count++] = tempMove;
+                if (count > MAXBOOKMOVES) {
+                    break;
+                }
+            }
         }
-        start++;
+    }
+    std::cout << "Listing Book Moves:\n";
+    for (int i = 0; i < count; ++i) {
+        std::cout << "Book Move " << i + 1 << ": " << PrintMove(bookMoves[i]) << '\n';
     }
 }
 
@@ -155,7 +194,7 @@ int GetBookMove(S_BOARD *board) {
 	
 	U64 polyKey = PolyKeyFromBoard(board);
     std::cout << std::hex << "polykey:" << polyKey << '\n' << std::dec;
-    ListBookMoves(polyKey);
+    ListBookMoves(polyKey, board);
 	
 	// for(entry = entries; entry < entries + NumEntries; entry++) {
 	// 	if(polyKey == endian_swap_u64(entry->key)) {
