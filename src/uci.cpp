@@ -2,6 +2,7 @@
 #include "misc.h"
 #include "makemove.h"
 #include "io.h"
+#include "ucioption.h"
 
 #include <cstring>
 #include <iostream>
@@ -115,6 +116,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	std::cout << "id name " << NAME << '\n';
 	std::cout << "id author TelietTeam\n";
 	printf("option name Hash type spin default 64 min 4 max %d\n", MAX_HASH);
+	printf("option name Book type check default true\n");
 	std::cout << "uciok\n";
 
 	int MB = 64;
@@ -157,6 +159,14 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			if (MB > MAX_HASH) MB = MAX_HASH;
 			std::cout << "Set Hash to " << MB << " MB\n";
 			InitHashTable(pos->HashTable, MB);
+		} else if (!strncmp(line, "setoption name Book value ", 26)) {			
+			char *ptrTrue = NULL;
+			ptrTrue = strstr(line, "true");
+			if (ptrTrue != NULL) {
+				EngineOptions->UseBook = TRUE;
+			} else {
+				EngineOptions->UseBook = FALSE;
+			}
 		}
 
 		if (info->quit)

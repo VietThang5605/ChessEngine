@@ -2,6 +2,7 @@
 #include "polykeys.h"
 #include "init.h"
 #include "io.h"
+#include "ucioption.h"
 #include "data.h" //for print move
 
 const int PolyKindOfPiece[13] = {
@@ -13,6 +14,8 @@ long long NumEntries = 0;
 S_POLY_BOOK_ENTRY *entries = NULL;
 
 void InitPolyBook() {
+    EngineOptions->UseBook = FALSE;
+
 	FILE *pFile = fopen("performance.bin", "rb");
 	
 	if(pFile == NULL) {
@@ -35,6 +38,10 @@ void InitPolyBook() {
 		size_t returnValue;
 		returnValue = fread(entries, sizeof(S_POLY_BOOK_ENTRY), NumEntries, pFile);
 		std::cout << "fread() " << returnValue << " Entries Read in from file\n";
+
+        if (NumEntries > 0) {
+			EngineOptions->UseBook = TRUE;
+		}
 	}
 }
 
@@ -171,7 +178,7 @@ void ListBookMoves(U64 polyKey, S_BOARD *board) {
             tempMove = ConvertPolyMoveToInternalMove(move, board);
             if (tempMove != NOMOVE) {
                 bookMoves[count++] = tempMove;
-                if (count > MAXBOOKMOVES) {
+                if (count >= MAXBOOKMOVES) {
                     break;
                 }
             }

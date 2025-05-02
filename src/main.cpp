@@ -14,6 +14,7 @@
 #include "uci.h"
 #include "xboard.h"
 #include "polybook.h"
+#include "ucioption.h"
 
 #include <iostream>
 #include <iomanip>
@@ -139,7 +140,7 @@ void PrintBinary(int move) {
     std::cout << '\n';
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     AllInit();
 
     // int num = 2, nuts = 4;
@@ -932,6 +933,13 @@ int main() {
 
     setbuf(stdin, NULL);
     setbuf(stdout, NULL);
+    
+    for (int ArgNum = 0; ArgNum < argc; ++ArgNum) {
+    	if (strncmp(argv[ArgNum], "NoBook", 6) == 0) {
+    		EngineOptions->UseBook = FALSE;
+    		std::cout << "Book Off\n";
+    	}
+    }
 
     std::cout << "Welcome to Unstoppable Evaluation Tool (UET)! Type 'uet' for console mode...\n";
 
