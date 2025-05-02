@@ -13,6 +13,7 @@
 #include "misc.h"
 #include "uci.h"
 #include "xboard.h"
+#include "polybook.h"
 
 #include <iostream>
 #include <iomanip>

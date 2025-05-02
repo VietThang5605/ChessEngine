@@ -6,6 +6,7 @@
 #include "io.h"
 #include "evaluate.h"
 #include "validate.h"
+#include "polybook.h" //for print polykey
 
 #include <iostream>
 
@@ -172,6 +173,21 @@ void XBoard_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			sscanf(inBuf, "time %d", &time);
 			time *= 10;
 		    std::cout << "DEBUG time:" << time << '\n';
+			continue;
+		}
+
+		if(!strcmp(command, "polykey")) {
+			PrintBoard(pos);
+			std::cout << std::hex << "Polykey:" << PolyKeyFromBoard(pos) << '\n' << std::dec;
+			continue;
+		}
+
+		if(!strcmp(command, "memory")) {			
+			sscanf(inBuf, "memory %d", &MB);		
+		    if (MB < 4) MB = 4;
+			if (MB > MAX_HASH) MB = MAX_HASH;
+			std::cout << "Set Hash to " << MB << " MB\n";
+			InitHashTable(pos->HashTable, MB);
 			continue;
 		}
 
