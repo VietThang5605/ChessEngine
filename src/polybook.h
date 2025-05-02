@@ -25,4 +25,14 @@ bool HasPawnForCapture(const S_BOARD *board);
 
 U64 PolyKeyFromBoard(const S_BOARD *board);
 
+static unsigned short endian_swap_u16(unsigned short x);
+
+static unsigned int endian_swap_u32(unsigned int x);
+
+static U64 endian_swap_u64(U64 x);
+
+void ListBookMoves(U64 polyKey);
+
+int GetBookMove(S_BOARD *board);
+
 #endif

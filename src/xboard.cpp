@@ -83,8 +83,11 @@ void PrintOptions() {
 }
 
 void XBoard_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
+	info->GAME_MODE = XBOARDMODE;
+	info->POST_THINKING = TRUE;
     setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
+	PrintOptions();
 
     int depth = -1, movestogo[2] = {30, 30}, movetime = -1;
 	int time = -1, inc = 0;
@@ -178,7 +181,7 @@ void XBoard_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if(!strcmp(command, "polykey")) {
 			PrintBoard(pos);
-			std::cout << std::hex << "Polykey:" << PolyKeyFromBoard(pos) << '\n' << std::dec;
+			GetBookMove(pos);
 			continue;
 		}
 

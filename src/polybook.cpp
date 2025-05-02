@@ -1,6 +1,7 @@
 #include "polybook.h"
 #include "polykeys.h"
 #include "init.h"
+#include "data.h" //for print move
 
 const int PolyKindOfPiece[13] = {
 	-1, 1, 3, 5, 7, 9, 11, 0, 2, 4, 6, 8, 10
@@ -96,4 +97,83 @@ U64 PolyKeyFromBoard(const S_BOARD *board) {
 		finalKey ^= Random64Poly[780];
 	}
 	return finalKey;
+}
+
+unsigned short endian_swap_u16(unsigned short x) { //big -> small endian
+    x = (x>>8) | 
+        (x<<8); 
+    return x;
+} 
+
+unsigned int endian_swap_u32(unsigned int x) {
+    x = (x>>24) | 
+        ((x<<8) & 0x00FF0000) | 
+        ((x>>8) & 0x0000FF00) | 
+        (x<<24); 
+    return x;
+} 
+
+U64 endian_swap_u64(U64 x) {
+    x = (x>>56) | 
+        ((x<<40) & 0x00FF000000000000) | 
+        ((x<<24) & 0x0000FF0000000000) | 
+        ((x<<8)  & 0x000000FF00000000) | 
+        ((x>>8)  & 0x00000000FF000000) | 
+        ((x>>24) & 0x0000000000FF0000) | 
+        ((x>>40) & 0x000000000000FF00) | 
+        (x<<56); 
+    return x;
+}
+
+void ListBookMoves(U64 polyKey) {
+    int start = 0;
+    unsigned short move;
+    for (S_POLY_BOOK_ENTRY *entry = entries; entry < entries + NumEntries; entry++) {
+        if (polyKey == endian_swap_u64(entry->key)) {
+            move = endian_swap_u16(entry->move);
+            std::cout << std::hex << "Key:" << endian_swap_u64(entry->key)
+            << std::dec << " Index:" << start
+            << " Move:"
+            << FileChar[(move >> 6) & 7]
+            << RankChar[(move >> 9) & 7]
+            << FileChar[(move >> 0) & 7]
+            << RankChar[(move >> 3) & 7]
+            << '\n';
+        }
+        start++;
+    }
+}
+
+int GetBookMove(S_BOARD *board) {
+	// int index = 0;
+	// S_POLY_BOOK_ENTRY *entry;
+	// unsigned short move;
+	// const int MAXBOOKMOVES = 32;
+	// int bookMoves[MAXBOOKMOVES];
+	// int tempMove = NOMOVE;
+	// int count = 0;
+	
+	U64 polyKey = PolyKeyFromBoard(board);
+    std::cout << std::hex << "polykey:" << polyKey << '\n' << std::dec;
+    ListBookMoves(polyKey);
+	
+	// for(entry = entries; entry < entries + NumEntries; entry++) {
+	// 	if(polyKey == endian_swap_u64(entry->key)) {
+	// 		move = endian_swap_u16(entry->move);
+	// 		tempMove = ConvertPolyMoveToInternalMove(move, board);
+	// 		if(tempMove != NOMOVE) {
+	// 			bookMoves[count++] = tempMove;
+	// 			if(count > MAXBOOKMOVES) break;
+	// 		}
+	// 	}
+	// }
+	
+	// if(count != 0) {
+	// 	int randMove = rand() % count;
+	// 	return bookMoves[randMove];
+	// } else {
+	// 	return NOMOVE;
+	// }
+
+    return NOMOVE;
 }

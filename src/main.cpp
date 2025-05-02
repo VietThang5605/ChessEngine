@@ -944,17 +944,14 @@ int main() {
 		}
 
 		if (!strncmp(line, "uci", 3)) {
-            info->GAME_MODE = UCIMODE;
 			Uci_Loop(board, info);
 			if(info->quit == TRUE) break;
 			continue;
 		} else if (!strncmp(line, "xboard", 6)) {
-            info->GAME_MODE = XBOARDMODE;
 			XBoard_Loop(board, info);
 			if(info->quit == TRUE) break;
 			continue;
 		} else if (!strncmp(line, "uet", 4)) {
-            info->GAME_MODE = CONSOLEMODE;
 			Console_Loop(board, info);
 			if(info->quit == TRUE) break;
 			continue;

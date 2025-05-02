@@ -107,6 +107,7 @@ void ParsePosition(char* lineIn, S_BOARD *pos) {
 }
 
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
+	info->GAME_MODE = UCIMODE;
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
