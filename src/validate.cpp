@@ -2,6 +2,8 @@
 #include "init.h"
 #include "evaluate.h"
 
+#include <cstring>
+
 bool SqOnBoard(const int sq) { //checks if the square (which is supposed to be part of the 64 square array) is actually one of those
 	return FilesBrd[sq] == OFFBOARD ? FALSE : TRUE;
 }
