@@ -231,7 +231,7 @@ void XBoard_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 }
 
 void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
-	std::cout << "Welcome to Vice In Console Mode!\n";
+	std::cout << "Welcome to UET In Console Mode!\n";
 	std::cout << "Type help for commands\n\n";
 
 	info->GAME_MODE = CONSOLEMODE;
@@ -260,7 +260,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			SearchPosition(pos, info);
 		}
 
-		std::cout << "\nVice > ";
+		std::cout << "\nUET > ";
 
 		if (!std::cin.getline(inBuf, sizeof(inBuf))) {
 			std::cin.clear();

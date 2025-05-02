@@ -932,7 +932,7 @@ int main() {
     setbuf(stdin, NULL);
     setbuf(stdout, NULL);
 
-    std::cout << "Welcome to Vice! Type 'vice' for console mode...\n";
+    std::cout << "Welcome to Unstoppable Evaluation Tool (UET)! Type 'uet' for console mode...\n";
 
 	char line[256];
 	while (TRUE) {
@@ -952,7 +952,7 @@ int main() {
 			XBoard_Loop(board, info);
 			if(info->quit == TRUE) break;
 			continue;
-		} else if (!strncmp(line, "vice", 4)) {
+		} else if (!strncmp(line, "uet", 4)) {
             info->GAME_MODE = CONSOLEMODE;
 			Console_Loop(board, info);
 			if(info->quit == TRUE) break;
