@@ -33,8 +33,6 @@ static U64 endian_swap_u64(U64 x);
 
 static int ConvertPolyMoveToInternalMove(unsigned short polyMove, S_BOARD *board);
 
-void ListBookMoves(U64 polyKey, S_BOARD *board);
-
 int GetBookMove(S_BOARD *board);
 
 #endif

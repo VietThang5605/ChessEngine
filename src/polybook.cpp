@@ -166,12 +166,15 @@ static int ConvertPolyMoveToInternalMove(unsigned short polyMove, S_BOARD *board
 	return ParseMove(moveString, board);
 }
 
-void ListBookMoves(U64 polyKey, S_BOARD *board) {
+int GetBookMove(S_BOARD *board) {
     unsigned short move;
     const int MAXBOOKMOVES = 32;
     int bookMoves[MAXBOOKMOVES];
-    int tempMove;
+    int tempMove = NOMOVE;
     int count = 0;
+
+    U64 polyKey = PolyKeyFromBoard(board);
+
     for (S_POLY_BOOK_ENTRY *entry = entries; entry < entries + NumEntries; entry++) {
         if (polyKey == endian_swap_u64(entry->key)) {
             move = endian_swap_u16(entry->move);
@@ -184,42 +187,11 @@ void ListBookMoves(U64 polyKey, S_BOARD *board) {
             }
         }
     }
-    std::cout << "Listing Book Moves:\n";
-    for (int i = 0; i < count; ++i) {
-        std::cout << "Book Move " << i + 1 << ": " << PrintMove(bookMoves[i]) << '\n';
-    }
-}
-
-int GetBookMove(S_BOARD *board) {
-	// int index = 0;
-	// S_POLY_BOOK_ENTRY *entry;
-	// unsigned short move;
-	// const int MAXBOOKMOVES = 32;
-	// int bookMoves[MAXBOOKMOVES];
-	// int tempMove = NOMOVE;
-	// int count = 0;
-	
-	U64 polyKey = PolyKeyFromBoard(board);
-    std::cout << std::hex << "polykey:" << polyKey << '\n' << std::dec;
-    ListBookMoves(polyKey, board);
-	
-	// for(entry = entries; entry < entries + NumEntries; entry++) {
-	// 	if(polyKey == endian_swap_u64(entry->key)) {
-	// 		move = endian_swap_u16(entry->move);
-	// 		tempMove = ConvertPolyMoveToInternalMove(move, board);
-	// 		if(tempMove != NOMOVE) {
-	// 			bookMoves[count++] = tempMove;
-	// 			if(count > MAXBOOKMOVES) break;
-	// 		}
-	// 	}
-	// }
-	
-	// if(count != 0) {
-	// 	int randMove = rand() % count;
-	// 	return bookMoves[randMove];
-	// } else {
-	// 	return NOMOVE;
-	// }
-
-    return NOMOVE;
+    
+    if (count != 0) {
+		int randMove = rand() % count;
+		return bookMoves[randMove];
+	} else {
+		return NOMOVE;
+	}
 }

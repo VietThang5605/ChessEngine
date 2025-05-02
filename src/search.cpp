@@ -6,6 +6,8 @@
 #include "movegen.h"
 #include "makemove.h"
 #include "attack.h"
+#include "ucioption.h"
+#include "polybook.h"
 
 #include <iomanip>
 
@@ -277,36 +279,48 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	ClearForSearch(pos, info);
 
-	for (int currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
-		bestScore = AlphaBeta(-INF, INF, currentDepth, pos, info, TRUE);
+	if (EngineOptions->UseBook == TRUE) {
+		bestMove = GetBookMove(pos);
 
-		if (info->stopped == TRUE) {
-			break;
+		if (bestMove != NOMOVE && info->GAME_MODE == UCIMODE) {
+			std::cout << "info string book move selected\n";
+			std::cout << "info depth 0 pv " << PrintMove(bestMove) << '\n';
+			return;
 		}
+	}
 
-		pvMoves = GetPvLine(currentDepth, pos);
-		bestMove = pos->PvArray[0];
-		
-		if (info->GAME_MODE == UCIMODE) {
-			std::cout << "info score cp " << bestScore << " depth " << currentDepth << " nodes " << info->nodes << " time " << GetTimeMs() - info->startTime << " ";
-		} else if(info->GAME_MODE == XBOARDMODE && info->POST_THINKING == TRUE) {
-			std::cout << currentDepth << ' ' << bestScore << ' ' 
-				<< (GetTimeMs() - info->startTime) / 10 << ' ' << info->nodes << ' ';
-		} else if(info->POST_THINKING == TRUE) {
-			std::cout << "score:" << bestScore << " depth:" << currentDepth
-				<< " nodes:" << info->nodes << " time:" << GetTimeMs() - info->startTime << "(ms) ";
-		}
+	if (bestMove == NOMOVE) {
+		for (int currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
+			bestScore = AlphaBeta(-INF, INF, currentDepth, pos, info, TRUE);
 
-		if (info->GAME_MODE == UCIMODE || info->POST_THINKING == TRUE) {
-			if (!(info->GAME_MODE == XBOARDMODE)) {
-				std::cout << "pv";
+			if (info->stopped == TRUE) {
+				break;
 			}
 
-			for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
-				std::cout << " " << PrintMove(pos->PvArray[pvNum]);
+			pvMoves = GetPvLine(currentDepth, pos);
+			bestMove = pos->PvArray[0];
+			
+			if (info->GAME_MODE == UCIMODE) {
+				std::cout << "info score cp " << bestScore << " depth " << currentDepth << " nodes " << info->nodes << " time " << GetTimeMs() - info->startTime << " ";
+			} else if(info->GAME_MODE == XBOARDMODE && info->POST_THINKING == TRUE) {
+				std::cout << currentDepth << ' ' << bestScore << ' ' 
+					<< (GetTimeMs() - info->startTime) / 10 << ' ' << info->nodes << ' ';
+			} else if(info->POST_THINKING == TRUE) {
+				std::cout << "score:" << bestScore << " depth:" << currentDepth
+					<< " nodes:" << info->nodes << " time:" << GetTimeMs() - info->startTime << "(ms) ";
 			}
-			std::cout << '\n';
-			// std::cout << "Ordering: " << std::fixed << std::setprecision(2) << (info->fhf / info->fh) << '\n';
+
+			if (info->GAME_MODE == UCIMODE || info->POST_THINKING == TRUE) {
+				if (!(info->GAME_MODE == XBOARDMODE)) {
+					std::cout << "pv";
+				}
+
+				for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
+					std::cout << " " << PrintMove(pos->PvArray[pvNum]);
+				}
+				std::cout << '\n';
+				// std::cout << "Ordering: " << std::fixed << std::setprecision(2) << (info->fhf / info->fh) << '\n';
+			}
 		}
 	}
 
