@@ -285,6 +285,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 		if (bestMove != NOMOVE && info->GAME_MODE == UCIMODE) {
 			std::cout << "info string book move selected\n";
 			std::cout << "info depth 0 pv " << PrintMove(bestMove) << '\n';
+			std::cout << "bestmove " << PrintMove(bestMove) << '\n';
 			return;
 		}
 	}

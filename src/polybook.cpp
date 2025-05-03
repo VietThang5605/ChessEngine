@@ -16,7 +16,7 @@ S_POLY_BOOK_ENTRY *entries = NULL;
 void InitPolyBook() {
     EngineOptions->UseBook = FALSE;
 
-	FILE *pFile = fopen("performance.bin", "rb");
+	FILE *pFile = fopen("komodo.bin", "rb");
 	
 	if(pFile == NULL) {
 		std::cout << "Book File Not Read\n";
