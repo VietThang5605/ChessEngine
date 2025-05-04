@@ -1,5 +1,5 @@
 all:
-	g++ main.cpp init.cpp bitboards.cpp hashkeys.cpp board.cpp data.cpp attack.cpp io.cpp movegen.cpp validate.cpp makemove.cpp perft.cpp search.cpp misc.cpp pvtable.cpp evaluate.cpp uci.cpp xboard.cpp -o ChessEngine
+	g++ main.cpp init.cpp bitboards.cpp hashkeys.cpp board.cpp data.cpp attack.cpp io.cpp movegen.cpp validate.cpp makemove.cpp perft.cpp search.cpp misc.cpp pvtable.cpp evaluate.cpp uci.cpp xboard.cpp evaluation_types.cpp zobrist.cpp psqt.cpp eval_info.cpp attack_gen.cpp pawn_analysis.cpp material_analysis.cpp -o ChessEngine
 	./ChessEngine
 
 # CCWIN=x86_64-w64-mingw32-gcc

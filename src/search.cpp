@@ -89,10 +89,10 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 	}
 
 	if(pos->ply > MAXDEPTH - 1) {
-		return EvalPosition(pos);
+		return EvaluatePosition(pos);
 	}
 
-	int Score = EvalPosition(pos);
+	int Score = EvaluatePosition(pos);
 
 	ASSERT(Score > -INF && Score < INF);
 
@@ -160,7 +160,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	}
 
 	if (pos->ply > MAXDEPTH - 1) {
-		return EvalPosition(pos);
+		return EvaluatePosition(pos);
 	}
 
 	bool InCheck = SqAttacked(pos->kingSquare[pos->side], pos->side ^ 1, pos);

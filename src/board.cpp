@@ -4,6 +4,8 @@
 #include "bitboards.h"
 #include "data.h"
 
+#include "zobrist.h" // Zobrist hash keys
+
 #include <iostream>
 #include <iomanip>
 
@@ -451,6 +453,7 @@ int ParseFen(char *fen, S_BOARD *pos) {
     }
 
     pos->posKey = GeneratePosKey(pos);
+    pos->pawnKey = calculate_initial_pawn_key(pos);// pawn key is the same as position key but only for pawns
 
     UpdateListsMaterial(pos);
 
@@ -498,6 +501,7 @@ void ResetBoard(S_BOARD *pos) {
     pos->castlePerm = 0;
 
     pos->posKey = 0ULL;
+    pos->pawnKey = 0ULL; // pawn key is the same as position key but only for pawns
 }
 
 void PrintBoard(const S_BOARD *pos) {
@@ -530,6 +534,7 @@ void PrintBoard(const S_BOARD *pos) {
 			<< '\n';
     std::cout << "PosKey: ";
     std::cout << std::hex << std::uppercase << pos->posKey << '\n' << std::dec; //hexa cuz easier to read
+    std::cout << std::hex << std::uppercase << pos->pawnKey << '\n' << std::dec; //hexa cuz easier to read
 }
 
 void MirrorBoard(S_BOARD *pos) {
@@ -568,8 +573,26 @@ void MirrorBoard(S_BOARD *pos) {
     pos->enPas = tempEnPas;
 
     pos->posKey = GeneratePosKey(pos);
+    pos->pawnKey = calculate_initial_pawn_key(pos); // <<< THÊM DÒNG NÀY: Tính lại pawnKey
 
 	UpdateListsMaterial(pos);
 
     ASSERT(CheckBoard(pos));
+}
+
+
+SF::Key calculate_initial_pawn_key(const S_BOARD* pos) {
+    SF::Key finalKey = 0;
+    // Đảm bảo Zobrist::init() đã được gọi trước đó!
+    for (SF::Color c : { SF::WHITE, SF::BLACK }) {
+        SF::Bitboard pawns = pos->pawnsBB[c];
+        // Lấy enum Piece tương ứng từ types.h
+        int vicePawnEnum = (c == SF::WHITE) ? wP : bP;
+        while (pawns) {
+            SF::Square s = SF::pop_lsb(&pawns);
+            // Giả định Zobrist::Psq[vicePawnEnum][s] đã được khởi tạo
+            finalKey ^= Zobrist::Psq[vicePawnEnum][s];
+        }
+    }
+    return finalKey;
 }

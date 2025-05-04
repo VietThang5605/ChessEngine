@@ -3,6 +3,7 @@
 #include "attack.h"
 #include "io.h"
 #include "data.h"
+#include "zobrist.h"
 
 static void ClearPiece(const int sq, S_BOARD *pos) {
     ASSERT(SqOnBoard(sq)); // see if the square's on the board to acvoid problems
@@ -216,6 +217,12 @@ bool MakeMove(S_BOARD *pos, int move) {
 	// if (piece == EMPTY || PieceColor[piece] != side) {
 	// 	return FALSE;
 	// }
+
+    //-------------------Tốt-------------
+    // int captured = CAPTURED(move);    // Quân cờ bị bắt (nếu có)
+    // int promotedPiece = PROMOTED(move); // Quân cờ phong cấp (nếu có)
+    int piece = pos->pieces[from];      // Quân cờ di chuyển
+
 	
 	ASSERT(SqOnBoard(from));
     ASSERT(SqOnBoard(to));
@@ -223,7 +230,14 @@ bool MakeMove(S_BOARD *pos, int move) {
     ASSERT(PieceValid(pos->pieces[from]));
 
     pos->history[pos->hisPly].posKey = pos->posKey;
+    pos->history[pos->hisPly].pawnKey = pos->pawnKey; // <<< THÊM: Lưu cả pawnKey cũ
 	
+
+
+    
+
+
+
 	if (move & MOVEFLAG_EP) { // if the move ends with the enpassant flag
         if (side == WHITE) {
             // std::cout << "*********************\n";
@@ -296,6 +310,39 @@ bool MakeMove(S_BOARD *pos, int move) {
 	if (PieceIsKing[pos->pieces[to]]) {
         pos->kingSquare[pos->side] = to;
     }
+
+
+
+
+     // *** 2. CẬP NHẬT PAWNKEY TĂNG TIẾN (TRƯỚC KHI THAY ĐỔI BÀN CỜ) ***
+
+    // 2.1. Bắt Tốt qua đường (En Passant)
+    if (move & MOVEFLAG_EP) {
+        int capturedPawnSq = (side == WHITE) ? (to - 10) : (to + 10);
+        int capturedPawnPiece = (side == WHITE) ? bP : wP;
+        // XOR Tốt bị bắt ra khỏi pawnKey
+        pos->pawnKey ^= Zobrist::Psq[capturedPawnPiece][SQ64(capturedPawnSq)];
+    }
+    // 2.2. Bắt Tốt thông thường
+    else if (captured != EMPTY && PieceIsPawn[captured]) { // Chỉ XOR nếu quân bị bắt là Tốt
+        // XOR Tốt bị bắt ra khỏi pawnKey tại ô 'to'
+        pos->pawnKey ^= Zobrist::Psq[captured][SQ64(to)];
+    }
+
+    // 2.3. Tốt di chuyển (kể cả khi chuẩn bị phong cấp)
+    if (PieceIsPawn[piece]) {
+        // XOR Tốt ra khỏi ô 'from'
+        pos->pawnKey ^= Zobrist::Psq[piece][SQ64(from)];
+        // Nếu không phong cấp, XOR Tốt vào ô 'to'
+        if (promotedPiece == EMPTY) {
+            pos->pawnKey ^= Zobrist::Psq[piece][SQ64(to)];
+        }
+        // Nếu phong cấp, Tốt không còn ở ô 'to', nên không XOR vào.
+        // Quân mới (Hậu, Xe...) không ảnh hưởng pawnKey.
+    }
+
+
+
 	
 	pos->side ^= 1;
     HASH_SIDE;
@@ -332,6 +379,7 @@ void TakeMove(S_BOARD *pos) {
     pos->castlePerm = pos->history[pos->hisPly].castlePerm;
     pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
     pos->enPas = pos->history[pos->hisPly].enPas;
+    pos->pawnKey = pos->history[pos->hisPly].pawnKey; // <<< KHÔI PHỤC pawnKey
 
     if(pos->enPas != NO_SQ) HASH_EP;
     HASH_CASTLE;
@@ -383,6 +431,7 @@ void MakeNullMove(S_BOARD *pos) {
 
     pos->ply++;
     pos->history[pos->hisPly].posKey = pos->posKey;
+    pos->history[pos->hisPly].pawnKey = pos->pawnKey; // <<< THÊM: Lưu cả pawnKey cũ
 
     if(pos->enPas != NO_SQ) HASH_EP;
 
@@ -412,6 +461,7 @@ void TakeNullMove(S_BOARD *pos) {
     pos->castlePerm = pos->history[pos->hisPly].castlePerm;
     pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
     pos->enPas = pos->history[pos->hisPly].enPas;
+    pos->pawnKey = pos->history[pos->hisPly].pawnKey; // <<< THÊM DÒNG NÀY
 
     if(pos->enPas != NO_SQ) HASH_EP;
     pos->side ^= 1;

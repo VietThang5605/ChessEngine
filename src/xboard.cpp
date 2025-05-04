@@ -296,10 +296,10 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if(!strcmp(command, "eval")) {
 			PrintBoard(pos);
-			std::cout << "Eval:" << EvalPosition(pos) << '\n';
+			std::cout << "Eval:" << EvaluatePosition(pos) << '\n';
 			MirrorBoard(pos);
 			PrintBoard(pos);
-			std::cout << "Eval:" << EvalPosition(pos) << '\n';
+			std::cout << "Eval:" << EvaluatePosition(pos) << '\n';
 			continue;
 		}
 

@@ -59,9 +59,9 @@ void MirrorEvalTest(S_BOARD *pos) {
         while(fgets (lineIn , 1024 , file) != NULL) {
             ParseFen(lineIn, pos);
             positions++;
-            ev1 = EvalPosition(pos);
+            ev1 = EvaluatePosition(pos);
             MirrorBoard(pos);
-            ev2 = EvalPosition(pos);
+            ev2 = EvaluatePosition(pos);
 
             if(ev1 != ev2) {
                 printf("\n\n\n");

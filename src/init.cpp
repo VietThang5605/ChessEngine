@@ -2,6 +2,10 @@
 #include "movegen.h"
 // #include "bitboards.h" //print bitboard
 // #include "io.h" //print square
+#include "evaluation_types.h"
+#include "psqt.h"
+#include "zobrist.h"
+#include "attack_gen.h"
 
 #include <iostream>
 #include <iomanip>
@@ -191,4 +195,9 @@ void AllInit() {
     InitFilesRanksBrd();
     InitEvalMasks();
     InitMvvLva();
+
+    SF::init_bitboard_utils(); // Khởi tạo các mảng bitboard
+    PSQT::init(); // Khởi tạo bảng PSQT
+    Zobrist::init(); // Khởi tạo các số Zobrist
+    AttackGen::init_attack_tables(); // Khởi tạo các bảng tấn công
 }
