@@ -3,6 +3,7 @@
 #include "hashkeys.h"
 #include "bitboards.h"
 #include "data.h"
+#include "pvtable.h"
 
 #include <iostream>
 #include <iomanip>

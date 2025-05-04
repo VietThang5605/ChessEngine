@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "board.h"
+#include "pvtable.h"
 
 struct S_SEARCHINFO {
     int startTime;
@@ -23,9 +24,6 @@ struct S_SEARCHINFO {
     float fh;
     float fhf;
     int nullCut;
-
-    Mode GAME_MODE;
-    bool POST_THINKING;
 };
 
 static void CheckUp(S_SEARCHINFO *info);
@@ -34,12 +32,12 @@ static void PickNextMove(int moveNum, S_MOVELIST *list);
 
 bool IsRepetition(const S_BOARD *pos);
 
-static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info);
+static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table);
 
 static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info);
 
-static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, int DoNull);
+static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table, int DoNull);
 
-void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info);
+void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table);
 
 #endif

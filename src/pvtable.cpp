@@ -3,10 +3,12 @@
 #include "movegen.h"
 #include "makemove.h"
 
-int GetPvLine(const int depth, S_BOARD *pos) {
+S_HASHTABLE HashTable[1];
+
+int GetPvLine(const int depth, S_BOARD *pos, S_HASHTABLE *table) {
 	ASSERT(depth < MAXDEPTH && depth >= 1);
 
-	int move = ProbePvMove(pos);
+	int move = ProbePvMove(pos, table);
 	int count = 0;
 	
 	while (move != NOMOVE && count < depth) { //loop through all the moves until its an illegal move
@@ -19,7 +21,7 @@ int GetPvLine(const int depth, S_BOARD *pos) {
 		} else {
 			break;
 		}		
-		move = ProbePvMove(pos);	
+		move = ProbePvMove(pos, table);	
 	}
 	
 	while (pos->ply > 0) {
@@ -62,54 +64,54 @@ void ClearHashTable(S_HASHTABLE *table) {
 	table->newWrite = 0;
 }
 
-void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth) {
-	int i = pos->posKey % pos->HashTable->numEntries;
+void StoreHashEntry(S_BOARD *pos, S_HASHTABLE *table, const int move, int score, const int flags, const int depth) {
+	int i = pos->posKey % table->numEntries;
 	
-	ASSERT(i >= 0 && i <= pos->HashTable->numEntries - 1);
+	ASSERT(i >= 0 && i <= table->numEntries - 1);
 	ASSERT(depth >= 1 && depth < MAXDEPTH);
     ASSERT(flags >= HFALPHA && flags <= HFEXACT);
     ASSERT(score >= -INF &&score <= INF);
     ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
 	
-	if (pos->HashTable->pTable[i].posKey == 0) {
-		pos->HashTable->newWrite++;
+	if (table->pTable[i].posKey == 0) {
+		table->newWrite++;
 	} else {
-		pos->HashTable->overWrite++;
+		table->overWrite++;
 	}
 	
 	if (score > ISMATE) score += pos->ply;
     else if (score < -ISMATE) score -= pos->ply;
 	
-	pos->HashTable->pTable[i].move = move;
-    pos->HashTable->pTable[i].posKey = pos->posKey;
-	pos->HashTable->pTable[i].flags = flags;
-	pos->HashTable->pTable[i].score = score;
-	pos->HashTable->pTable[i].depth = depth;
+	table->pTable[i].move = move;
+    table->pTable[i].posKey = pos->posKey;
+	table->pTable[i].flags = flags;
+	table->pTable[i].score = score;
+	table->pTable[i].depth = depth;
 }
 
-int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int depth) {
-	int i = pos->posKey % pos->HashTable->numEntries;
+int ProbeHashEntry(S_BOARD *pos, S_HASHTABLE *table, int *move, int *score, int alpha, int beta, int depth) {
+	int i = pos->posKey % table->numEntries;
 	
-	ASSERT(i >= 0 && i <= pos->HashTable->numEntries - 1);
+	ASSERT(i >= 0 && i <= table->numEntries - 1);
     ASSERT(depth >= 1 && depth < MAXDEPTH);
     ASSERT(alpha < beta);
     ASSERT(alpha >= -INF && alpha <= INF);
     ASSERT(beta >= -INF && beta <= INF);
     ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
 	
-	if (pos->HashTable->pTable[i].posKey == pos->posKey ) {
-		*move = pos->HashTable->pTable[i].move;
-		if(pos->HashTable->pTable[i].depth >= depth){
-			pos->HashTable->hit++;
+	if (table->pTable[i].posKey == pos->posKey ) {
+		*move = table->pTable[i].move;
+		if(table->pTable[i].depth >= depth){
+			table->hit++;
 			
-			ASSERT(pos->HashTable->pTable[i].depth >= 1 && pos->HashTable->pTable[i].depth < MAXDEPTH);
-            ASSERT(pos->HashTable->pTable[i].flags >= HFALPHA && pos->HashTable->pTable[i].flags <= HFEXACT);
+			ASSERT(table->pTable[i].depth >= 1 && table->pTable[i].depth < MAXDEPTH);
+            ASSERT(table->pTable[i].flags >= HFALPHA && table->pTable[i].flags <= HFEXACT);
 			
-			*score = pos->HashTable->pTable[i].score;
+			*score = table->pTable[i].score;
 			if (*score > ISMATE) *score -= pos->ply;
             else if (*score < -ISMATE) *score += pos->ply;
 			
-			switch (pos->HashTable->pTable[i].flags) {
+			switch (table->pTable[i].flags) {
                 case HFALPHA: if (*score <= alpha) {
 						*score=alpha;
 						return TRUE;
@@ -131,12 +133,12 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 	return FALSE;
 }
 
-int ProbePvMove(const S_BOARD *pos) {
-	int i = pos->posKey % pos->HashTable->numEntries;
-	ASSERT(i >= 0 && i <= pos->HashTable->numEntries - 1);
+int ProbePvMove(const S_BOARD *pos, S_HASHTABLE *table) {
+	int i = pos->posKey % table->numEntries;
+	ASSERT(i >= 0 && i <= table->numEntries - 1);
 
-	if (pos->HashTable->pTable[i].posKey == pos->posKey) {
-		return pos->HashTable->pTable[i].move;
+	if (table->pTable[i].posKey == pos->posKey) {
+		return table->pTable[i].move;
 	}
 	
 	return NOMOVE;

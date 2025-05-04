@@ -12,7 +12,6 @@
 #include "pvtable.h"
 #include "misc.h"
 #include "uci.h"
-#include "xboard.h"
 #include "polybook.h"
 #include "ucioption.h"
 
@@ -930,6 +929,7 @@ int main(int argc, char *argv[]) {
     S_BOARD board[1];
     S_SEARCHINFO info[1];
     info->quit = FALSE;
+    InitHashTable(HashTable, 64);
 
     setbuf(stdin, NULL);
     setbuf(stdout, NULL);
@@ -941,7 +941,7 @@ int main(int argc, char *argv[]) {
     	}
     }
 
-    std::cout << "Welcome to Unstoppable Evaluation Tool (UET)! Type 'uet' for console mode...\n";
+    std::cout << "Welcome to Unstoppable Evaluation Tool (UET)!\n";
 
 	char line[256];
 	while (TRUE) {
@@ -955,20 +955,14 @@ int main(int argc, char *argv[]) {
 			Uci_Loop(board, info);
 			if(info->quit == TRUE) break;
 			continue;
-		} else if (!strncmp(line, "xboard", 6)) {
-			XBoard_Loop(board, info);
-			if(info->quit == TRUE) break;
-			continue;
-		} else if (!strncmp(line, "uet", 4)) {
-			Console_Loop(board, info);
-			if(info->quit == TRUE) break;
-			continue;
+
 		} else if (!strncmp(line, "quit", 4)) {
 			break;
 		}
 	}
 
     CleanPolyBook();
+    delete[] HashTable->pTable;
 
     return 0;
 }

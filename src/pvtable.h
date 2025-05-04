@@ -13,7 +13,7 @@ struct S_HASHENTRY {
 	int flags;
 };
 
-struct S_HASHTABLE{
+struct S_HASHTABLE {
 	S_HASHENTRY *pTable;
 	int numEntries;
 	int newWrite;
@@ -24,16 +24,18 @@ struct S_HASHTABLE{
     S_HASHTABLE() : pTable(NULL), numEntries(0) {}
 };
 
-int GetPvLine(const int depth, S_BOARD *pos);
+extern S_HASHTABLE HashTable[1];
+
+int GetPvLine(const int depth, S_BOARD *pos, S_HASHTABLE *table);
 
 void InitHashTable(S_HASHTABLE *table, const int MB);
 
 void ClearHashTable(S_HASHTABLE *table);
 
-void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth);
+void StoreHashEntry(S_BOARD *pos, S_HASHTABLE *table, const int move, int score, const int flags, const int depth);
 
-int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int depth);
+int ProbeHashEntry(S_BOARD *pos, S_HASHTABLE *table, int *move, int *score, int alpha, int beta, int depth);
 
-int ProbePvMove(const S_BOARD *pos);
+int ProbePvMove(const S_BOARD *pos, S_HASHTABLE *table);
 
 #endif

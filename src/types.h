@@ -45,10 +45,6 @@ typedef uint64_t U64;
 
 #define MAX_HASH 1024
 
-enum Mode {
-    UCIMODE, XBOARDMODE, CONSOLEMODE
-};
-
 enum Color {
     WHITE, BLACK, BOTH
 };

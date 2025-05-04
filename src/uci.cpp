@@ -3,6 +3,7 @@
 #include "makemove.h"
 #include "io.h"
 #include "ucioption.h"
+#include "pvtable.h"
 
 #include <cstring>
 #include <iostream>
@@ -70,7 +71,7 @@ void ParseGo(char* line, S_SEARCHINFO *info, S_BOARD *pos) {
 
 	std::cout << "time:" << time << " start:" << info->startTime << " stop:" << info->stopTime 
 			<< " depth:" << info->depth << " timeset:" << info->timeSet << '\n';
-	SearchPosition(pos, info);
+	SearchPosition(pos, info, HashTable);
 }
 
 void ParsePosition(char* lineIn, S_BOARD *pos) {
@@ -108,7 +109,6 @@ void ParsePosition(char* lineIn, S_BOARD *pos) {
 }
 
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
-	info->GAME_MODE = UCIMODE;
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
@@ -162,7 +162,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			if (MB < 4) MB = 4;
 			if (MB > MAX_HASH) MB = MAX_HASH;
 			std::cout << "Set Hash to " << MB << " MB\n";
-			InitHashTable(pos->HashTable, MB);
+			InitHashTable(HashTable, MB);
 		} else if (!strncmp(line, "setoption name Book value ", 26)) {			
 			char *ptrTrue = NULL;
 			ptrTrue = strstr(line, "true");
