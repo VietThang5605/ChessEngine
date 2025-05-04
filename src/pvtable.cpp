@@ -110,8 +110,6 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
             else if (*score < -ISMATE) *score += pos->ply;
 			
 			switch (pos->HashTable->pTable[i].flags) {
-                ASSERT(*score >= -INF && *score <= INF);
-
                 case HFALPHA: if (*score <= alpha) {
 						*score=alpha;
 						return TRUE;

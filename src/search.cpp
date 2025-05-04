@@ -179,7 +179,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		return Score;
 	}
 
-	if (DoNull && !InCheck && pos->ply && depth >= reducedDepth) {
+	if (DoNull && !InCheck && pos->ply && (pos->bigPiece[pos->side] > 1) && depth >= reducedDepth) {
 		MakeNullMove(pos);
 		Score = -AlphaBeta( -beta, -beta + 1, depth - reducedDepth, pos, info, FALSE);
 		TakeNullMove(pos);

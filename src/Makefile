@@ -1,6 +1,9 @@
+SRCS = $(wildcard *.cpp)
+NAME = ChessEngine
+
 all:
-	g++ main.cpp init.cpp bitboards.cpp hashkeys.cpp board.cpp data.cpp attack.cpp io.cpp movegen.cpp validate.cpp makemove.cpp perft.cpp search.cpp misc.cpp pvtable.cpp evaluate.cpp uci.cpp xboard.cpp polybook.cpp polykeys.cpp ucioption.cpp -o ChessEngine
-	./ChessEngine
+	g++ $(SRCS) -O2 -o $(NAME)
+	./$(NAME)
 
 # CCWIN=x86_64-w64-mingw32-gcc
 # CFLAGS=-O2 -Wall -std=c99
