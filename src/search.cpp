@@ -65,9 +65,10 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table)
 		}
 	}
 
-	table->overWrite=0;
-	table->hit=0;
-	table->cut=0;
+	table->overWrite = 0;
+	table->hit = 0;
+	table->cut = 0;
+	table->currentAge++;
 	pos->ply = 0;
 
 	info->stopped = 0;
@@ -86,7 +87,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 	info->nodes++;
 
-	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) {
+	if (IsRepetition(pos) || pos->fiftyMove >= 100) {
 		return 0;
 	}
 
@@ -257,7 +258,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 	if (Legal == 0) {
 		if (InCheck) {
-			return -ISMATE + pos->ply;
+			return -INF + pos->ply;
 		} else {
 			return 0;
 		}

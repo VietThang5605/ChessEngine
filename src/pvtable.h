@@ -11,6 +11,7 @@ struct S_HASHENTRY {
 	int score;
 	int depth;
 	int flags;
+	int age;
 };
 
 struct S_HASHTABLE {
@@ -20,6 +21,7 @@ struct S_HASHTABLE {
 	int overWrite;
 	int hit;
 	int cut;
+	int currentAge;
 
     S_HASHTABLE() : pTable(NULL), numEntries(0) {}
 };

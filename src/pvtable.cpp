@@ -50,18 +50,19 @@ void InitHashTable(S_HASHTABLE *table, const int MB) {
 		ClearHashTable(table);
 		std::cout << "HashTable init complete with " << table->numEntries << " entries\n";
 	}
-	
 }
 
 void ClearHashTable(S_HASHTABLE *table) {
-	for (S_HASHENTRY *tableEntry = table->pTable; tableEntry < table->pTable + table->numEntries; ++tableEntry) {
+	for (S_HASHENTRY *tableEntry = table->pTable; tableEntry < table->pTable + table->numEntries; tableEntry++) {
 		tableEntry->posKey = 0ULL;
 		tableEntry->move = NOMOVE;
 		tableEntry->depth = 0;
 		tableEntry->score = 0;
 		tableEntry->flags = 0;
+		tableEntry->age = 0;
 	}
 	table->newWrite = 0;
+	table->currentAge = 0;
 }
 
 void StoreHashEntry(S_BOARD *pos, S_HASHTABLE *table, const int move, int score, const int flags, const int depth) {
@@ -72,12 +73,20 @@ void StoreHashEntry(S_BOARD *pos, S_HASHTABLE *table, const int move, int score,
     ASSERT(flags >= HFALPHA && flags <= HFEXACT);
     ASSERT(score >= -INF &&score <= INF);
     ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
+
+	bool replace = FALSE;
 	
 	if (table->pTable[i].posKey == 0) {
 		table->newWrite++;
+		replace = TRUE;
 	} else {
-		table->overWrite++;
+		if (table->pTable[i].age < table->currentAge || 
+			table->pTable[i].depth <= depth) {
+					replace = TRUE;
+		}
 	}
+
+	if (replace == FALSE) return;
 	
 	if (score > ISMATE) score += pos->ply;
     else if (score < -ISMATE) score -= pos->ply;
@@ -87,6 +96,7 @@ void StoreHashEntry(S_BOARD *pos, S_HASHTABLE *table, const int move, int score,
 	table->pTable[i].flags = flags;
 	table->pTable[i].score = score;
 	table->pTable[i].depth = depth;
+	table->pTable[i].age = table->currentAge;
 }
 
 int ProbeHashEntry(S_BOARD *pos, S_HASHTABLE *table, int *move, int *score, int alpha, int beta, int depth) {
