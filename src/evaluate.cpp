@@ -277,7 +277,6 @@ double EvaluatePosition(const S_BOARD* pos) {
         // *** GỌI HÀM TÍNH SHELTER/STORM TỪ EXTENSIONS ***
         ks_score_for_side += CalculateKingShelterAndStorm(pos, c);
 
-        // std::cout << "King Safety Score for " << (c == SF::WHITE ? "White" : "Black") << ": " << ks_score_for_side << std::endl;
         // Lưu ý: Hàm này trả về điểm (bonus cho shelter, penalty cho storm).
         // Nếu bạn muốn lưu nó vào PawnEntry, bạn cần sửa đổi pawn_analysis.cpp
         // và gọi hàm này từ đó, sau đó lấy giá trị từ pe->kingSafety[c] ở đây.
@@ -707,11 +706,8 @@ namespace EvalPhase3 {
             SF::Color them = ~c;
             SF::Bitboard nonPawnEnemies = ei.pieces(them) & ~ei.pieces(them, SF::PAWN);
             SF::Bitboard stronglyProtected = ei.attackedBy[them][SF::PAWN] | (ei.attackedBy2[them] & ~ei.attackedBy2[c]);
-            // SF::Bitboard stronglyProtected = ei.attackedBy[them][SF::PAWN] | ei.attackedBy2[them];
-            // std::cout << "stronglyProtected: "; PrintBitBoard(stronglyProtected); std::cout<< std::endl;
             SF::Bitboard weakOrDefendedEnemies = ei.pieces(them) & ei.attackedBy[c][SF::ALL_PIECES];
             SF::Bitboard weakEnemies = weakOrDefendedEnemies & ~stronglyProtected;
-            // std::cout << "weakEnemies: "; PrintBitBoard(weakEnemies); std::cout<< std::endl;
             SF::Bitboard minorAttacks = ei.attackedBy[c][SF::KNIGHT] | ei.attackedBy[c][SF::BISHOP];
             SF::Bitboard targets_minor = weakOrDefendedEnemies & minorAttacks;
 
@@ -795,10 +791,8 @@ namespace EvalPhase3 {
         SF::Score current_space_w = SF::SCORE_ZERO;
         SF::Score current_space_b = SF::SCORE_ZERO;
         SF::Value npm_w = non_pawn_material(pos, SF::WHITE);
-        std::cout << "npm_w: " << npm_w << std::endl;
 
         SF::Value npm_b = non_pawn_material(pos, SF::BLACK);
-        std::cout << "npm_b: " << npm_b << std::endl;
 
         if (npm_w + npm_b >= EvaluationConstants::SpaceThreshold) {
             for (SF::Color c : {SF::WHITE, SF::BLACK}) {
@@ -812,6 +806,7 @@ namespace EvalPhase3 {
                  SF::Direction two_down = static_cast<SF::Direction>(down + down);
                  behindPawns |= SF::shift(behindPawns, two_down);
                  int space_bonus_count = SF::popcount(safeSpace) + SF::popcount(behindPawns & safeSpace & ~ei.attackedBy[them][SF::ALL_PIECES]);
+    
                  int pieceCount = pos->bigPiece[c] - pos->pieceNum[(c == SF::WHITE) ? wK : bK];
                  space_bonus = SF::make_score(space_bonus_count * pieceCount * pieceCount / 16, 0);
 
@@ -835,7 +830,6 @@ namespace EvalPhase3 {
         int initiative_eg_calc = ((eg_before_init > 0) - (eg_before_init < 0)) * std::max(complexity, -std::abs(eg_before_init));
         initiative_s = SF::make_score(initiative_mg_calc, initiative_eg_calc);
         score_accumulator += initiative_s; // Cộng initiative vào tổng hiệu số cuối cùng
-std::cout << "score_accumulator: " << SF::mg_value(score_accumulator) <<","<<SF::eg_value(score_accumulator)<< std::endl;
         // 5. Tính giá trị nội suy cuối cùng
         SF::Value final_value_white_pov;
         SF::Phase gamePhase = me->gamePhase;

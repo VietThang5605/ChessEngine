@@ -98,26 +98,23 @@ SF::Bitboard attacks_from_sliding(SF::Bitboard sliders, SF::Bitboard occupied, c
     SF::Bitboard attacks = 0;
     SF::Bitboard b = sliders;
     while (b) {
-        SF::Square from = SF::pop_lsb(&b);
+        SF::Square from = SF::pop_lsb(&b); 
         for (int i = 0; i < numSteps; ++i) {
             SF::Direction dir = steps[i];
-            SF::Square to = static_cast<SF::Square>(from + dir);
-            // if(steps == RookDirections) {
-            //     std::cout<<"from:  "<<from<<" to: "<<to<<"dir: "<<dir<<std::endl;
-            // }
-            if (to >63 || to < 0) continue; // Kiểm tra không đi ra ngoài bàn cờ
-            if ((dir == -1 || dir == 1) && (from / 8 != to / 8)) continue; // Kiểm tra không đi ra ngoài hàng ngang
-            while (SF::is_ok(to)) {
-                if ((dir == -1 || dir == 1) && ((from / 8) != (to / 8))) continue;
-                if (to >63 || to < 0) continue; // Kiểm tra không đi ra ngoài bàn cờ
-                 attacks |= SF::square_bb(to);//if(steps == RookDirections) PrintBitBoard(attacks);
-                 if (occupied & SF::square_bb(to)) {
-                      break;
-                 }
-                 to = static_cast<SF::Square>(to + dir);
-                //  if (to >63 || to < 0) continue; // Kiểm tra không đi ra ngoài bàn cờ
-                //  if ((dir == -1 || dir == 1) && ((from / 8) != (to / 8))) continue;
-                 if (SF::distance<SF::Square>(to, static_cast<SF::Square>(to - dir)) != 1) break;
+            SF::Square current_sq = from;
+
+            while (true) {
+                SF::Square next_sq = static_cast<SF::Square>(current_sq + dir);
+
+                if (!SF::is_ok(next_sq) || SF::distance<SF::Square>(next_sq, current_sq) != 1) {
+                    break; 
+                }
+
+                attacks |= SF::square_bb(next_sq);
+                current_sq = next_sq;
+                if (occupied & SF::square_bb(current_sq)) {
+                    break; 
+                }
             }
         }
     }

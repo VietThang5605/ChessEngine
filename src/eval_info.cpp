@@ -42,7 +42,6 @@ Info::Info(const S_BOARD* board_ptr, const PawnEntry* pe_ptr, const MaterialEntr
         SF::Bitboard occupied = pieces(); // Lấy bitboard tất cả quân cờ
 
     // --- 2. Tính KingRing cho cả 2 bên trước ---
-    // std::cout << "  Calculating King Rings..." << std::endl << std::flush;
     for (SF::Color c : { SF::WHITE, SF::BLACK }) {
         int kingSq120 = pos_ptr->kingSquare[c]; // Lấy index 120-based từ S_BOARD
 
@@ -63,9 +62,7 @@ Info::Info(const S_BOARD* board_ptr, const PawnEntry* pe_ptr, const MaterialEntr
         {
             // Nếu ô vua 120-based không hợp lệ hoặc ngoài bàn cờ 64 ô
             kingRing[c] = 0; // Gán giá trị mặc định là 0
-            // std::cout << "    KingRing[" << (c==SF::WHITE ? "W" : "B") << "]: Invalid King Square!" << std::endl;
         }
-        std::cout << std::flush;
     }
 
     // --- 3. Tính toán attackedBy và đồng thời cập nhật King Safety ---
@@ -99,8 +96,7 @@ Info::Info(const S_BOARD* board_ptr, const PawnEntry* pe_ptr, const MaterialEntr
                 else if (pt == SF::BISHOP) attacks_from_s = AttackGen::attacks_from_sliding(SF::square_bb(s), occupied, AttackGen::BishopDirections, 4);
                 else if (pt == SF::ROOK) {
                     attacks_from_s = AttackGen::attacks_from_sliding(SF::square_bb(s), occupied, AttackGen::RookDirections, 4);
-                    // std::cout<<"rook attacks from s wval.cpp"<<std::endl;
-                    // PrintBitBoard(attacks_from_s); // In tấn công từ ô s
+
                 }  
                 else if (pt == SF::QUEEN)  attacks_from_s = AttackGen::attacks_from_sliding(SF::square_bb(s), occupied, AttackGen::BishopDirections, 4)
                                                           | AttackGen::attacks_from_sliding(SF::square_bb(s), occupied, AttackGen::RookDirections, 4);
@@ -128,7 +124,7 @@ Info::Info(const S_BOARD* board_ptr, const PawnEntry* pe_ptr, const MaterialEntr
          attackedBy[c][SF::ALL_PIECES] = attackedBy[c][SF::PAWN]   | attackedBy[c][SF::KNIGHT]
                                        | attackedBy[c][SF::BISHOP] | attackedBy[c][SF::ROOK]
                                        | attackedBy[c][SF::QUEEN]  | attackedBy[c][SF::KING];
-        std::cout << std::flush;
+
     } // Kết thúc lặp qua Color
 
     //--- 4. Tính toán attackedBy2 (sau khi đã có attackedBy hoàn chỉnh) ---
@@ -138,7 +134,6 @@ Info::Info(const S_BOARD* board_ptr, const PawnEntry* pe_ptr, const MaterialEntr
         // Chỉ cần lặp qua các loại quân thực sự tấn công (P-Q)
         for (SF::PieceType pt = SF::PAWN; pt <= SF::QUEEN; ++pt) {
              SF::Bitboard b = attackedBy[c][pt];
-            // std::cout<<"attacks_once: ";PrintBitBoard(b);  
              attacks_more |= attacks_once & b;
 
              attacks_once |= b;
@@ -149,7 +144,6 @@ Info::Info(const S_BOARD* board_ptr, const PawnEntry* pe_ptr, const MaterialEntr
     }
 
     // --- 5. Tính toán mobilityArea ---
-    // std::cout << "  Calculating MobilityArea..." << std::endl << std::flush;
      for (SF::Color c : { SF::WHITE, SF::BLACK }) {
          SF::Color them = ~c;
          // Phiên bản đơn giản: ô trống không bị Tốt địch và quân mình chiếm
