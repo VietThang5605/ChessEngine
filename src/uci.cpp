@@ -3,6 +3,8 @@
 #include "makemove.h"
 #include "io.h"
 
+#include "evaluate.h"
+
 #include <cstring>
 #include <iostream>
 #include <limits>
@@ -156,6 +158,12 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			if (MB > MAX_HASH) MB = MAX_HASH;
 			std::cout << "Set Hash to " << MB << " MB\n";
 			InitHashTable(pos->HashTable, MB);
+		} else if (!strncmp(line,"eval",4)) {
+			std::cout << "Eval:\n"<<EvalPhase3::trace(pos);
+			std::cout << "\nEval end\n";
+			// std::cout <<"eval real:  "<<EvaluatePosition(pos) << '\n';
+			// std::cout <<"debug\n";
+			// EvalPhase3::print_debug_eval_info(pos);
 		}
 
 		if (info->quit)

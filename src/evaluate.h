@@ -14,6 +14,9 @@ double EvaluatePosition(const S_BOARD* pos);
 // (Tùy chọn) Namespace riêng cho việc đánh giá ở giai đoạn 3
 namespace EvalPhase3 {
     // Có thể đặt các hàm helper hoặc lớp nội bộ ở đây nếu cần
+    std::string format_score_trace(SF::Score s);
+    std::string trace(const S_BOARD* pos);
+    void print_debug_eval_info(const S_BOARD* pos);
 }
 
 #endif

@@ -255,15 +255,18 @@ SF::Score CalculateKingShelterAndStorm(const S_BOARD* pos, SF::Color kingColor) 
 
         // Cộng điểm che chắn từ Tốt của ta
         shelterScore += SF::make_score(EvaluationConstants::ShelterStrength[distFromEdge][ourPawnRank], 0);
+            // std::cout << "che chắn từ Tốt của ta:111       " << shelterScore << std::endl;
 
         // Trừ điểm nguy hiểm từ Tốt địch
         // Nếu Tốt ta và Tốt địch đối đầu trực diện (cách nhau 1 rank)
         if (ourPawnRank > 0 && theirPawnRank > 0 && ourPawnRank == theirPawnRank - 1) {
             // Phạt nặng hơn nếu Tốt địch ở rank 3 của ta (rank 6 của địch nếu ta là Trắng)
              shelterScore -= EvaluationConstants::BlockedStorm * int(theirPawnRank == SF::RANK_6);
+            //  std::cout << "che chắn từ Tốt của ta:222       " << shelterScore << std::endl;
         } else {
             // Phạt dựa trên vị trí Tốt địch không bị chặn
              shelterScore -= SF::make_score(EvaluationConstants::UnblockedStorm[distFromEdge][theirPawnRank], 0);
+            //  std::cout << "che chắn từ Tốt của ta:3333        " << shelterScore << std::endl;
         }
     }
 
@@ -287,7 +290,9 @@ SF::Score CalculateKingShelterAndStorm(const S_BOARD* pos, SF::Color kingColor) 
      } else {
          minPawnDist = 0; // Không có Tốt thì không phạt
      }
+    //  minPawnDist = 0; // Giới hạn khoảng cách tối đa
     shelterScore -= SF::make_score(0, 16 * minPawnDist); // Chỉ trừ vào EG
+    // std::cout << "che chắn từ Tốt của ta:444      " << minPawnDist << std::endl;
 
 
     return shelterScore;

@@ -214,7 +214,7 @@ MaterialEntry* analyze_material(const S_BOARD* pos, MaterialEntry* entry) {
     // --- Tính Game Phase (Giữ nguyên logic đã sửa) ---
     SF::Value npm_w = non_pawn_material(pos, SF::WHITE);
     SF::Value npm_b = non_pawn_material(pos, SF::BLACK);
-    std::cout << "DEBUG: npm_w=" << npm_w << " npm_b=" << npm_b << std::endl; // Debug npm
+    // std::cout << "DEBUG: npm_w=" << npm_w << " npm_b=" << npm_b << std::endl; // Debug npm
     double total_npm_precise = static_cast<double>(npm_w) + static_cast<double>(npm_b);
     //std::cout << "DEBUG: total_npm_precise (before clamp)=" << total_npm_precise << std::endl; // Tạm ẩn bớt
     total_npm_precise = std::min(total_npm_precise, static_cast<double>(SF::MidgameLimit));
@@ -231,7 +231,7 @@ MaterialEntry* analyze_material(const S_BOARD* pos, MaterialEntry* entry) {
     int phase_int = static_cast<int>(std::round(phase_precise));
     //std::cout << "DEBUG: phase_precise=" << phase_precise << " phase_int=" << phase_int << std::endl; // Tạm ẩn bớt
     entry->gamePhase = static_cast<SF::Phase>(std::clamp(phase_int, 0, (int)SF::PHASE_MIDGAME));
-    std::cout << "DEBUG: final gamePhase=" << static_cast<int>(entry->gamePhase) << std::endl;
+    // std::cout << "DEBUG: final gamePhase=" << static_cast<int>(entry->gamePhase) << std::endl;
 
 
     // --- Tính điểm mất cân bằng vật chất (Đã sửa lỗi tràn số) ---
@@ -249,18 +249,18 @@ MaterialEntry* analyze_material(const S_BOARD* pos, MaterialEntry* entry) {
         }
     }
      // In pieceCount để kiểm tra
-     std::cout << "DEBUG: pieceCount[WHITE]: pair=" << pieceCount[SF::WHITE][0] << " P=" << pieceCount[SF::WHITE][1] << " N=" << pieceCount[SF::WHITE][2] << " B=" << pieceCount[SF::WHITE][3] << " R=" << pieceCount[SF::WHITE][4] << " Q=" << pieceCount[SF::WHITE][5] << " K=" << pieceCount[SF::WHITE][6] << std::endl;
-     std::cout << "DEBUG: pieceCount[BLACK]: pair=" << pieceCount[SF::BLACK][0] << " P=" << pieceCount[SF::BLACK][1] << " N=" << pieceCount[SF::BLACK][2] << " B=" << pieceCount[SF::BLACK][3] << " R=" << pieceCount[SF::BLACK][4] << " Q=" << pieceCount[SF::BLACK][5] << " K=" << pieceCount[SF::BLACK][6] << std::endl;
+    //  std::cout << "DEBUG: pieceCount[WHITE]: pair=" << pieceCount[SF::WHITE][0] << " P=" << pieceCount[SF::WHITE][1] << " N=" << pieceCount[SF::WHITE][2] << " B=" << pieceCount[SF::WHITE][3] << " R=" << pieceCount[SF::WHITE][4] << " Q=" << pieceCount[SF::WHITE][5] << " K=" << pieceCount[SF::WHITE][6] << std::endl;
+    //  std::cout << "DEBUG: pieceCount[BLACK]: pair=" << pieceCount[SF::BLACK][0] << " P=" << pieceCount[SF::BLACK][1] << " N=" << pieceCount[SF::BLACK][2] << " B=" << pieceCount[SF::BLACK][3] << " R=" << pieceCount[SF::BLACK][4] << " Q=" << pieceCount[SF::BLACK][5] << " K=" << pieceCount[SF::BLACK][6] << std::endl;
 
 
     // Tính bonus bằng long long
     long long bonus_w_ll = calculate_imbalance_bonus<SF::WHITE>(pieceCount); // *** Gọi hàm trả về long long ***
     long long bonus_b_ll = calculate_imbalance_bonus<SF::BLACK>(pieceCount); // *** Gọi hàm trả về long long ***
-    std::cout << "DEBUG: bonus_w=" << bonus_w_ll << " bonus_b=" << bonus_b_ll << std::endl; // Debug bonus (long long)
+    // std::cout << "DEBUG: bonus_w=" << bonus_w_ll << " bonus_b=" << bonus_b_ll << std::endl; // Debug bonus (long long)
 
     // Chia và làm tròn bằng double, sau đó ép kiểu về int16_t
     entry->imbalance_value = static_cast<int16_t>(std::round(static_cast<double>(bonus_w_ll - bonus_b_ll) / 16.0));
-    std::cout << "DEBUG: final imbalance_value=" << entry->imbalance_value << std::endl; // Debug giá trị cuối
+    // std::cout << "DEBUG: final imbalance_value=" << entry->imbalance_value << std::endl; // Debug giá trị cuối
 
 
     // --- Tính Scale Factor mặc định (Giữ nguyên logic SF11) ---

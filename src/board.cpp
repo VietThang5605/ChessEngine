@@ -483,6 +483,7 @@ void ResetBoard(S_BOARD *pos) {
         pos->rooksBB[i] = 0ULL;
         pos->queensBB[i] = 0ULL;
         pos->kingsBB[i] = 0ULL;
+        pos->allPiecesBB[i] = 0ULL; //all pieces bitboard
     }
 
     for (int i = 0; i < 13; ++i) {

@@ -102,14 +102,21 @@ SF::Bitboard attacks_from_sliding(SF::Bitboard sliders, SF::Bitboard occupied, c
         for (int i = 0; i < numSteps; ++i) {
             SF::Direction dir = steps[i];
             SF::Square to = static_cast<SF::Square>(from + dir);
+            // if(steps == RookDirections) {
+            //     std::cout<<"from:  "<<from<<" to: "<<to<<"dir: "<<dir<<std::endl;
+            // }
+            if (to >63 || to < 0) continue; // Kiểm tra không đi ra ngoài bàn cờ
+            if ((dir == -1 || dir == 1) && (from / 8 != to / 8)) continue; // Kiểm tra không đi ra ngoài hàng ngang
             while (SF::is_ok(to)) {
-                 attacks |= SF::square_bb(to);
+                if ((dir == -1 || dir == 1) && ((from / 8) != (to / 8))) continue;
+                if (to >63 || to < 0) continue; // Kiểm tra không đi ra ngoài bàn cờ
+                 attacks |= SF::square_bb(to);//if(steps == RookDirections) PrintBitBoard(attacks);
                  if (occupied & SF::square_bb(to)) {
-                    std::cout << "  dsfhgbsdhfsdfghsdh" << std::endl;
-                    PrintBitBoard(attacks);
                       break;
                  }
                  to = static_cast<SF::Square>(to + dir);
+                //  if (to >63 || to < 0) continue; // Kiểm tra không đi ra ngoài bàn cờ
+                //  if ((dir == -1 || dir == 1) && ((from / 8) != (to / 8))) continue;
                  if (SF::distance<SF::Square>(to, static_cast<SF::Square>(to - dir)) != 1) break;
             }
         }
