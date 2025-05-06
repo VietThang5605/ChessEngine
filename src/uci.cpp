@@ -122,6 +122,8 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	int MB = 64;
 
 	while (TRUE) {
+		memset(&line, '\0', sizeof(line));
+
 		if (!std::cin.getline(line, sizeof(line))) {
 			std::cin.clear();
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
