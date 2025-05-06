@@ -4,6 +4,9 @@
 #include "io.h"
 #include "ucioption.h"
 #include "pvtable.h"
+#include "evaluate.h"
+#include "types.h" //must before tinycthread to using it's FALSE
+#include "tinycthread.h"
 
 #include <cstring>
 #include <iostream>
@@ -11,8 +14,27 @@
 
 #define INPUTBUFFER 400 * 6
 
+thrd_t mainSearchThread;
+
+thrd_t LaunchSearchThread(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table) {
+	S_SEARCH_THREAD_DATA *pSearchData = new S_SEARCH_THREAD_DATA[1];
+	pSearchData->originalPosition = pos;
+	pSearchData->info = info;
+	pSearchData->ttable = table;
+
+	thrd_t th;
+	thrd_create(&th, &SearchPosition_Thread, (void *)pSearchData);
+
+	return th;
+}
+
+void JoinSearchThread(S_SEARCHINFO *info) {
+	info->stopped = TRUE;
+	thrd_join(mainSearchThread, NULL);
+}
+
 // go depth 6 wtime 180000 btime 100000 binc 1000 winc 1000 movetime 1000 movestogo 40
-void ParseGo(char* line, S_SEARCHINFO *info, S_BOARD *pos) {
+void ParseGo(char* line, S_SEARCHINFO *info, S_BOARD *pos, S_HASHTABLE *table) {
 	int depth = -1, movestogo = 30, movetime = -1;
 	int time = -1, inc = 0;
     char *ptr = NULL;
@@ -71,7 +93,8 @@ void ParseGo(char* line, S_SEARCHINFO *info, S_BOARD *pos) {
 
 	std::cout << "time:" << time << " start:" << info->startTime << " stop:" << info->stopTime 
 			<< " depth:" << info->depth << " timeset:" << info->timeSet << '\n';
-	SearchPosition(pos, info, HashTable);
+	// SearchPosition(pos, info, HashTable);
+	mainSearchThread =  LaunchSearchThread(pos, info, table);
 }
 
 void ParsePosition(char* lineIn, S_BOARD *pos) {
@@ -145,14 +168,18 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			ParsePosition("position startpos\n", pos);
 
 		} else if(!strncmp(line, "go", 2)) {
-			ParseGo(line, info, pos);	
+			ParseGo(line, info, pos, HashTable);	
 
 		} else if(!strncmp(line, "run", 3)) {
 			ParseFen(START_FEN, pos);
-			ParseGo("go infinite", info, pos);	
+			ParseGo("go infinite", info, pos, HashTable);	
+
+		} else if(!strncmp(line, "stop", 4)) {
+			JoinSearchThread(info);
 
 		} else if(!strncmp(line, "quit", 4)) {
 			info->quit = TRUE;
+			JoinSearchThread(info);
 			break;
 
 		} else if (!strncmp(line, "uci", 3)) {
@@ -166,6 +193,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			if (MB > MAX_HASH) MB = MAX_HASH;
 			std::cout << "Set Hash to " << MB << " MB\n";
 			InitHashTable(HashTable, MB);
+
 		} else if (!strncmp(line, "setoption name Book value ", 26)) {			
 			char *ptrTrue = NULL;
 			ptrTrue = strstr(line, "true");
@@ -175,7 +203,6 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 				EngineOptions->UseBook = FALSE;
 			}
 		}
-
 		if (info->quit)
 			break;
 	}

@@ -5,7 +5,7 @@
 
 S_HASHTABLE HashTable[1];
 
-int GetPvLine(const int depth, S_BOARD *pos, S_HASHTABLE *table) {
+int GetPvLine(const int depth, S_BOARD *pos, const S_HASHTABLE *table) {
 	ASSERT(depth < MAXDEPTH && depth >= 1);
 
 	int move = ProbePvMove(pos, table);
@@ -143,7 +143,7 @@ int ProbeHashEntry(S_BOARD *pos, S_HASHTABLE *table, int *move, int *score, int 
 	return FALSE;
 }
 
-int ProbePvMove(const S_BOARD *pos, S_HASHTABLE *table) {
+int ProbePvMove(const S_BOARD *pos, const S_HASHTABLE *table) {
 	int i = pos->posKey % table->numEntries;
 	ASSERT(i >= 0 && i <= table->numEntries - 1);
 

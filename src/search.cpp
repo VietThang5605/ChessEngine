@@ -18,8 +18,6 @@ static void CheckUp(S_SEARCHINFO *info) { //will be called every 4k node or so
 	if (info->timeSet == TRUE && GetTimeMs() > info->stopTime) {
 		info->stopped = TRUE;
 	}
-
-	ReadInput(info);
 }
 
 static void PickNextMove(int moveNum, S_MOVELIST *list) {
@@ -271,6 +269,15 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	}
 
 	return alpha;
+}
+
+int SearchPosition_Thread(void *data) {
+	S_SEARCH_THREAD_DATA *searchData = (S_SEARCH_THREAD_DATA *)data;
+	S_BOARD *pos = new S_BOARD[1];
+	memcpy(pos, searchData->originalPosition, sizeof(S_BOARD)); //using memcpy only when data in S_BOARD is trivial types
+	SearchPosition(pos, searchData->info, searchData->ttable);
+	delete[] pos;
+	return 0;
 }
 
 void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table) {

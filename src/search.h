@@ -26,6 +26,12 @@ struct S_SEARCHINFO {
     int nullCut;
 };
 
+struct S_SEARCH_THREAD_DATA {
+    S_SEARCHINFO *info;
+    S_BOARD *originalPosition;
+    S_HASHTABLE *ttable;
+};
+
 static void CheckUp(S_SEARCHINFO *info);
 
 static void PickNextMove(int moveNum, S_MOVELIST *list);
@@ -37,6 +43,8 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table)
 static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info);
 
 static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table, int DoNull);
+
+int SearchPosition_Thread(void *data);
 
 void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table);
 

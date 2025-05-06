@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <limits>
+#include <cstring>
 
 int main(int argc, char *argv[]) {
     AllInit();

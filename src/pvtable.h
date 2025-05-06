@@ -28,7 +28,7 @@ struct S_HASHTABLE {
 
 extern S_HASHTABLE HashTable[1];
 
-int GetPvLine(const int depth, S_BOARD *pos, S_HASHTABLE *table);
+int GetPvLine(const int depth, S_BOARD *pos, const S_HASHTABLE *table);
 
 void InitHashTable(S_HASHTABLE *table, const int MB);
 
@@ -38,6 +38,6 @@ void StoreHashEntry(S_BOARD *pos, S_HASHTABLE *table, const int move, int score,
 
 int ProbeHashEntry(S_BOARD *pos, S_HASHTABLE *table, int *move, int *score, int alpha, int beta, int depth);
 
-int ProbePvMove(const S_BOARD *pos, S_HASHTABLE *table);
+int ProbePvMove(const S_BOARD *pos, const S_HASHTABLE *table);
 
 #endif
