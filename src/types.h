@@ -40,8 +40,9 @@ typedef uint64_t U64;
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 64
 
-#define INF 30000
-#define ISMATE (INF - MAXDEPTH)
+#define INF_BOUND 32000
+#define AB_BOUND 30000
+#define ISMATE (AB_BOUND - MAXDEPTH)
 
 #define MAX_HASH 1024
 

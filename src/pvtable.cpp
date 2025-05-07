@@ -3,6 +3,42 @@
 #include "movegen.h"
 #include "makemove.h"
 
+void DataCheck(const int move) {
+	int depth = rand() % MAXDEPTH;
+	int flag = rand() % 3;
+	int score = rand() % AB_BOUND;
+
+	U64 data = FOLD_DATA(score, depth, flag, move);
+	std::cout << "Oringinal move: " << PrintMove(move) 
+			<< " depth: " << depth 
+			<< " flag:" << flag 
+			<< " score:" << score 
+			<< " data:" << data 
+			<< '\n';
+
+	std::cout << "Check move: " << PrintMove(EXTRACT_MOVE(data))
+			<< " depth: " << EXTRACT_DEPTH(data) 
+			<< " flag:" << EXTRACT_FLAGS(data) 
+			<< " score:" << EXTRACT_SCORE(data)
+			<< " data:" << data << '\n';		
+}
+
+void TempHashTest(char *fen) {
+	S_BOARD board[1];
+	ParseFen(fen, board);
+
+	S_MOVELIST list[1];
+    GenerateAllMoves(board, list);
+
+    for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {	
+        if (!MakeMove(board, list->moves[MoveNum].move)) {
+            continue;
+        }
+        TakeMove(board);
+		DataCheck(list->moves[MoveNum].move);
+    }
+}
+
 S_HASHTABLE HashTable[1];
 
 int GetPvLine(const int depth, S_BOARD *pos, const S_HASHTABLE *table) {
@@ -71,7 +107,7 @@ void StoreHashEntry(S_BOARD *pos, S_HASHTABLE *table, const int move, int score,
 	ASSERT(i >= 0 && i <= table->numEntries - 1);
 	ASSERT(depth >= 1 && depth < MAXDEPTH);
     ASSERT(flags >= HFALPHA && flags <= HFEXACT);
-    ASSERT(score >= -INF &&score <= INF);
+    ASSERT(score >= -AB_BOUND && score <= AB_BOUND);
     ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
 	bool replace = FALSE;
@@ -105,8 +141,8 @@ int ProbeHashEntry(S_BOARD *pos, S_HASHTABLE *table, int *move, int *score, int 
 	ASSERT(i >= 0 && i <= table->numEntries - 1);
     ASSERT(depth >= 1 && depth < MAXDEPTH);
     ASSERT(alpha < beta);
-    ASSERT(alpha >= -INF && alpha <= INF);
-    ASSERT(beta >= -INF && beta <= INF);
+    ASSERT(alpha >= -AB_BOUND && alpha <= AB_BOUND);
+    ASSERT(beta >= -AB_BOUND && beta <= AB_BOUND);
     ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
 	
 	if (table->pTable[i].posKey == pos->posKey ) {

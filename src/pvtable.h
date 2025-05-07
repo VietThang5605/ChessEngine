@@ -3,6 +3,21 @@
 
 #include "types.h"
 
+#include "io.h" // for debug
+#include "makemove.h"
+#include "movegen.h"
+
+#define EXTRACT_SCORE(x) ((x & 0xFFFF) - INF_BOUND)
+#define EXTRACT_DEPTH(x) ((x >> 16) & 0x3F)
+#define EXTRACT_FLAGS(x) ((x >> 23) & 0x3)
+#define EXTRACT_MOVE(x) ((int)(x >> 25))
+
+#define FOLD_DATA(sc, de, fl, mv) ((sc + INF_BOUND) | (de << 16) | (fl << 23)  | ((U64)mv << 25))
+
+void DataCheck(const int move);
+
+void TempHashTest(char *fen);
+
 struct S_BOARD;
 
 struct S_HASHENTRY {
