@@ -87,6 +87,8 @@ Info::Info(const S_BOARD* board_ptr, const PawnEntry* pe_ptr, const MaterialEntr
                     // Tính trực tiếp bằng shift:
                     if (c == SF::WHITE) attacks_from_s = SF::shift<SF::NORTH_WEST>(SF::square_bb(s)) | SF::shift<SF::NORTH_EAST>(SF::square_bb(s));
                     else attacks_from_s = SF::shift<SF::SOUTH_WEST>(SF::square_bb(s)) | SF::shift<SF::SOUTH_EAST>(SF::square_bb(s));
+
+
                 }
                 else if (pt == SF::KNIGHT) attacks_from_s = AttackGen::PseudoAttacks_KNIGHT[s];
                 else if (pt == SF::KING) {
@@ -119,7 +121,6 @@ Info::Info(const S_BOARD* board_ptr, const PawnEntry* pe_ptr, const MaterialEntr
 
             // Lưu lại bản đồ tấn công tổng hợp cho loại quân này
             attackedBy[c][pt] = current_attacks;
-
         } 
          attackedBy[c][SF::ALL_PIECES] = attackedBy[c][SF::PAWN]   | attackedBy[c][SF::KNIGHT]
                                        | attackedBy[c][SF::BISHOP] | attackedBy[c][SF::ROOK]

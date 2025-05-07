@@ -8,7 +8,7 @@ namespace Zobrist {
     // Định nghĩa các key khác nếu có...
 
     void init() {
-        std::mt19937_64 engine(1070372ULL); // Seed ngẫu nhiên
+        std::mt19937_64 engine(0xFEEDC0DECAFEBABFULL); // Seed ngẫu nhiên
         std::uniform_int_distribution<SF::Key> distribution;
 
         // Khởi tạo Psq cho TẤT CẢ các loại quân trên tất cả các ô

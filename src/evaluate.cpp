@@ -192,7 +192,9 @@ double EvaluatePosition(const S_BOARD* pos) {
                  int bonus_index = pt - SF::KNIGHT;
                  int max_mob = (pt == SF::KNIGHT) ? 8 : (pt == SF::BISHOP) ? 13 : (pt == SF::ROOK) ? 14 : 27;
                  mob_count = std::min(mob_count, max_mob);
-                 side_score += EvaluationConstants::MobilityBonus[bonus_index][mob_count];
+
+                 ///-------------chia 2 để scale nhỏ lại do sợ nó bị tự tin quá mức------
+                 side_score += EvaluationConstants::MobilityBonus[bonus_index][mob_count] /2;
 
                  // *** Bổ sung điểm vị trí và bonus đặc biệt cho từng quân ***
 
@@ -624,25 +626,49 @@ namespace EvalPhase3 {
                      else if (pt == SF::QUEEN)  attacks_from_s = AttackGen::attacks_from_sliding(SF::square_bb(s), occupied, AttackGen::BishopDirections, 4) | AttackGen::attacks_from_sliding(SF::square_bb(s), occupied, AttackGen::RookDirections, 4);
                      else continue;
                      int mob_count = SF::popcount(attacks_from_s & ei.mobilityArea[c]);
+                    
+
                      int bonus_index = pt - SF::KNIGHT;
                      int max_mob = (pt == SF::KNIGHT) ? 8 : (pt == SF::BISHOP) ? 13 : (pt == SF::ROOK) ? 14 : 27;
                      mob_count = std::min(mob_count, max_mob);
                      if (mob_count >= 0 && mob_count < 32 && bonus_index >= 0 && bonus_index < 4) {
                          side_score += EvaluationConstants::MobilityBonus[bonus_index][mob_count];
+                            std::cout<<"mob_count: "<<mob_count<<std::endl;
+                            
+
+                         std::cout<<"side_score: "<<SF::mg_value(side_score)<<SF::eg_value(side_score)<<std::endl;
                      }
                      if (pt == SF::KNIGHT || pt == SF::BISHOP) {
                          SF::Bitboard outpostSquares = outpostRanks & ourPawnAttacks & ~theirPawnAttackSpan;
-                         if (outpostSquares & s) { side_score += EvaluationConstants::Outpost * (pt == SF::KNIGHT ? 2 : 1); }
-                         else if (pt == SF::KNIGHT && (attacks_from_s & outpostSquares & ~ei.pieces(c))) { side_score += EvaluationConstants::ReachableOutpost; }
-                         if (SF::shift(ei.pieces(c, SF::PAWN), downDir) & s) { side_score += EvaluationConstants::MinorBehindPawn; }
-                         if(SF::is_ok(kingSq)) { side_score -= EvaluationConstants::KingProtector * SF::distance(s, kingSq); }
+                        std::cout<<"outpostSquares: ";PrintBitBoard(outpostSquares);std::cout<<std::endl;
+
+                         if (outpostSquares & s) { 
+                            side_score += EvaluationConstants::Outpost * (pt == SF::KNIGHT ? 2 : 1); 
+                            std::cout<<"side_score:1    "<<SF::mg_value(side_score)<<SF::eg_value(side_score)<<std::endl;
+                        }
+                         else if (pt == SF::KNIGHT && (attacks_from_s & outpostSquares & ~ei.pieces(c))) {
+                             side_score += EvaluationConstants::ReachableOutpost; 
+                             std::cout<<"side_score:2   "<<SF::mg_value(side_score)<<SF::eg_value(side_score)<<std::endl;}
+                         if (SF::shift(ei.pieces(c, SF::PAWN), downDir) & s) { 
+                            side_score += EvaluationConstants::MinorBehindPawn; 
+                            std::cout<<"side_score:3   "<<SF::mg_value(side_score)<<SF::eg_value(side_score)<<std::endl;}
+                         if(SF::is_ok(kingSq)) { 
+                            side_score -= EvaluationConstants::KingProtector * SF::distance(s, kingSq); 
+                        std::cout<<"side_score:4   "<<SF::mg_value(side_score)<<SF::eg_value(side_score)<<std::endl;}
                          if (pt == SF::BISHOP) {
                              SF::Bitboard centerSquares = SF::square_bb(SF::SQ_D4) | SF::square_bb(SF::SQ_E4) | SF::square_bb(SF::SQ_D5) | SF::square_bb(SF::SQ_E5);
+                             std::cout<<"centerSquares: ";PrintBitBoard(centerSquares);std::cout<<std::endl;
                              SF::Bitboard all_pawns = (ei.pos_ptr->pawnsBB[SF::WHITE] | ei.pos_ptr->pawnsBB[SF::BLACK]);
-                             if (SF::more_than_one(AttackGen::attacks_from_sliding(SF::square_bb(s), all_pawns, AttackGen::BishopDirections, 4) & centerSquares)) { side_score += EvaluationConstants::LongDiagonalBishop; }
+                             std::cout<<"all_pawns: ";PrintBitBoard(all_pawns);std::cout<<std::endl;
+                             if (SF::more_than_one(AttackGen::attacks_from_sliding(SF::square_bb(s), all_pawns, AttackGen::BishopDirections, 4) & centerSquares)) { 
+                                side_score += EvaluationConstants::LongDiagonalBishop;
+                                 std::cout<<"side_score:5   "<<SF::mg_value(side_score)<<SF::eg_value(side_score)<<std::endl;
+                            }
                          }
                      } else if (pt == SF::ROOK) {
-                          if (SF::file_bb(s) & (ei.pieces(SF::WHITE, SF::QUEEN) | ei.pieces(SF::BLACK, SF::QUEEN))) { side_score += EvaluationConstants::RookOnQueenFile; }
+                          if (SF::file_bb(s) & (ei.pieces(SF::WHITE, SF::QUEEN) | ei.pieces(SF::BLACK, SF::QUEEN))) { 
+                            side_score += EvaluationConstants::RookOnQueenFile; 
+                            std::cout<<"side_score:6   "<<SF::mg_value(side_score)<<SF::eg_value(side_score)<<std::endl;}
                           SF::Bitboard fileBB = SF::file_bb(s);
                           bool semiOpenFileUs = !(ei.pieces(c, SF::PAWN) & fileBB);
                           if(semiOpenFileUs) { bool openFile = !(ei.pieces(~c, SF::PAWN) & fileBB); side_score += EvaluationConstants::RookOnFile[openFile ? 1 : 0]; }
@@ -655,7 +681,9 @@ namespace EvalPhase3 {
         }
         mobility_pieces_w_s = current_mobility_w;
         mobility_pieces_b_s = current_mobility_b;
-        score_accumulator += (mobility_pieces_w_s - mobility_pieces_b_s);
+        std::cout<<"mobility_pieces_w_s: "<<mobility_pieces_w_s<<std::endl;
+        std::cout<<"mobility_pieces_b_s: "<<mobility_pieces_b_s<<std::endl;
+        //score_accumulator += (mobility_pieces_w_s - mobility_pieces_b_s);
 
         // --- 4.2 King Safety ---
         SF::Score current_king_w = SF::SCORE_ZERO;

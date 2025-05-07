@@ -194,6 +194,11 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
             SETBIT(&pos->kingsBB[BOTH],SQ64(to));
         }
     }
+    CLRBIT(&pos->allPiecesBB[color],SQ64(from));
+    CLRBIT(&pos->allPiecesBB[BOTH],SQ64(from));
+    SETBIT(&pos->allPiecesBB[color],SQ64(to));
+    SETBIT(&pos->allPiecesBB[BOTH],SQ64(to));
+    // so now we have to find the piece in the piece list and replace it with the new square
 	
 	for (int i = 0; i < pos->pieceNum[piece]; ++i) {
 		if (pos->pieceList[piece][i] == from) {
