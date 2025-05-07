@@ -161,7 +161,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		} else if (!strncmp(line,"eval",4)) {
 			std::cout << "Eval:\n"<<EvalPhase3::trace(pos);
 			std::cout << "\nEval end\n";
-			std::cout <<"eval real:  "<<EvaluatePosition(pos) << '\n';
+			// std::cout <<"eval real:  "<<EvaluatePosition(pos) << '\n';
 			// std::cout <<"debug\n";
 			// EvalPhase3::print_debug_eval_info(pos);
 		}
