@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
     S_SEARCHINFO info[1];
 
     info->quit = FALSE;
+	info->threadNumber = 1;
     InitHashTable(HashTable, 64);
 
     setbuf(stdin, NULL);

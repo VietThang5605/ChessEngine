@@ -42,6 +42,7 @@ typedef uint64_t U64;
 #define MAXGAMEMOVES 2048 // number max of moves in a game (will never never never be more than 2048 exept if u trynna beat a world record)
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 64
+#define MAXTHREAD 32
 
 #define INF_BOUND 32000
 #define AB_BOUND 30000

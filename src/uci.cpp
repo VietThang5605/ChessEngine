@@ -139,6 +139,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	std::cout << "id name " << NAME << '\n';
 	std::cout << "id author TelietTeam\n";
 	printf("option name Hash type spin default 64 min 4 max %d\n", MAX_HASH);
+	printf("option name Threads type spin default 1 min 1 max %d\n", MAXTHREAD);
 	printf("option name Book type check default true\n");
 	std::cout << "uciok\n";
 
@@ -172,7 +173,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		} else if(!strncmp(line, "run", 3)) {
 			// ParseFen(START_FEN, pos);
-			ParseFen(LCT_1, pos);
+			ParseFen(WAC_2, pos);
 			ParseGo("go infinite", info, pos, HashTable);	
 
 		} else if(!strncmp(line, "stop", 4)) {
@@ -194,6 +195,13 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			if (MB > MAX_HASH) MB = MAX_HASH;
 			std::cout << "Set Hash to " << MB << " MB\n";
 			InitHashTable(HashTable, MB);
+
+		} else if (!strncmp(line, "setoption name Threads value ", 29)) {			
+			sscanf(line,"%*s %*s %*s %*s %d", &MB);
+			if (MB < 1) MB = 1;
+			if (MB > MAXTHREAD) MB = MAXTHREAD;
+			std::cout << "Set Threads to " << MB << " Threads\n";
+			info->threadNumber = MB;
 
 		} else if (!strncmp(line, "setoption name Book value ", 26)) {			
 			char *ptrTrue = NULL;

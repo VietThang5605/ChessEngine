@@ -8,10 +8,16 @@
 #include "attack.h"
 #include "ucioption.h"
 #include "polybook.h"
+#include "types.h"
+#include "tinycthread.h"
 
 #include <iomanip>
 
 #define reducedDepth 3
+
+int rootDepth;
+
+thrd_t workerThreads[MAXTHREAD];
 
 static void CheckUp(S_SEARCHINFO *info) { //will be called every 4k node or so
 	// .. check if time up, or interrupt from GUI
@@ -280,6 +286,66 @@ int SearchPosition_Thread(void *data) {
 	return 0;
 }
 
+void IterativeDeepening(S_SEARCH_WORKER_DATA *workerData) {
+	workerData->bestMove = NOMOVE;
+	int bestScore = -AB_BOUND;
+	int pvMoves = 0;
+	int pvNum = 0;
+	
+    for (int currentDepth = 1; currentDepth <= workerData->info->depth; ++currentDepth ) {
+        rootDepth = currentDepth;
+        bestScore = AlphaBeta(-AB_BOUND, AB_BOUND, currentDepth, workerData->pos, workerData->info, workerData->ttable, TRUE);
+
+        if (workerData->info->stopped == TRUE) {
+            break;
+        }
+    
+		if (workerData->threadNumber == 0) {
+            pvMoves = GetPvLine(currentDepth, workerData->pos, workerData->ttable);
+            workerData->bestMove = workerData->pos->PvArray[0];
+
+			std::cout << "info score cp " << bestScore << " depth " << currentDepth 
+					<< " nodes " << workerData->info->nodes 
+					<< " time " << GetTimeMs() - workerData->info->startTime << " ";
+			std::cout << "pv";
+        
+			for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
+				std::cout << " " << PrintMove(workerData->pos->PvArray[pvNum]);
+			}
+			std::cout << '\n';
+        }
+    }    
+}
+
+int StartWorkerThread(void *data) {
+    S_SEARCH_WORKER_DATA *workerData = (S_SEARCH_WORKER_DATA *)data;
+	std::cout << "Thread:" << workerData->threadNumber << " Starts\n";
+	IterativeDeepening(workerData);
+	std::cout << "Thread:" <<  workerData->threadNumber << " Ends; Depth:" << workerData->depth << '\n';
+	if (workerData->threadNumber == 0) {
+		std::cout << "bestmove " << PrintMove(workerData->bestMove) << '\n';
+	}
+	delete[] workerData;
+	return 0;
+}
+
+void SetupWorker(int threadNumber, thrd_t *workerTh, S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table) {
+	S_SEARCH_WORKER_DATA *pWorkerData = new S_SEARCH_WORKER_DATA[1];
+    pWorkerData->pos = new S_BOARD[1];
+	memcpy(pWorkerData->pos, pos, sizeof(S_BOARD));
+	pWorkerData->info = info;
+	pWorkerData->ttable = table;
+	pWorkerData->threadNumber = threadNumber;
+	thrd_create(workerTh, &StartWorkerThread, (void*)pWorkerData);
+}
+
+void CreateSearchWorkers(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table) {
+	std::cout << "CreateSearchWorkers:"  << info->threadNumber << '\n';
+	for (int i = 0; i < info->threadNumber; ++i) {
+        SetupWorker(i, &workerThreads[i], pos, info, table);
+    }
+}
+
 void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table) {
 	int bestMove = NOMOVE;
 	int bestScore = -AB_BOUND;
@@ -299,24 +365,10 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table) {
 	}
 
 	if (bestMove == NOMOVE) {
-		for (int currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
-			bestScore = AlphaBeta(-AB_BOUND, AB_BOUND, currentDepth, pos, info, table, TRUE);
-
-			if (info->stopped == TRUE) {
-				break;
-			}
-
-			pvMoves = GetPvLine(currentDepth, pos, table);
-			bestMove = pos->PvArray[0];
-			
-			std::cout << "info score cp " << bestScore << " depth " << currentDepth << " nodes " << info->nodes << " time " << GetTimeMs() - info->startTime << " ";
-			std::cout << "pv";
-			for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
-				std::cout << " " << PrintMove(pos->PvArray[pvNum]);
-			}
-			std::cout << '\n';
-		}
+		CreateSearchWorkers(pos, info, table);
 	}
 
-	std::cout << "bestmove " << PrintMove(bestMove) << '\n';
+	for (int i = 0; i < info->threadNumber; ++i) {
+		thrd_join(workerThreads[i], NULL);
+	}
 }
