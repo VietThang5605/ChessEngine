@@ -17,11 +17,11 @@
 struct S_BOARD;
 
 struct S_HASHENTRY {
-	U64 posKey;
+	/*U64 posKey;
 	int move;
 	int score;
 	int depth;
-	int flags;
+	int flags;*/
 	int age;
 	U64 smp_key;
 	U64 smp_data;
