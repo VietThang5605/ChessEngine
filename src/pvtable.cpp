@@ -3,6 +3,8 @@
 #include "movegen.h"
 #include "makemove.h"
 
+S_HASHTABLE HashTable[1];
+
 void DataCheck(const int move) {
 	int depth = rand() % MAXDEPTH;
 	int flag = rand() % 3;
@@ -39,7 +41,23 @@ void TempHashTest(char *fen) {
     }
 }
 
-S_HASHTABLE HashTable[1];
+void VerifyEntrySMP(S_HASHENTRY *entry) {
+	U64 data = FOLD_DATA(entry->score, entry->depth, entry->flags, entry->move);
+	U64 key = entry->posKey ^ data;
+
+	if (data != entry->smp_data) { printf("data error"); exit(1);}
+	if (key != entry->smp_key) { printf("smp_key error"); exit(1);}
+
+	int move = EXTRACT_MOVE(data);
+	int flag = EXTRACT_FLAGS(data);
+	int score = EXTRACT_SCORE(data);
+	int depth = EXTRACT_DEPTH(data);
+	
+	if (move != entry->move) { printf("move error"); exit(1);}
+	if (flag != entry->flags) { printf("flags error"); exit(1);}
+	if (score != entry->score) { printf("score error"); exit(1);}
+	if (depth != entry->depth) { printf("depth error"); exit(1);}
+}
 
 int GetPvLine(const int depth, S_BOARD *pos, const S_HASHTABLE *table) {
 	ASSERT(depth < MAXDEPTH && depth >= 1);
@@ -96,6 +114,8 @@ void ClearHashTable(S_HASHTABLE *table) {
 		tableEntry->score = 0;
 		tableEntry->flags = 0;
 		tableEntry->age = 0;
+		tableEntry->smp_key = 0ULL;
+		tableEntry->smp_data = 0ULL;
 	}
 	table->newWrite = 0;
 	table->currentAge = 0;
@@ -126,6 +146,9 @@ void StoreHashEntry(S_BOARD *pos, S_HASHTABLE *table, const int move, int score,
 	
 	if (score > ISMATE) score += pos->ply;
     else if (score < -ISMATE) score -= pos->ply;
+
+	U64 smp_data = FOLD_DATA(score, depth, flags, move);
+	U64 smp_key = pos->posKey ^ smp_data;
 	
 	table->pTable[i].move = move;
     table->pTable[i].posKey = pos->posKey;
@@ -133,6 +156,10 @@ void StoreHashEntry(S_BOARD *pos, S_HASHTABLE *table, const int move, int score,
 	table->pTable[i].score = score;
 	table->pTable[i].depth = depth;
 	table->pTable[i].age = table->currentAge;
+	table->pTable[i].smp_key = smp_key;
+	table->pTable[i].smp_data = smp_data;
+
+	VerifyEntrySMP(&table->pTable[i]);
 }
 
 int ProbeHashEntry(S_BOARD *pos, S_HASHTABLE *table, int *move, int *score, int alpha, int beta, int depth) {
@@ -146,6 +173,12 @@ int ProbeHashEntry(S_BOARD *pos, S_HASHTABLE *table, int *move, int *score, int 
     ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
 	
 	if (table->pTable[i].posKey == pos->posKey ) {
+		U64 test_key = table->pTable[i].posKey ^ table->pTable[i].smp_data;
+		if (test_key != table->pTable[i].smp_key) {
+			std::cout << "Error test_key\n";
+		}
+		VerifyEntrySMP(&table->pTable[i]);
+
 		*move = table->pTable[i].move;
 		if(table->pTable[i].depth >= depth){
 			table->hit++;
