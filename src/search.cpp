@@ -81,6 +81,33 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table)
 	info->fhf = 0;
 }
 
+static void SwapMove(S_MOVELIST *list, int x, int y) {
+	S_MOVE temp = list->moves[x];
+	list->moves[x] = list->moves[y];
+	list->moves[y] = temp;
+}
+
+static int Partition(S_MOVELIST *list, int low, int high) {
+	int pivotScore = list->moves[low].score;
+	int cur = high;
+	for (int i = high; i >= low; --i) {
+		if (list->moves[i].score < pivotScore) {
+			SwapMove(list, i, cur);
+			cur--;
+		}
+	}
+	SwapMove(list, low, cur);
+	return cur;
+}
+
+static void QuickSortMoveList(S_MOVELIST *list, int low, int high) {
+	if (low >= high) return;
+
+	int PartitionIndex = Partition(list, low, high);
+	QuickSortMoveList(list, low, PartitionIndex - 1);
+	QuickSortMoveList(list, PartitionIndex + 1, high);
+}
+
 static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 	ASSERT(CheckBoard(pos));
 	ASSERT(beta>alpha);
@@ -113,6 +140,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 	S_MOVELIST list[1];
     GenerateAllCaptures(pos, list);
+	// QuickSortMoveList(list, 0, list->count - 1);
 
 	int Legal = 0;
 	Score = -AB_BOUND; 
@@ -216,6 +244,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 			}
 		}
 	}
+	// QuickSortMoveList(list, 0, list->count - 1);
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 		PickNextMove(MoveNum, list);
