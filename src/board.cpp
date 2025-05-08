@@ -4,6 +4,8 @@
 #include "bitboards.h"
 #include "data.h"
 #include "pvtable.h"
+#include "eval_help.h"
+#include "zobrist.h"
 
 #include <iostream>
 #include <iomanip>
@@ -232,6 +234,7 @@ bool CheckBoard(const S_BOARD *pos) {
     ASSERT(GeneratePosKey(pos) == pos->posKey);//the psition key should be the same as the genreated key
     //when we make a move, we don't at the end of making a move regenerate the entire hashkey becuz thats too many computations
     //so we simply XOR a piece that weve moved into the new square
+    ASSERT(calculate_initial_pawn_key(pos) == pos->pawnKey); //the pawn key should be the same as the generated one
 
     ASSERT(pos->enPas == NO_SQ || (RanksBrd[pos->enPas] == RANK_6 && pos->side == WHITE) //check for en passant (its either no square or it must be a square that if the side to move is white
             // is on the 6th rank if the side to move is black then the en passant square must be on the 3rd rank
@@ -455,6 +458,8 @@ int ParseFen(char *fen, S_BOARD *pos) {
 
     UpdateListsMaterial(pos);
 
+    pos->pawnKey = calculate_initial_pawn_key(pos);
+
     return 0;
 }
 
@@ -499,6 +504,7 @@ void ResetBoard(S_BOARD *pos) {
     pos->castlePerm = 0;
 
     pos->posKey = 0ULL;
+    pos->pawnKey = 0ULL;
 }
 
 void PrintBoard(const S_BOARD *pos) {
@@ -531,6 +537,8 @@ void PrintBoard(const S_BOARD *pos) {
 			<< '\n';
     std::cout << "PosKey: ";
     std::cout << std::hex << std::uppercase << pos->posKey << '\n' << std::dec; //hexa cuz easier to read
+    std::cout << "PawnKey: ";
+    std::cout << std::hex << std::uppercase << pos->pawnKey << '\n' << std::dec;
 }
 
 void MirrorBoard(S_BOARD *pos) {
@@ -572,5 +580,20 @@ void MirrorBoard(S_BOARD *pos) {
 
 	UpdateListsMaterial(pos);
 
+    pos->pawnKey = calculate_initial_pawn_key(pos);
+
     ASSERT(CheckBoard(pos));
+}
+
+U64 calculate_initial_pawn_key(const S_BOARD* pos) {
+    U64 finalKey = 0ULL;
+
+    for (Color c : {WHITE, BLACK}) {
+        U64 pawns = pos->pawnsBB[c];
+        while (pawns) {
+            eval_help::Square_pawn sq64 = eval_help::pop_lsb(&pawns);
+            finalKey ^= Zobrist::Psq[c][sq64];
+        }
+    }
+    return finalKey;
 }

@@ -31,6 +31,7 @@ struct S_UNDO {
     int enPas;
     int fiftyMove;
     U64 posKey; //or hashkey its the same
+    U64 pawnKey; // key for pawns
 };
 
 struct S_BOARD {
@@ -56,6 +57,7 @@ struct S_BOARD {
                     // if we have  1 0 0 1, we can castle king side for whites & queen side for blacks
 
     U64 posKey; //or hashkey again will be used to represent the position of the board
+    U64 pawnKey; // key for pawns
 
     int pieceNum[PIECE_NB]; // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
     int bigPiece[3]; // number of "big" pieces (everything that's not a pawn)
@@ -87,4 +89,7 @@ void ResetBoard(S_BOARD *pos);
 void PrintBoard(const S_BOARD *pos);
 
 void MirrorBoard(S_BOARD *pos);
+
+// Khai báo hàm tính pawnKey ban đầu
+U64 calculate_initial_pawn_key(const S_BOARD* pos);
 #endif

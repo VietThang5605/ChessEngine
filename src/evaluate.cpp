@@ -3,6 +3,39 @@
 #include "init.h"
 #include "data.h"
 #include "io.h"
+#include "pawn_analysis.h"
+
+
+
+namespace {
+    // Trọng số chuẩn (ví dụ: Stockfish)
+    constexpr int KnightPhase = 1;
+    constexpr int BishopPhase = 1;
+    constexpr int RookPhase   = 2;
+    constexpr int QueenPhase  = 4;
+    constexpr int TotalPhase = (KnightPhase * 4) + (BishopPhase * 4) + (RookPhase * 4) + (QueenPhase * 2); // = 24
+
+    int calculate_game_phase(const S_BOARD* pos) {
+        int phase = TotalPhase; // Bắt đầu với phase tối đa
+        // Trừ đi phase cho mỗi quân bị mất
+        phase -= (pos->pieceNum[wN] + pos->pieceNum[bN]) * KnightPhase;
+        phase -= (pos->pieceNum[wB] + pos->pieceNum[bB]) * BishopPhase;
+        phase -= (pos->pieceNum[wR] + pos->pieceNum[bR]) * RookPhase;
+        phase -= (pos->pieceNum[wQ] + pos->pieceNum[bQ]) * QueenPhase;
+
+        // Scale và giới hạn phase trong khoảng [0, 256]
+        // Đảm bảo TotalPhase không bao giờ bằng 0 để tránh chia cho 0
+        // (Luôn còn vua nên TotalPhase > 0)
+        // Nhân với 256 trước để tránh mất độ chính xác
+         int scaledPhase = (phase * 256 + (TotalPhase / 2)) / TotalPhase; // Thêm (TotalPhase / 2) để làm tròn
+         // return std::min(scaledPhase, 256); // Không cần min vì scale đã nằm trong khoảng
+
+         // Đảm bảo không nhỏ hơn 0 (do lỗi làm tròn có thể xảy ra)
+         return std::max(0, scaledPhase);
+    }
+}
+
+
 
 // sjeng 11.2
 //8/6R1/2k5/6P1/8/8/4nP2/6K1 w - - 1 41 
@@ -46,13 +79,13 @@ int EvalPosition(const S_BOARD *pos) {
 		ASSERT(SqOnBoard(sq));
 		score += PawnTable[SQ64(sq)];
 
-		if ((IsolatedMask[SQ64(sq)] & pos->pawnsBB[WHITE]) == 0) {
-			score += PawnIsolated;
-		}
+	// 	if ((IsolatedMask[SQ64(sq)] & pos->pawnsBB[WHITE]) == 0) {
+	// 		score += PawnIsolated;
+	// 	}
 		
-		if ((WhitePassedMask[SQ64(sq)] & pos->pawnsBB[BLACK]) == 0) {
-			score += PawnPassed[RanksBrd[sq]];
-		}
+	// 	if ((WhitePassedMask[SQ64(sq)] & pos->pawnsBB[BLACK]) == 0) {
+	// 		score += PawnPassed[RanksBrd[sq]];
+	// 	}
 	}	
 
 	piece = bP;	
@@ -61,14 +94,28 @@ int EvalPosition(const S_BOARD *pos) {
 		ASSERT(SqOnBoard(sq));
 		score -= PawnTable[MIRROR64(SQ64(sq))];
 		
-		if ((IsolatedMask[SQ64(sq)] & pos->pawnsBB[BLACK]) == 0) {
-			score -= PawnIsolated;
-		}
+	// 	if ((IsolatedMask[SQ64(sq)] & pos->pawnsBB[BLACK]) == 0) {
+	// 		score -= PawnIsolated;
+	// 	}
 		
-		if ((BlackPassedMask[SQ64(sq)] & pos->pawnsBB[WHITE]) == 0) {
-			score -= PawnPassed[7 - RanksBrd[sq]];
-		}
+	// 	if ((BlackPassedMask[SQ64(sq)] & pos->pawnsBB[WHITE]) == 0) {
+	// 		score -= PawnPassed[7 - RanksBrd[sq]];
+	// 	}
 	}
+
+	const PawnEntry* pawnEntry = probe_pawn_table(pos);
+	if (pawnEntry) {
+        int mg = eval_help::mg_value(pawnEntry->scores[WHITE]) - eval_help::mg_value(pawnEntry->scores[BLACK]);
+		int eg = eval_help::eg_value(pawnEntry->scores[WHITE]) - eval_help::eg_value(pawnEntry->scores[BLACK]);
+
+		int phase = calculate_game_phase(pos); // 0–256
+		int blended = ((mg * phase) + (eg * (256 - phase))) >> 8;
+		score += blended;
+
+    }
+
+
+
 
     piece = wN;	
 	for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {

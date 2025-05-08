@@ -7,6 +7,7 @@
 #include "evaluate.h"
 #include "types.h" //must before tinycthread to using it's FALSE
 #include "tinycthread.h"
+#include "validate.h" //test evaluate
 
 #include <cstring>
 #include <iostream>
@@ -211,7 +212,14 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			} else {
 				EngineOptions->UseBook = FALSE;
 			}
+		} else if (!strncmp(line, "mirror", 6)) {
+			int engineSide = BOTH;
+			MirrorEvalTest(pos);
+			continue;
+		} else if (!strncmp(line, "eval", 4)) {
+			std::cout << "Eval: " << EvalPosition(pos) << '\n';
 		}
+
 		if (info->quit)
 			break;
 	}

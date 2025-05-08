@@ -1,6 +1,9 @@
 #include "init.h"
 #include "movegen.h"
 #include "polybook.h"
+#include "zobrist.h"
+#include "eval_help.h"
+#include "attack_gen.h"
 // #include "bitboards.h" //print bitboard
 // #include "io.h" //print square
 
@@ -193,4 +196,8 @@ void AllInit() {
     InitEvalMasks();
     InitMvvLva();
     InitPolyBook();
+    
+    Zobrist::init(); // Initialize Zobrist hashing
+    eval_help::init_U64_utils(); 
+    AttackGen::init_attack_tables(); // Initialize attack tables
 }
