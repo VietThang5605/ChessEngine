@@ -128,6 +128,7 @@ void ParsePosition(char* lineIn, S_BOARD *pos) {
               ptrChar++;
         }
     }
+
 	PrintBoard(pos);
 }
 

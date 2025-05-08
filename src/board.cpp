@@ -449,7 +449,29 @@ int ParseFen(char *fen, S_BOARD *pos) {
         ASSERT(file >= FILE_A && file <= FILE_H);
         ASSERT(rank >= RANK_1 && rank <= RANK_8);
         pos->enPas = FR2SQ(file, rank);
+        fen += 2;
     }
+
+    while (fen != NULL && (*fen < '0' || *fen > '9'))
+        fen++;
+	if (fen != NULL) {
+        int fiftyMove = 0;
+        while ((*fen) >= '0' && (*fen) <= '9') {
+            fiftyMove = fiftyMove * 10 + (*fen - '0');
+            fen++;
+        }
+        pos->fiftyMove = fiftyMove;
+
+        fen++;
+		if (fen != NULL) {
+			int fullMoveNumber = 0;
+			while ((*fen) >= '0' && (*fen) <= '9') {
+				fullMoveNumber = fullMoveNumber * 10 + (*fen - '0');
+				fen++;
+		  	}
+			pos->fullMoveNumber = fullMoveNumber;
+		}
+	}
 
     pos->posKey = GeneratePosKey(pos);
 

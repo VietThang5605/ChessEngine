@@ -51,6 +51,7 @@ struct S_BOARD {
 
     int ply;
     int hisPly;
+    int fullMoveNumber;
 
     int castlePerm; // will be represented by 4 bits 0(WKCA) 0(WQCA) 0(BKCA) 0(BQCA) so the castle permission
                     // if we have  1 0 0 1, we can castle king side for whites & queen side for blacks

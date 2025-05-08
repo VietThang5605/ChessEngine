@@ -319,9 +319,9 @@ void IterativeDeepening(S_SEARCH_WORKER_DATA *workerData) {
 
 int StartWorkerThread(void *data) {
     S_SEARCH_WORKER_DATA *workerData = (S_SEARCH_WORKER_DATA *)data;
-	std::cout << "Thread:" << workerData->threadNumber << " Starts\n";
+	// std::cout << "Thread:" << workerData->threadNumber << " Starts\n";
 	IterativeDeepening(workerData);
-	std::cout << "Thread:" <<  workerData->threadNumber << " Ends; Depth:" << workerData->depth << '\n';
+	// std::cout << "Thread:" <<  workerData->threadNumber << " Ends; Depth:" << workerData->depth << '\n';
 	if (workerData->threadNumber == 0) {
 		std::cout << "bestmove " << PrintMove(workerData->bestMove) << '\n';
 	}
@@ -353,7 +353,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table) {
 
 	ClearForSearch(pos, info, table);
 
-	if (EngineOptions->UseBook == TRUE) {
+	if (EngineOptions->UseBook == TRUE && pos->fullMoveNumber <= 20) {
 		bestMove = GetBookMove(pos);
 
 		if (bestMove != NOMOVE) {
