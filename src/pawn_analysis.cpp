@@ -39,17 +39,6 @@ namespace {
         S(0 , 0), S(10 * 100.0 / 128.0, 28 *100.0 / 213.0), S(17 * 100.0 / 128.0, 33 *100.0 / 213.0), S(15 * 100.0 / 128.0, 41 *100.0 / 213.0), S(62 * 100.0 / 128.0, 72 *100.0 / 213.0), S(168 * 100.0 / 128.0, 177 *100.0 / 213.0), S(276 * 100.0 / 128.0, 260 *100.0 / 213.0)
         };
 
-    //  // --- Bảng PBonus từ Stockfish (Điểm vị trí tốt) ---
-    //  constexpr eval_help::Score PBonus[RANK_NB][FILE_NB] = 
-    // { // Pawn (asymmetric distribution)
-    //     { },
-    //     { S(  3*100.0 / 128.0,-10 *100.0 / 213.0), S(  3*100.0 / 128.0, -6 *100.0 / 213.0), S( 10 *100.0 / 128.0, 10*100.0 / 213.0), S( 19 *100.0 / 128.0,  0), S( 16 *100.0 / 128.0, 14*100.0 / 213.0), S( 19 *100.0 / 128.0,  7*100.0 / 213.0), S(  7 *100.0 / 128.0, -5*100.0 / 213.0), S( -5 *100.0 / 128.0,-19*100.0 / 213.0) },
-    //     { S( -9*100.0 / 128.0,-10*100.0 / 213.0), S(-15*100.0 / 128.0,-10*100.0 / 213.0), S( 11*100.0 / 128.0,-10*100.0 / 213.0), S( 15*100.0 / 128.0,  4*100.0 / 213.0), S( 32*100.0 / 128.0,  4*100.0 / 213.0), S( 22*100.0 / 128.0,  3*100.0 / 213.0), S(  5*100.0 / 128.0, -6*100.0 / 213.0), S(-22*100.0 / 128.0, -4*100.0 / 213.0) },
-    //     { S( -8*100.0 / 128.0,  6*100.0 / 213.0), S(-23*100.0 / 128.0, -2*100.0 / 213.0), S(  6*100.0 / 128.0, -8*100.0 / 213.0), S( 20*100.0 / 128.0, -4*100.0 / 213.0), S( 40*100.0 / 128.0,-13*100.0 / 213.0), S( 17*100.0 / 128.0,-12*100.0 / 213.0), S(  4*100.0 / 128.0,-10*100.0 / 213.0), S(-12*100.0 / 128.0, -9*100.0 / 213.0) },
-    //     { S( 13*100.0 / 128.0,  9*100.0 / 213.0), S(  0,  4*100.0 / 213.0), S(-13*100.0 / 128.0,  3*100.0 / 213.0), S(  1*100.0 / 128.0,-12*100.0 / 213.0), S( 11*100.0 / 128.0,-12*100.0 / 213.0), S( -2, -6*100.0 / 213.0), S(-13, 13*100.0 / 213.0), S(  5,  8*100.0 / 213.0) },
-    //     { S( -5*100.0 / 128.0, 28*100.0 / 213.0), S(-12*100.0 / 128.0, 20*100.0 / 213.0), S( -7*100.0 / 128.0, 21*100.0 / 213.0), S( 22*100.0 / 128.0, 28*100.0 / 213.0), S( -8*100.0 / 128.0, 30*100.0 / 213.0), S( -5*100.0 / 128.0,  7*100.0 / 213.0), S(-15*100.0 / 128.0,  6*100.0 / 213.0), S(-18*100.0 / 128.0, 13*100.0 / 213.0) },
-    //     { S( -7*100.0 / 128.0,  0), S(  7*100.0 / 128.0,-11*100.0 / 213.0), S( -3*100.0 / 128.0, 12*100.0 / 213.0), S(-13*100.0 / 128.0, 21*100.0 / 213.0), S(  5*100.0 / 128.0, 25*100.0 / 213.0), S(-16*100.0 / 128.0, 19*100.0 / 213.0), S( 10*100.0 / 128.0,  4*100.0 / 213.0), S( -8*100.0 / 128.0,  7*100.0 / 213.0) }
-    // };
      #undef S
 
 } // end anonymous namespace
@@ -69,11 +58,11 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
     eval_help::Score score = eval_help::SCORE_ZERO;
 
     // Calculate pawn attacks and initialize span/passed
-    entry->pawnAttacks[Us] = AttackGen::attacks_from_pawns(pos, Us); // Từ AttackGen
+    entry->pawnAttacks[Us] = AttackGen::attacks_from_pawns(pos, Us); 
     entry->pawnAttacksSpan[Us] = entry->pawnAttacks[Us];
     entry->passedPawns[Us] = 0;
 
-    U64 theirPawnAttacks = AttackGen::attacks_from_pawns(pos, Them); // Từ AttackGen
+    U64 theirPawnAttacks = AttackGen::attacks_from_pawns(pos, Them); 
 
     U64 currentPawns = ourPawns;
     while (currentPawns) {
@@ -81,31 +70,9 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
         Rank r = eval_help::relative_rank(Us, eval_help::rank_of(s));
         File f = eval_help::file_of(s); 
         eval_help::Square_pawn pushSq = static_cast<eval_help::Square_pawn>(s + Up); 
+        U64 pushSq_bb = eval_help::square_bb(pushSq);
 
-
-        // ===========================================================
-        // === THÊM ĐIỂM TỪ PBONUS VÀO ĐÂY ===
-        // ===========================================================
-
-        // Xác định ô cờ cần truy cập PBonus (mirror nếu là quân đen) bên trên có relative_rank
-        // int sq64 = static_cast<int>(s);
-        // int access_sq64 = (Us == WHITE) ? sq64 : MIRROR64(sq64); // MIRROR64 là hàm mirror ô cờ
-        // Rank access_r = eval_help::rank_of(static_cast<eval_help::Square_pawn>(access_sq64));
-        // File access_f = eval_help::file_of(static_cast<eval_help::Square_pawn>(access_sq64));
-
-        // // Lấy điểm Score (MG, EG) từ PBonus
-        // // Kiểm tra rank hợp lệ (thường là 1-6 tương ứng RANK_2 đến RANK_7)
-        // if (access_r >= RANK_2 && access_r <= RANK_7) { // Các bảng PST thường chỉ định nghĩa cho các rank này
-        //     assert(access_f >= FILE_A && access_f <= FILE_H);
-        //     eval_help::Score bonus_score = PBonus[access_r][access_f];
-            
-        //      // Cộng điểm bonus vào tổng điểm cấu trúc
-        //      score += bonus_score;
-        // }
-        // ===========================================================
-        // === KẾT THÚC THÊM ĐIỂM PBONUS ===
-
-
+        // value for pawn structure
         int pst_value = 0;
         if (Us == WHITE) {
             pst_value = PawnTable[s];
@@ -113,17 +80,16 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
             pst_value = PawnTable[MIRROR64(s)];
         }
 
-
-        // ===========================================================
         // Features - Gọi các hàm tiện ích bitboard 
-        U64 neighbours = ourPawns & eval_help::adjacent_files_bb(s);
+        
+        U64 neighbours = ourPawns & eval_help::AdjacentFilesBB[s];
         U64 phalanx    = neighbours & eval_help::rank_bb(s);       
         U64 support    = neighbours & eval_help::rank_bb(static_cast<eval_help::Square_pawn>(s + Down));
-        U64 opposed    = theirPawns & eval_help::forward_file_bb(Us, s);    
-        U64 blocked    = theirPawns & eval_help::square_bb(pushSq); // Chặn push
-        U64 stoppers   = theirPawns & eval_help::passed_pawn_span(Us, s);
+        U64 opposed    = theirPawns & eval_help::ForwardFileBB[Us][s];  
+        U64 blocked    = theirPawns & pushSq_bb; // Chặn push
+        U64 stoppers   = theirPawns & eval_help::PassedPawnSpanBB[Us][s]; // Chặn tốt đã qua
         // Truy cập mảng PawnAttacks từ namespace AttackGen
-        U64 lever      = theirPawns & AttackGen::PawnAttacks[Us][s];//PrintBitBoard(lever);
+        U64 lever      = theirPawns & AttackGen::PawnAttacks[Us][s];
         U64 leverPush  = 0;
         if (eval_help::is_ok(pushSq)) { 
              leverPush = theirPawns & AttackGen::PawnAttacks[Us][pushSq];
@@ -135,9 +101,8 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
         bool backward = false;
 
         if (eval_help::is_ok(pushSq)) { // Quan trọng: kiểm tra pushSq hợp lệ
-            U64 pushSqBB = eval_help::square_bb(pushSq); // Chuyển sang bitboard
             if (!support) {
-                if (((theirPawnAttacks & pushSqBB) || (theirPawns & pushSqBB)) && !lever) {
+                if (((theirPawnAttacks & pushSq_bb) || (theirPawns & pushSq_bb)) && !lever) {
                     backward = true;
                 }
             }
@@ -145,7 +110,7 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
 
         // Update span
         if (!backward && !blocked) {
-            entry->pawnAttacksSpan[Us] |= eval_help::pawn_attack_span(Us, s);
+            entry->pawnAttacksSpan[Us] |= eval_help::PawnAttackSpanBB[Us][s];
         }
 
         // Passed pawn check
@@ -221,16 +186,6 @@ PawnEntry* analyze_pawns(const S_BOARD* pos, PawnEntry* entry) {
     entry->passedPawns[WHITE] = entry->passedPawns[BLACK] = 0;
     entry->pawnAttacks[WHITE] = entry->pawnAttacks[BLACK] = 0;
     entry->pawnAttacksSpan[WHITE] = entry->pawnAttacksSpan[BLACK] = 0;
-
-    // entry->kingSafety[WHITE] = CalculateKingShelterAndStorm(pos, WHITE);
-    // entry->kingSafety[BLACK] = CalculateKingShelterAndStorm(pos, BLACK);
-
-    // int kingSqW = pos->kingSquare[WHITE];
-    // int kingSqB = pos->kingSquare[BLACK];
-    // entry->kingSquares[WHITE] = (kingSqW >= 0 && kingSqW < BRD_SQ_NUM) ? static_cast<Square>(SQ64(kingSqW)) : SQ_NONE;
-    // entry->kingSquares[BLACK] = (kingSqB >= 0 && kingSqB < BRD_SQ_NUM) ? static_cast<Square>(SQ64(kingSqB)) : SQ_NONE;
-    // entry->castlingRights[WHITE] = pos->castlePerm & (WKCA | WQCA); // Giả sử WKCA=1, WQCA=2
-    // entry->castlingRights[BLACK] = pos->castlePerm & (BKCA | BQCA); // Giả sử BKCA=4, BQCA=8
 
     // Calculate structure scores and fill bitboards for both sides
     entry->scores[WHITE] = evaluate_structure<WHITE>(pos, entry);

@@ -272,6 +272,13 @@ namespace eval_help {
     ENABLE_INCR_OPERATORS_ON(File)
     ENABLE_INCR_OPERATORS_ON(Rank)
     ENABLE_INCR_OPERATORS_ON(Square_pawn)
+
+    //khởi tạo initializer cho các biến
+    extern U64 ForwardFileBB[BOTH][SQUARE_NB];
+    extern U64 PassedPawnSpanBB[BOTH][SQUARE_NB];
+    extern U64 PawnAttackSpanBB[BOTH][SQUARE_NB];
+    extern U64 AdjacentFilesBB[SQUARE_NB];
+    void init_precomputed_eval_bitboards();
     
 
 //---------------------Direction----------------------------

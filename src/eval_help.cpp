@@ -5,6 +5,10 @@
 namespace eval_help {
     // --- Định nghĩa các mảng toàn cục ---
     U64 SquareBB[SQUARE_NB];
+    U64 ForwardFileBB[BOTH][SQUARE_NB];
+    U64 PassedPawnSpanBB[BOTH][SQUARE_NB];
+    U64 PawnAttackSpanBB[BOTH][SQUARE_NB];
+    U64 AdjacentFilesBB[SQUARE_NB];
 
     // --- Hàm khởi tạo các mảng ---
     void init_U64_utils() {
@@ -12,6 +16,21 @@ namespace eval_help {
             SquareBB[s] = (U64(1) << s);
         }
     }
+    //----hàm khởi tạo bitboard cho các ô trên bàn cờ
+    void init_precomputed_eval_bitboards() {
+        for (eval_help::Square_pawn s = eval_help::SQ_A1; s <= eval_help::SQ_H8; ++s) {
+            AdjacentFilesBB[s] = eval_help::adjacent_files_bb(s);; // Giả sử có hàm _calc
+        }
+        for (Color c : { WHITE, BLACK }) { 
+            for (eval_help::Square_pawn s = eval_help::SQ_A1; s <= eval_help::SQ_H8; ++s) {
+                // Tính toán và lưu trữ
+                ForwardFileBB[c][s] = eval_help::forward_file_bb(c, s);
+                PassedPawnSpanBB[c][s] = eval_help::passed_pawn_span(c, s);
+                PawnAttackSpanBB[c][s] = eval_help::pawn_attack_span(c, s);
+            }
+        }
+    }
+
     // === ĐỊNH NGHĨA CÁC HÀM TIỆN ÍCH U64 (đã khai báo extern) ===
 
     U64 adjacent_files_bb(eval_help::Square_pawn s) {

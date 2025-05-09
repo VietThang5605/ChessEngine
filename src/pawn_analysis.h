@@ -7,7 +7,7 @@
 
 namespace { 
     // Kích thước bảng băm cho PawnEntry
-    constexpr int PawnHashTableSize = 8192;
+    constexpr int PawnHashTableSize = 65536; // 2^16
     // Định nghĩa kiểu hash table
     typedef eval_help::SimpleHashTable<PawnEntry, PawnHashTableSize> PawnHashTable;
 }

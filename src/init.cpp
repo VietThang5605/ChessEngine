@@ -200,4 +200,5 @@ void AllInit() {
     Zobrist::init(); // Initialize Zobrist hashing
     eval_help::init_U64_utils(); 
     AttackGen::init_attack_tables(); // Initialize attack tables
+    eval_help::init_precomputed_eval_bitboards(); // Initialize precomputed evaluation bitboards
 }
