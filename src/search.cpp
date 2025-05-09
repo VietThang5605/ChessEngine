@@ -10,10 +10,9 @@
 #include "polybook.h"
 #include "types.h"
 #include "tinycthread.h"
+#include "data.h"
 
 #include <iomanip>
-
-#define reducedDepth 3
 
 int rootDepth;
 
@@ -81,6 +80,33 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table)
 	info->fhf = 0;
 }
 
+static void SwapMove(S_MOVELIST *list, int x, int y) {
+	S_MOVE temp = list->moves[x];
+	list->moves[x] = list->moves[y];
+	list->moves[y] = temp;
+}
+
+static int Partition(S_MOVELIST *list, int low, int high) {
+	int pivotScore = list->moves[low].score;
+	int cur = high;
+	for (int i = high; i >= low; --i) {
+		if (list->moves[i].score < pivotScore) {
+			SwapMove(list, i, cur);
+			cur--;
+		}
+	}
+	SwapMove(list, low, cur);
+	return cur;
+}
+
+static void QuickSortMoveList(S_MOVELIST *list, int low, int high) {
+	if (low >= high) return;
+
+	int PartitionIndex = Partition(list, low, high);
+	QuickSortMoveList(list, low, PartitionIndex - 1);
+	QuickSortMoveList(list, PartitionIndex + 1, high);
+}
+
 static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 	ASSERT(CheckBoard(pos));
 	ASSERT(beta>alpha);
@@ -113,6 +139,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 	S_MOVELIST list[1];
     GenerateAllCaptures(pos, list);
+	// QuickSortMoveList(list, 0, list->count - 1);
 
 	int Legal = 0;
 	Score = -AB_BOUND; 
@@ -184,9 +211,9 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		return Score;
 	}
 
-	if (DoNull && !InCheck && pos->ply && (pos->bigPiece[pos->side] > 1) && depth >= reducedDepth) {
+	if (DoNull && !InCheck && pos->ply && (pos->bigPiece[pos->side] > 1) && depth >= 3) {
 		MakeNullMove(pos);
-		Score = -AlphaBeta( -beta, -beta + 1, depth - reducedDepth, pos, info, table, FALSE);
+		Score = -AlphaBeta( -beta, -beta + 1, depth - 3, pos, info, table, FALSE);
 		TakeNullMove(pos);
 
 		if (info->stopped == TRUE) {
@@ -216,6 +243,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 			}
 		}
 	}
+	// QuickSortMoveList(list, 0, list->count - 1);
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 		PickNextMove(MoveNum, list);
@@ -224,8 +252,26 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 			continue;
 		}
 
+		int extension = 0;
+		if (IsPawn(pos->pieces[FROMSQ(list->moves[MoveNum].move)])) {
+			if (RanksBrd[TOSQ(list->moves[MoveNum].move)] == RANK_2 || RanksBrd[TOSQ(list->moves[MoveNum].move)] == RANK_7) {
+				extension++;
+			}
+		}
+
+		bool needsFullSearch = TRUE;
+		if (!InCheck && extension == 0 && MoveNum >= 3 && depth >= 3 && CAPTURED(list->moves[MoveNum].move) == 0) {
+			int reduceDepth = 1;
+			Score = -AlphaBeta(-alpha - 1, -alpha, depth - 1 - reduceDepth, pos, info, table, TRUE);
+			needsFullSearch = Score > alpha;
+		}
+
+		if (needsFullSearch) {
+			Score = -AlphaBeta(-beta, -alpha, depth - 1 + extension, pos, info, table, TRUE);
+		}
+
 		Legal++;
-		Score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, table, TRUE);
+		// Score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, table, TRUE);
 		TakeMove(pos);
 
 		if (info->stopped == TRUE) {
@@ -319,9 +365,9 @@ void IterativeDeepening(S_SEARCH_WORKER_DATA *workerData) {
 
 int StartWorkerThread(void *data) {
     S_SEARCH_WORKER_DATA *workerData = (S_SEARCH_WORKER_DATA *)data;
-	std::cout << "Thread:" << workerData->threadNumber << " Starts\n";
+	// std::cout << "Thread:" << workerData->threadNumber << " Starts\n";
 	IterativeDeepening(workerData);
-	std::cout << "Thread:" <<  workerData->threadNumber << " Ends; Depth:" << workerData->depth << '\n';
+	// std::cout << "Thread:" <<  workerData->threadNumber << " Ends; Depth:" << workerData->depth << '\n';
 	if (workerData->threadNumber == 0) {
 		std::cout << "bestmove " << PrintMove(workerData->bestMove) << '\n';
 	}
@@ -340,7 +386,7 @@ void SetupWorker(int threadNumber, thrd_t *workerTh, S_BOARD *pos, S_SEARCHINFO 
 }
 
 void CreateSearchWorkers(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table) {
-	std::cout << "CreateSearchWorkers:"  << info->threadNumber << '\n';
+	// std::cout << "CreateSearchWorkers:"  << info->threadNumber << '\n';
 	for (int i = 0; i < info->threadNumber; ++i) {
         SetupWorker(i, &workerThreads[i], pos, info, table);
     }
@@ -353,7 +399,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table) {
 
 	ClearForSearch(pos, info, table);
 
-	if (EngineOptions->UseBook == TRUE) {
+	if (EngineOptions->UseBook == TRUE && pos->fullMoveNumber <= 20) {
 		bestMove = GetBookMove(pos);
 
 		if (bestMove != NOMOVE) {

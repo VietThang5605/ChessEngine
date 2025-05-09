@@ -5,6 +5,7 @@
 
 #define IsBishopQueen(p) (PieceIsBishopQueen[(p)])
 #define IsRookQueen(p) (PieceIsRookQueen[(p)])
+#define IsPawn(p) (PieceIsPawn[(p)])
 #define IsKnight(p) (PieceIsKnight[(p)])
 #define IsBishop(p) (PieceIsBishop[(p)])
 #define IsRook(p) (PieceIsRook[(p)])

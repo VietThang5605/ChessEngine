@@ -268,13 +268,13 @@ bool MakeMove(S_BOARD *pos, int move) {
 	
 	if (captured != EMPTY) {
         ASSERT(PieceValid(captured));
-        // std::cout << "******";
         ClearPiece(to, pos);
         pos->fiftyMove = 0;
     }
 
     pos->hisPly++; // self explanatory
 	pos->ply++;
+    if (pos->side == BLACK) pos->fullMoveNumber++;
 
     if (PieceIsPawn[pos->pieces[from]]) { // set the new en passant square if its a pawn move
         pos->fiftyMove = 0;
@@ -374,6 +374,7 @@ void TakeMove(S_BOARD *pos) {
     HASH_CASTLE;
 
     pos->side ^= 1;
+    if (pos->side == BLACK) pos->fullMoveNumber--;
     HASH_SIDE;
 	
 	if (MOVEFLAG_EP & move) {

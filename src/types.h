@@ -35,9 +35,10 @@ typedef uint64_t U64;
 #define BRD_SQ_NUM 120   // cuz 120 cases on the board (0 to 120)
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-#define FINE_70 "8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - -"
-#define WAC_2 "8/7p/5k2/5p2/p1p2P2/Pr1pPK2/1P1R3P/8 b - -"
-#define LCT_1 "r3kb1r/3n1pp1/p6p/2pPp2q/Pp2N3/3B2PP/1PQ2P2/R3K2R w KQkq -"
+#define FINE_70 "8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - - 0 1"
+#define WAC_2 "8/7p/5k2/5p2/p1p2P2/Pr1pPK2/1P1R3P/8 b - - 0 1"
+#define LCT_1 "r3kb1r/3n1pp1/p6p/2pPp2q/Pp2N3/3B2PP/1PQ2P2/R3K2R w KQkq - 0 1"
+#define RRRR "3R2k1/pp3r1p/4p3/2r2p2/4pP2/P1P5/1P4PP/4R1K1 b - - 15 32"
 
 #define MAXGAMEMOVES 2048 // number max of moves in a game (will never never never be more than 2048 exept if u trynna beat a world record)
 #define MAXPOSITIONMOVES 256

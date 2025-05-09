@@ -1,3 +1,52 @@
+- Add late move reduction (reduceDepth = 1) & pawn promotion extension:
+info score cp 30 depth 1 nodes 21 time 1 pv d2d4
+info score cp 0 depth 2 nodes 89 time 1 pv d2d4 d7d5
+info score cp 25 depth 3 nodes 240 time 1 pv d2d4 d7d5 c1e3
+info score cp 5 depth 4 nodes 2294 time 2 pv e2e3 d7d5 f1b5 c8d7
+info score cp 20 depth 5 nodes 6992 time 5 pv d2d4 d7d5 c1e3 c8e6 b1c3
+info score cp 17 depth 6 nodes 26290 time 15 pv e2e4 d7d5 e4d5 d8d5 b1c3 d5d4
+info score cp 20 depth 7 nodes 44660 time 24 pv e2e4 b8c6 b1c3 e7e5 f1d3 f8d6 g1f3
+info score cp 17 depth 8 nodes 140558 time 70 pv e2e4 b8c6 g1f3 d7d5 e4d5 d8d5 b1c3 d5d6
+info score cp 22 depth 9 nodes 381691 time 166 pv e2e4 e7e6 d2d4 d7d5 b1c3 d5e4 c3e4 f8b4 c2c3
+info score cp 13 depth 10 nodes 1026733 time 390 pv e2e4 e7e5 g1f3 f8d6 b1c3 g8f6 d2d4 e5d4 f3d4 e8g8
+info score cp 15 depth 11 nodes 2236945 time 859 pv e2e4 e7e6 d2d4 d7d5 b1c3 b8c6 c1e3 g8f6
+info score cp 15 depth 12 nodes 4307702 time 1541 pv e2e4 e7e6 d2d4 d7d5 b1c3 b8c6 c1e3 f8b4 d1g4 e8f8 f1d3 g8f6
+info score cp 15 depth 13 nodes 8642009 time 3061 pv e2e4 e7e6 d2d4 d7d5 b1c3 b8c6 c1e3 f8b4 e4d5 e6d5 f1d3 b4c3 b2c3
+info score cp 15 depth 14 nodes 21316136 time 7142 pv e2e4 e7e6 d2d4 d7d5 b1c3 b8c6 c1e3 f8b4 e4d5 e6d5 f1b5 g8f6 b5c6 b7c6
+info score cp 12 depth 15 nodes 61090912 time 20645 pv e2e4 e7e6 d2d4 d7d5 b1c3 b8c6 g1f3 g8f6 f1d3 d5e4
+- Add late move reduction (reduceDepth = 1 with depth <= 10; and 2 with > 10) & pawn promotion extension:
+info score cp 30 depth 1 nodes 21 time 0 pv d2d4
+info score cp 0 depth 2 nodes 89 time 0 pv d2d4 d7d5
+info score cp 25 depth 3 nodes 240 time 0 pv d2d4 d7d5 c1e3
+info score cp 5 depth 4 nodes 2294 time 2 pv e2e3 d7d5 f1b5 c8d7
+info score cp 20 depth 5 nodes 6992 time 4 pv d2d4 d7d5 c1e3 c8e6 b1c3
+info score cp 17 depth 6 nodes 26290 time 15 pv e2e4 d7d5 e4d5 d8d5 b1c3 d5d4
+info score cp 20 depth 7 nodes 44754 time 25 pv e2e4 b8c6 b1c3 e7e5 f1d3 f8d6 g1f3
+info score cp 17 depth 8 nodes 141233 time 73 pv e2e4 b8c6 g1f3 d7d5 e4d5 d8d5 b1c3 d5d6
+info score cp 22 depth 9 nodes 382578 time 171 pv e2e4 e7e6 d2d4 d7d5 b1c3 d5e4 c3e4 f8b4 c2c3
+info score cp 15 depth 10 nodes 829908 time 332 pv e2e4 e7e5 g1f3 b8c6 b1c3 g8f6 d2d4 f8b4 c1g5 d7d6
+info score cp 15 depth 11 nodes 1912585 time 696 pv e2e4 e7e6 d2d4 d7d5 b1c3 b8c6 c1e3 g8f6 f1d3 f8b4 e4e5
+info score cp 15 depth 12 nodes 3639032 time 1285 pv e2e4 e7e6 d2d4 d7d5 b1c3 b8c6 c1e3 f8b4 d1g4 e8f8 f1d3 g8f6
+info score cp 15 depth 13 nodes 9175759 time 3113 pv d2d4 d7d5 e2e3 e7e6 f1d3 b8c6 g1f3 f8d6 b1c3 c6b4 e1g1 b4d3 c2d3
+info score cp 8 depth 14 nodes 24900815 time 8571 pv d2d4 d7d5 e2e3 e7e6 f1d3 b8c6 g1f3 f8d6 e1g1 e6e5 d4e5 c6e5 f3e5
+info score cp 10 depth 15 nodes 37285607 time 12825 pv d2d4 d7d5 e2e3 e7e6 f1d3 b8c6 g1f3 f8d6 e1g1 g8f6 b1c3 e8g8 c3b5 c8d7 b5d6
+- Original:
+info score cp 30 depth 1 nodes 21 time 0 pv d2d4
+info score cp 0 depth 2 nodes 89 time 0 pv d2d4 d7d5
+info score cp 25 depth 3 nodes 694 time 0 pv d2d4 d7d5 c1e3
+info score cp 0 depth 4 nodes 3056 time 2 pv d2d4 d7d5 c1e3 c8e6
+info score cp 25 depth 5 nodes 15641 time 7 pv e2e4 e7e5 d2d4 d7d5 c1e3
+info score cp 5 depth 6 nodes 48592 time 24 pv e2e4 e7e5 d2d4 b8c6 g1f3 f8d6
+info score cp 22 depth 7 nodes 250967 time 167 pv e2e4 d7d5 e4d5 d8d5 d2d4 e7e5 c1e3
+info score cp 5 depth 8 nodes 629681 time 293 pv e2e4 e7e5 g1f3 b8c6 d2d4 g8f6 b1c3 f8d6
+info score cp 20 depth 9 nodes 2328746 time 745 pv e2e4 e7e6 d2d4 d7d5 f1d3 f8b4 c1d2 b8c6 d2b4
+info score cp 12 depth 10 nodes 5985590 time 1847 pv e2e4 b8c6 d2d4 d7d5 e4d5 d8d5 g1f3 e7e6 c1e3 f8d6
+info score cp 20 depth 11 nodes 20520952 time 5892 pv e2e4 e7e5 g1f3 g8f6 b1c3 b8c6 d2d4 f8b4 c1g5
+info score cp 10 depth 12 nodes 44998395 time 13496 pv e2e4 e7e5 g1f3 g8f6 b1c3 b8c6 f1b5 c6d4 b5d3 f8d6
+
+
+
+
 Original:
 info score cp -27 depth 1 nodes 77 time 1 pv d5d6
 info score cp -27 depth 2 nodes 1199 time 2 pv d5d6 h5f3
