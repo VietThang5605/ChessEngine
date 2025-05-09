@@ -1,7 +1,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <iostream>
+#include <cstdint>
 
 // #define DEBUG
 
@@ -10,34 +12,43 @@
 #else
 #define ASSERT(n) \
 if(! (n)) { \
-    printf("%s - FAILED ", #n); \
-    printf("on %s ", __DATE__); \
-    printf("at %s ", __TIME__); \
-    printf("In file %s ", __FILE__); \
-    printf("At line %d\n", __LINE__); \
-    exit(1);}
+    std::cerr << #n << " - FAILED "; \
+    std::cerr << "on " << __DATE__ << " "; \
+    std::cerr << "at " << __TIME__ << " "; \
+    std::cerr << "In file " << __FILE__ << " "; \
+    std::cerr << "At line " << __LINE__ << std::endl; \
+    exit(1); \
+}
+
+// printf("%s - FAILED ", #n); \
+// printf("on %s ", __DATE__); \
+// printf("at %s ", __TIME__); \
+// printf("In file %s ", __FILE__); \
+// printf("At line %d\n", __LINE__);
 
 #endif
 
-typedef unsigned long long U64;
+// typedef unsigned long long U64;
+typedef uint64_t U64;
 
-#define NAME ChessEngine
+#define NAME "Unstoppable Evaluation Tool (UET)"
 #define BRD_SQ_NUM 120   // cuz 120 cases on the board (0 to 120)
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define FINE_70 "8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - -"
+#define WAC_2 "8/7p/5k2/5p2/p1p2P2/Pr1pPK2/1P1R3P/8 b - -"
+#define LCT_1 "r3kb1r/3n1pp1/p6p/2pPp2q/Pp2N3/3B2PP/1PQ2P2/R3K2R w KQkq -"
 
 #define MAXGAMEMOVES 2048 // number max of moves in a game (will never never never be more than 2048 exept if u trynna beat a world record)
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 64
+#define MAXTHREAD 32
 
-#define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define INF_BOUND 32000
+#define AB_BOUND 30000
+#define ISMATE (AB_BOUND - MAXDEPTH)
 
-#define INFINITE 30000
-#define MATE (INFINITE - MAXDEPTH)
-
-enum Mode {
-    UCIMODE, XBOARDMODE, CONSOLEMODE
-};
+#define MAX_HASH 1024
 
 enum Color {
     WHITE, BLACK, BOTH
@@ -64,7 +75,7 @@ enum Castling {
 };
 
 enum File : int {
-    FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H,
+    FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NB
 };
 
 enum Rank : int {
@@ -72,70 +83,72 @@ enum Rank : int {
 };
 
 enum Piece {
-    NO_PIECE, 
+    EMPTY,
     wP, wN, wB, wR, wQ, wK,
     bP, bN, bB, bR, bQ, bK,
-    PIECE_NB
+    PIECE_NB = 13
 };
 
-struct S_UNDO {
-    int move;
-    int castlePerm;
-    int enPas;
-    int fiftyMove;
-    U64 posKey; //or hashkey its the same
+enum Move : int {
+    NOMOVE = 0
 };
 
-struct S_BOARD {
-    int pieces[BRD_SQ_NUM];
-    U64 pawns[3]; // 0100000 for the first line means we have a pawn on B1
-
-    int KingSq[2]; // same for kings
-
-    int side;
-    int enPas;
-    int fiftyMove;
-
-    int ply;
-    int hisPly;
-
-    int castlePerm; // will be represented by 4 bits 0(WKCA) 0(WQCA) 0(BKCA) 0(BQCA) so the castle permission
-                    // if we have  1 0 0 1, we can castle king side for whites & queen side for blacks
-
-    U64 posKey; //or hashkey again will be used to represent the position of the board
-
-    int pceNum[13]; // number of different pieces on the board ( pawn, bishop, rooq, knicght, queen, king) x2 for black and white and then a empty case
-    int bigPce[3]; // number of "big" pieces (everything that's not a pawn)
-    int majPce[3]; // major pieces (queen and rooqs)
-    int minPce[3]; // minor pieces (knight and bishop)
-    int material[2];
-
-    S_UNDO history[MAXGAMEMOVES]; //  where we will store all the moves made dyring the game
-
-    // piece list
-    /*we could loop on the entiere board until we come across avery piece and genereate all the moves possible
-    but its not very fast, so we do a piece list*/ 
-
-    int pList[PIECE_NB][10]; // 13 different pieeces which u can have maximum 10 each (like promoting all ur pawns to roks and u get 10 rooks)
+enum HASHFLAG {
+    HFNONE, HFALPHA, HFBETA, HFEXACT
 };
 
 /* MACROS */
 
 #define FR2SQ(f,r) ( (21 + (f) ) + ( (r) * 10) ) // for a given file (f) and rank (r) returns the equivalent square in the 120 square 2D array
-#define SQ64(sq120) (Sq120ToSq64[(sq120)])
-#define SQ120(sq64) (Sq64ToSq120[(sq64)])
 
-/* GLOBALS */
+/*
+0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
+0000 0000 0000 0011 1111 1000 0000 -> To >> 7, 0x7F
+0000 0000 0011 1100 0000 0000 0000 -> Captured >> 14, 0xF
+0000 0000 0100 0000 0000 0000 0000 -> EP 0x40000
+0000 0000 1000 0000 0000 0000 0000 -> Pawn Start 0x80000
+0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece >> 20, 0xF
+0001 0000 0000 0000 0000 0000 0000 -> Castle 0x1000000
+*/
+#define FROMSQ(m) ((m) & 0x7F)
+#define TOSQ(m) (((m) >> 7) & 0x7F) //for move
+#define CAPTURED(m) (((m) >> 14) & 0xF) //the piece captured in a move
+#define PROMOTED(m) (((m) >> 20) & 0xF)
 
-extern int Sq120ToSq64[BRD_SQ_NUM]; // will convert the index from the 120 squares board (with the grey things) to the "real" board of 64 cases
-extern int Sq64ToSq120[64]; // literally the opposite of the previous
+#define MOVEFLAG_EP 0x40000
+#define MOVEFLAG_PAWNSTART 0x80000
+#define MOVEFLAG_CASTLE 0x1000000
+
+#define MOVEFLAG_CAPTURED 0x7C000
+#define MOVEFLAG_PROMOTED 0xF00000
 
 /* FUNCTIONS */
 
-// init.c
-extern void AllInit();
+#define ENABLE_BASE_OPERATORS_ON(T)                                \
+constexpr T operator+(T d1, T d2) { return T(int(d1) + int(d2)); } \
+constexpr T operator-(T d1, T d2) { return T(int(d1) - int(d2)); } \
+constexpr T operator-(T d) { return T(-int(d)); }                  \
+inline T& operator+=(T& d1, T d2) { return d1 = d1 + d2; }         \
+inline T& operator-=(T& d1, T d2) { return d1 = d1 - d2; }
 
-// bitboards.c
-// extern void PrintBitBoard(U64 bb);
+#define ENABLE_INCR_OPERATORS_ON(T)                                \
+inline T& operator++(T& d) { return d = T(int(d) + 1); }           \
+inline T& operator--(T& d) { return d = T(int(d) - 1); }
 
+#define ENABLE_FULL_OPERATORS_ON(T)                                \
+ENABLE_BASE_OPERATORS_ON(T)                                        \
+constexpr T operator*(int i, T d) { return T(i * int(d)); }        \
+constexpr T operator*(T d, int i) { return T(int(d) * i); }        \
+constexpr T operator/(T d, int i) { return T(int(d) / i); }        \
+constexpr int operator/(T d1, T d2) { return int(d1) / int(d2); }  \
+inline T& operator*=(T& d, int i) { return d = T(int(d) * i); }    \
+inline T& operator/=(T& d, int i) { return d = T(int(d) / i); }
+
+ENABLE_INCR_OPERATORS_ON(File)
+ENABLE_INCR_OPERATORS_ON(Rank)
+ENABLE_INCR_OPERATORS_ON(Piece)
+
+#undef ENABLE_FULL_OPERATORS_ON
+#undef ENABLE_INCR_OPERATORS_ON
+#undef ENABLE_BASE_OPERATORS_ON
 #endif

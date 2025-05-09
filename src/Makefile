@@ -1,5 +1,9 @@
-all:
-	g++ main.cpp init.cpp -o ChessEngine
+SRCS = $(wildcard *.cpp)
+NAME = ChessEngine
 
-# CCWIN=x86_64-w64-mingw32-gcc
-# CFLAGS=-O2 -Wall -std=c99
+all:
+	g++ -std=c++17 $(SRCS) -pthread -O2 -o $(NAME)
+	./$(NAME)
+
+# g++ -std=c++17 *.cpp -O2 -o ChessEngine
+# ./ChessEngine
