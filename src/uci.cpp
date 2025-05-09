@@ -90,7 +90,7 @@ void ParseGo(char* line, S_SEARCHINFO *info, S_BOARD *pos, S_HASHTABLE *table) {
 		int remainingTimeMs = (pos->side == WHITE ? wtime : btime);
 		int incrementTimeMs = (pos->side == WHITE ? winc : binc);
 
-		int divisor = (GetTotalPieceNum(pos) > 16 || pos->fullMoveNumber < 20) ? 25 : 30;
+		int divisor = (GetTotalPieceNum(pos) > 16 || pos->fullMoveNumber < 20) ? 35 : 40;
 		double thinkTimeMs = remainingTimeMs / divisor;
 		thinkTimeMs = std::min(MAXTHINKINGTIMEMS, thinkTimeMs);
 
@@ -111,7 +111,7 @@ void ParseGo(char* line, S_SEARCHINFO *info, S_BOARD *pos, S_HASHTABLE *table) {
 		info->depth = MAXDEPTH;
 	}
 
-	std::cout << "time:" << time << " start:" << info->startTime << " stop:" << info->stopTime 
+	std::cout << "time:" << movetime << " start:" << info->startTime << " stop:" << info->stopTime 
 			<< " depth:" << info->depth << " timeset:" << info->timeSet << '\n';
 	// SearchPosition(pos, info, HashTable);
 	mainSearchThread =  LaunchSearchThread(pos, info, table);
@@ -194,7 +194,10 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		} else if(!strncmp(line, "run", 3)) {
 			// ParseFen(START_FEN, pos);
-			ParseFen(WAC_2, pos);
+			// ParseFen(WAC_2, pos);
+			// ParseFen(FINE_70, pos);
+			// ParseFen(LCT_1, pos);
+			ParseFen(RRRR, pos);
 			ParseGo("go infinite", info, pos, HashTable);	
 
 		} else if(!strncmp(line, "stop", 4)) {

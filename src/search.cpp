@@ -10,10 +10,9 @@
 #include "polybook.h"
 #include "types.h"
 #include "tinycthread.h"
+#include "data.h"
 
 #include <iomanip>
-
-#define reducedDepth 3
 
 int rootDepth;
 
@@ -212,9 +211,9 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		return Score;
 	}
 
-	if (DoNull && !InCheck && pos->ply && (pos->bigPiece[pos->side] > 1) && depth >= reducedDepth) {
+	if (DoNull && !InCheck && pos->ply && (pos->bigPiece[pos->side] > 1) && depth >= 3) {
 		MakeNullMove(pos);
-		Score = -AlphaBeta( -beta, -beta + 1, depth - reducedDepth, pos, info, table, FALSE);
+		Score = -AlphaBeta( -beta, -beta + 1, depth - 3, pos, info, table, FALSE);
 		TakeNullMove(pos);
 
 		if (info->stopped == TRUE) {
@@ -253,8 +252,26 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 			continue;
 		}
 
+		int extension = 0;
+		if (IsPawn(pos->pieces[FROMSQ(list->moves[MoveNum].move)])) {
+			if (RanksBrd[TOSQ(list->moves[MoveNum].move)] == RANK_2 || RanksBrd[TOSQ(list->moves[MoveNum].move)] == RANK_7) {
+				extension++;
+			}
+		}
+
+		bool needsFullSearch = TRUE;
+		if (!InCheck && extension == 0 && MoveNum >= 3 && depth >= 3 && CAPTURED(list->moves[MoveNum].move) == 0) {
+			int reduceDepth = 1;
+			Score = -AlphaBeta(-alpha - 1, -alpha, depth - 1 - reduceDepth, pos, info, table, TRUE);
+			needsFullSearch = Score > alpha;
+		}
+
+		if (needsFullSearch) {
+			Score = -AlphaBeta(-beta, -alpha, depth - 1 + extension, pos, info, table, TRUE);
+		}
+
 		Legal++;
-		Score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, table, TRUE);
+		// Score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, table, TRUE);
 		TakeMove(pos);
 
 		if (info->stopped == TRUE) {
