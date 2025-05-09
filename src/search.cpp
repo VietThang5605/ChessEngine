@@ -369,7 +369,7 @@ void SetupWorker(int threadNumber, thrd_t *workerTh, S_BOARD *pos, S_SEARCHINFO 
 }
 
 void CreateSearchWorkers(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table) {
-	std::cout << "CreateSearchWorkers:"  << info->threadNumber << '\n';
+	// std::cout << "CreateSearchWorkers:"  << info->threadNumber << '\n';
 	for (int i = 0; i < info->threadNumber; ++i) {
         SetupWorker(i, &workerThreads[i], pos, info, table);
     }

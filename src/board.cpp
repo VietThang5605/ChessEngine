@@ -8,6 +8,14 @@
 #include <iostream>
 #include <iomanip>
 
+int GetTotalPieceNum(const S_BOARD *pos) {
+    int total = 0;
+    for (int piece = wP; piece <= bK; piece++) {
+        total += pos->pieceNum[piece];
+    }
+    return total;
+}
+
 bool CheckBoard(const S_BOARD *pos) {
     int t_pieceNum[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // t_ means temporary
 	int t_bigPiece[3] = {0, 0, 0}; //self explanbatory

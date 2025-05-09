@@ -77,6 +77,8 @@ struct S_BOARD {
     int searchKillers[2][MAXDEPTH];
 };
 
+int GetTotalPieceNum(const S_BOARD *pos);
+
 bool CheckBoard(const S_BOARD *pos);
 
 void UpdateListsMaterial(S_BOARD *pos);
