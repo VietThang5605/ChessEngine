@@ -10,6 +10,14 @@
 #include <iostream>
 #include <iomanip>
 
+int GetTotalPieceNum(const S_BOARD *pos) {
+    int total = 0;
+    for (int piece = wP; piece <= bK; piece++) {
+        total += pos->pieceNum[piece];
+    }
+    return total;
+}
+
 bool CheckBoard(const S_BOARD *pos) {
     int t_pieceNum[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // t_ means temporary
 	int t_bigPiece[3] = {0, 0, 0}; //self explanbatory
@@ -452,7 +460,29 @@ int ParseFen(char *fen, S_BOARD *pos) {
         ASSERT(file >= FILE_A && file <= FILE_H);
         ASSERT(rank >= RANK_1 && rank <= RANK_8);
         pos->enPas = FR2SQ(file, rank);
+        fen += 2;
     }
+
+    while (fen != NULL && (*fen < '0' || *fen > '9'))
+        fen++;
+	if (fen != NULL) {
+        int fiftyMove = 0;
+        while ((*fen) >= '0' && (*fen) <= '9') {
+            fiftyMove = fiftyMove * 10 + (*fen - '0');
+            fen++;
+        }
+        pos->fiftyMove = fiftyMove;
+
+        fen++;
+		if (fen != NULL) {
+			int fullMoveNumber = 0;
+			while ((*fen) >= '0' && (*fen) <= '9') {
+				fullMoveNumber = fullMoveNumber * 10 + (*fen - '0');
+				fen++;
+		  	}
+			pos->fullMoveNumber = fullMoveNumber;
+		}
+	}
 
     pos->posKey = GeneratePosKey(pos);
 

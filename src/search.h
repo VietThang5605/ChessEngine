@@ -57,6 +57,12 @@ bool IsRepetition(const S_BOARD *pos);
 
 static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table);
 
+static void SwapMove(S_MOVELIST *list, int x, int y);
+
+static int Partition(S_MOVELIST *list, int low, int high);
+
+static void QuickSortMoveList(S_MOVELIST *list, int low, int high);
+
 static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info);
 
 static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, S_HASHTABLE *table, int DoNull);

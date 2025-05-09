@@ -12,6 +12,9 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <math.h>
+
+#define MAXTHINKINGTIMEMS (double)15000
 
 #define INPUTBUFFER 400 * 6
 
@@ -37,7 +40,8 @@ void JoinSearchThread(S_SEARCHINFO *info) {
 // go depth 6 wtime 180000 btime 100000 binc 1000 winc 1000 movetime 1000 movestogo 40
 void ParseGo(char* line, S_SEARCHINFO *info, S_BOARD *pos, S_HASHTABLE *table) {
 	int depth = -1, movestogo = 30, movetime = -1;
-	int time = -1, inc = 0;
+	int inc = 0;
+	int wtime = -1, btime = -1, binc = 0, winc = 0;
     char *ptr = NULL;
 	info->timeSet = FALSE;
 
@@ -45,20 +49,20 @@ void ParseGo(char* line, S_SEARCHINFO *info, S_BOARD *pos, S_HASHTABLE *table) {
 		;
 	}
 
-	if ((ptr = strstr(line, "binc")) && pos->side == BLACK) {
-		inc = atoi(ptr + 5);
+	if ((ptr = strstr(line, "winc"))) {
+		winc = atoi(ptr + 5);
 	}
 
-	if ((ptr = strstr(line, "winc")) && pos->side == WHITE) {
-		inc = atoi(ptr + 5);
+	if ((ptr = strstr(line, "binc"))) {
+		binc = atoi(ptr + 5);
 	}
 
-	if ((ptr = strstr(line, "wtime")) && pos->side == WHITE) {
-		time = atoi(ptr + 6);
+	if ((ptr = strstr(line, "wtime"))) {
+		wtime = atoi(ptr + 6);
 	}
 
-	if ((ptr = strstr(line, "btime")) && pos->side == BLACK) {
-		time = atoi(ptr + 6);
+	if ((ptr = strstr(line, "btime"))) {
+		btime = atoi(ptr + 6);
 	}
 
 	if ((ptr = strstr(line, "movestogo"))) {
@@ -73,26 +77,42 @@ void ParseGo(char* line, S_SEARCHINFO *info, S_BOARD *pos, S_HASHTABLE *table) {
 		depth = atoi(ptr + 6);
 	}
 
-	if (movetime != -1) {
-		time = movetime;
-		movestogo = 1;
-	}
-
 	info->startTime = GetTimeMs();
 	info->depth = depth;
 
-	if (time != -1) {
+	if (movetime != -1) {
 		info->timeSet = TRUE;
-		time /= movestogo;
-		time -= 50;
-		info->stopTime = info->startTime + time + inc;
+		movetime -= 50;
+		info->stopTime = info->startTime + movetime;
+		
+	} else if ((wtime != -1 && pos->side == WHITE) || (btime != -1 && pos->side == BLACK)) {
+		info->timeSet = TRUE;
+
+		int remainingTimeMs = (pos->side == WHITE ? wtime : btime);
+		int incrementTimeMs = (pos->side == WHITE ? winc : binc);
+
+		int divisor = (GetTotalPieceNum(pos) > 16 || pos->fullMoveNumber < 20) ? 35 : 40;
+		double thinkTimeMs = remainingTimeMs / divisor;
+		thinkTimeMs = std::min(MAXTHINKINGTIMEMS, thinkTimeMs);
+
+		if (remainingTimeMs > 2 * incrementTimeMs) {
+			thinkTimeMs += incrementTimeMs * 0.8;
+		}
+
+		double minThinkingTime = std::min((double)200, remainingTimeMs * 0.25);
+		movetime = std::max((int)minThinkingTime, (int)thinkTimeMs);
+		movetime -= 50;
+		info->stopTime = info->startTime + movetime;
+
+		// std::cout << "Total piece: " << GetTotalPieceNum(pos) << '\n';
+		std::cout << "movetime: " << movetime << '\n';
 	}
 
 	if (depth == -1) {
 		info->depth = MAXDEPTH;
 	}
 
-	std::cout << "time:" << time << " start:" << info->startTime << " stop:" << info->stopTime 
+	std::cout << "time:" << movetime << " start:" << info->startTime << " stop:" << info->stopTime 
 			<< " depth:" << info->depth << " timeset:" << info->timeSet << '\n';
 	// SearchPosition(pos, info, HashTable);
 	mainSearchThread =  LaunchSearchThread(pos, info, table);
@@ -129,6 +149,7 @@ void ParsePosition(char* lineIn, S_BOARD *pos) {
               ptrChar++;
         }
     }
+
 	PrintBoard(pos);
 }
 
@@ -175,7 +196,9 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		} else if(!strncmp(line, "run", 3)) {
 			// ParseFen(START_FEN, pos);
 			// ParseFen(WAC_2, pos);
-			ParseFen(LCT_1, pos);
+			// ParseFen(FINE_70, pos);
+			// ParseFen(LCT_1, pos);
+			ParseFen(RRRR, pos);
 			ParseGo("go infinite", info, pos, HashTable);	
 
 		} else if(!strncmp(line, "stop", 4)) {
@@ -210,8 +233,10 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			ptrTrue = strstr(line, "true");
 			if (ptrTrue != NULL) {
 				EngineOptions->UseBook = TRUE;
+				std::cout << "Set book to True\n";
 			} else {
 				EngineOptions->UseBook = FALSE;
+				std::cout << "Set book to False\n";
 			}
 		} else if (!strncmp(line, "mirror", 6)) {
 			int engineSide = BOTH;
