@@ -73,46 +73,46 @@ int EvalPosition(const S_BOARD *pos) {
 		return 0;
 	}
 
-    piece = wP;	
-	for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {
-		sq = pos->pieceList[piece][pieceNum];
-		ASSERT(SqOnBoard(sq));
-		score += PawnTable[SQ64(sq)];
+    // piece = wP;	
+	// for (int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {
+	// 	sq = pos->pieceList[piece][pieceNum];
+	// 	ASSERT(SqOnBoard(sq));
+	// 	score += PawnTable[SQ64(sq)];
 
-		if ((IsolatedMask[SQ64(sq)] & pos->pawnsBB[WHITE]) == 0) {
-			score += PawnIsolated;
-		}
+	// 	if ((IsolatedMask[SQ64(sq)] & pos->pawnsBB[WHITE]) == 0) {
+	// 		score += PawnIsolated;
+	// 	}
 		
-		if ((WhitePassedMask[SQ64(sq)] & pos->pawnsBB[BLACK]) == 0) {
-			score += PawnPassed[RanksBrd[sq]];
-		}
-	}	
+	// 	if ((WhitePassedMask[SQ64(sq)] & pos->pawnsBB[BLACK]) == 0) {
+	// 		score += PawnPassed[RanksBrd[sq]];
+	// 	}
+	// }	
 
-	piece = bP;	
-	for(int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {
-		sq = pos->pieceList[piece][pieceNum];
-		ASSERT(SqOnBoard(sq));
-		score -= PawnTable[MIRROR64(SQ64(sq))];
+	// piece = bP;	
+	// for(int pieceNum = 0; pieceNum < pos->pieceNum[piece]; ++pieceNum) {
+	// 	sq = pos->pieceList[piece][pieceNum];
+	// 	ASSERT(SqOnBoard(sq));
+	// 	score -= PawnTable[MIRROR64(SQ64(sq))];
 		
-		if ((IsolatedMask[SQ64(sq)] & pos->pawnsBB[BLACK]) == 0) {
-			score -= PawnIsolated;
-		}
+	// 	if ((IsolatedMask[SQ64(sq)] & pos->pawnsBB[BLACK]) == 0) {
+	// 		score -= PawnIsolated;
+	// 	}
 		
-		if ((BlackPassedMask[SQ64(sq)] & pos->pawnsBB[WHITE]) == 0) {
-			score -= PawnPassed[7 - RanksBrd[sq]];
-		}
-	}
+	// 	if ((BlackPassedMask[SQ64(sq)] & pos->pawnsBB[WHITE]) == 0) {
+	// 		score -= PawnPassed[7 - RanksBrd[sq]];
+	// 	}
+	// }
 
-	// const PawnEntry* pawnEntry = probe_pawn_table(pos);
-	// if (pawnEntry) {
-    //     int mg = eval_help::mg_value(pawnEntry->scores[WHITE]) - eval_help::mg_value(pawnEntry->scores[BLACK]);
-	// 	int eg = eval_help::eg_value(pawnEntry->scores[WHITE]) - eval_help::eg_value(pawnEntry->scores[BLACK]);
+	const PawnEntry* pawnEntry = probe_pawn_table(pos);
+	if (pawnEntry) {
+        int mg = eval_help::mg_value(pawnEntry->scores[WHITE]) - eval_help::mg_value(pawnEntry->scores[BLACK]);
+		int eg = eval_help::eg_value(pawnEntry->scores[WHITE]) - eval_help::eg_value(pawnEntry->scores[BLACK]);
 
-	// 	int phase = calculate_game_phase(pos); // 0–256
-	// 	int blended = ((mg * phase) + (eg * (256 - phase))) >> 8;
-	// 	score += blended;
+		int phase = calculate_game_phase(pos); // 0–256
+		int blended = ((mg * phase) + (eg * (256 - phase))) >> 8;
+		score += blended;
 
-    // }
+    }
 
 
 
