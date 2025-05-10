@@ -198,7 +198,8 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			// ParseFen(WAC_2, pos);
 			// ParseFen(FINE_70, pos);
 			// ParseFen(LCT_1, pos);
-			ParseFen(RRRR, pos);
+			// ParseFen(RRRR, pos);
+			ParseFen(PPRpr, pos);
 			ParseGo("go infinite", info, pos, HashTable);	
 
 		} else if(!strncmp(line, "stop", 4)) {

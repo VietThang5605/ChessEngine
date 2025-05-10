@@ -20,23 +20,23 @@ namespace {
 
     // --- Constants from Stockfish 11 pawns.cpp ---
     #define S(mg, eg) eval_help::make_score(mg, eg)
-    constexpr eval_help::Score Isolated      = S( 5 * 100.0 / 128.0, 15 * 100.0 / 213.0);
-    constexpr eval_help::Score Backward      = S( 9 * 100.0 / 128.0, 24 * 100.0 / 213.0);
-    constexpr eval_help::Score Doubled       = S(11 * 100.0 / 128.0, 56 * 100.0 / 213.0);
-    constexpr eval_help::Score WeakUnopposed = S(13 * 100.0 / 128.0, 27 * 100.0 / 213.0);
-    constexpr eval_help::Score WeakLever     = S( 0, 56);
+    constexpr eval_help::Score Isolated      = S( 7, 13);
+    constexpr eval_help::Score Backward      = S( 7, 11);
+    constexpr eval_help::Score Doubled       = S( 8, 26);
+    constexpr eval_help::Score WeakUnopposed = S( 10, 12);
+    constexpr eval_help::Score WeakLever     = S( 0, 26);
     constexpr int Connected[RANK_NB] = {
         0,
-        int(7 * 100.0 / 128.0),
-        int(8 * 100.0 / 128.0),
-        int(12 * 100.0 / 128.0),
-        int(29 * 100.0 / 128.0),
-        int(48 * 100.0 / 128.0),
-        int(86 * 100.0 / 128.0)
+        5,
+        6,
+        9,
+        22,
+        37,
+        67
     };
 
     constexpr eval_help::Score PassedRank[RANK_NB] = {
-        S(0 , 0), S(10 * 100.0 / 128.0, 28 *100.0 / 213.0), S(17 * 100.0 / 128.0, 33 *100.0 / 213.0), S(15 * 100.0 / 128.0, 41 *100.0 / 213.0), S(62 * 100.0 / 128.0, 72 *100.0 / 213.0), S(168 * 100.0 / 128.0, 177 *100.0 / 213.0), S(276 * 100.0 / 128.0, 260 *100.0 / 213.0)
+        S(0 , 0), S(4, 12), S(10, 15), S(9, 20), S(48, 33), S(83, 60), S(120, 100)
         };
 
      #undef S
