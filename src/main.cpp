@@ -4,6 +4,7 @@
 #include "uci.h"
 #include "polybook.h"
 #include "pvtable.h"
+#include "bitboards.h"
 
 #include <iostream>
 #include <limits>
@@ -49,6 +50,7 @@ int main(int argc, char *argv[]) {
 	}
 
     CleanPolyBook();
+	FreeMagic();
     delete[] HashTable->pTable;
 
     return 0;

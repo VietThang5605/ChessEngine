@@ -133,6 +133,9 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 		SETBIT(&pos->pawnsBB[color],SQ64(sq));
 		SETBIT(&pos->pawnsBB[BOTH],SQ64(sq));
 	}
+    SETBIT(&pos->allPiecesBB[color],SQ64(sq));
+	SETBIT(&pos->allPiecesBB[BOTH],SQ64(sq));
+
 	
 	pos->material[color] += PieceValue[piece];
 	pos->material[BOTH] += PieceValue[piece];

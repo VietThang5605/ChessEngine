@@ -196,9 +196,14 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			// ParseFen(START_FEN, pos);
 			// ParseFen(WAC_2, pos);
 			// ParseFen(FINE_70, pos);
-			// ParseFen(LCT_1, pos);
-			ParseFen(RRRR, pos);
-			ParseGo("go infinite", info, pos, HashTable);	
+			ParseFen(LCT_1, pos);
+			// ParseFen(RRRR, pos);
+			ParseGo("go infinite", info, pos, HashTable);
+
+		} else if(!strncmp(line, "movelist", 8)) {
+			S_MOVELIST list[1];
+			GenerateAllMoves(pos, list);
+			PrintMoveList(list);
 
 		} else if(!strncmp(line, "stop", 4)) {
 			JoinSearchThread(info);

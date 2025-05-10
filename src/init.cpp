@@ -3,6 +3,7 @@
 #include "polybook.h"
 // #include "bitboards.h" //print bitboard
 // #include "io.h" //print square
+#include "bitboards.h"
 
 #include <iostream>
 #include <iomanip>
@@ -193,4 +194,5 @@ void AllInit() {
     InitEvalMasks();
     InitMvvLva();
     InitPolyBook();
+    InitMagic();
 }
