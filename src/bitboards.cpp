@@ -57,15 +57,19 @@ const U64 BishopMagics[64] = {
 
 U64 RookMask[64];
 U64 BishopMask[64];
+U64 KnightMask[64];
 
 U64 *RookAttacks[64];
 U64 *BishopAttacks[64];
 
 int PopBit(U64 *bb) { // takestakes the first bit in the least significant bit in the bitboard
-    U64 b = *bb ^ (*bb -1); // and return the index of tihs bit and set it to 0
-    unsigned int fold = (unsigned) ((b & 0xffffffff) ^(b >> 32));
-    *bb &= (*bb -1);
-    return BitTable[(fold * 0x783a9b23) >> 26];
+    // U64 b = *bb ^ (*bb -1); // and return the index of tihs bit and set it to 0
+    // unsigned int fold = (unsigned) ((b & 0xffffffff) ^(b >> 32));
+    // *bb &= (*bb -1);
+    // return BitTable[(fold * 0x783a9b23) >> 26];
+    int idx = __builtin_ctzll(*bb);
+    *bb &= (*bb - 1);
+    return idx;
 }
 
 int CountBits(U64 b) { //counts and return the number of 1s in the bitboard
@@ -109,6 +113,21 @@ static U64 GetRookAttacks(int square, U64 blockers) {
 static U64 GetBishopAttacks(int square, U64 blockers) {
     U64 key = ((blockers & BishopMask[square]) * BishopMagics[square]) >> BishopShifts[square];
 	return BishopAttacks[square][key];
+}
+
+static void CreateKnightMask(int squareIndex) {
+    U64 mask = 0ULL;
+    int startSquare = SQ120(squareIndex);
+    for (int dir = 0; dir < NumDir[wN]; ++dir) {
+        int nextSquare = startSquare + PieceDir[wN][dir];
+
+        if (!SqOnBoard(nextSquare)) {
+            continue;
+        }
+
+        setBit(&mask, SQ64(nextSquare));
+    }
+    KnightMask[squareIndex] = mask;
 }
 
 static void CreateMovementMask(int squareIndex, bool rook) { //squareIndex: 0..63
@@ -300,6 +319,7 @@ void InitMagic() {
     for (int squareIndex = 0; squareIndex < 64; ++squareIndex) {
         CreateMovementMask(squareIndex, TRUE);
         CreateMovementMask(squareIndex, FALSE);
+        CreateKnightMask(squareIndex);
     }
 
     for (int i = 0; i < 64; i++) {

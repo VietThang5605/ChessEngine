@@ -18,6 +18,7 @@ extern const U64 BishopMagics[64];
 
 extern U64 RookMask[64];
 extern U64 BishopMask[64];
+extern U64 KnightMask[64];
 
 extern U64 *RookAttacks[64];
 extern U64 *BishopAttacks[64];
@@ -33,6 +34,8 @@ U64 GetSliderAttacks(int square, U64 blockers, bool ortho);
 static U64 GetRookAttacks(int square, U64 blockers);
 
 static U64 GetBishopAttacks(int square, U64 blockers);
+
+static void CreateKnightMask(int squareIndex);
 
 static void CreateMovementMask(int squareIndex, bool rook);
 
