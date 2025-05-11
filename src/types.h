@@ -3,8 +3,9 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <cstdint>
 
-#define DEBUG
+// #define DEBUG
 
 #ifndef DEBUG
 #define ASSERT(n)
@@ -27,25 +28,29 @@ if(! (n)) { \
 
 #endif
 
-typedef unsigned long long U64;
+// typedef unsigned long long U64;
+typedef uint64_t U64;
 
-#define NAME ChessEngine
+#define NAME "Unstoppable Evaluation Tool (UET)"
 #define BRD_SQ_NUM 120   // cuz 120 cases on the board (0 to 120)
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define FINE_70 "8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - - 0 1"
+#define WAC_2 "8/7p/5k2/5p2/p1p2P2/Pr1pPK2/1P1R3P/8 b - - 0 1"
+#define LCT_1 "r3kb1r/3n1pp1/p6p/2pPp2q/Pp2N3/3B2PP/1PQ2P2/R3K2R w KQkq - 0 1"
+#define RRRR "3R2k1/pp3r1p/4p3/2r2p2/4pP2/P1P5/1P4PP/4R1K1 b - - 15 32"
+#define PPRpr "8/4k3/1R6/3p4/1P6/4K3/2P5/5r2 w - - 1 54" //game giữa eval cũ và search có LMR & extension - eval mới có LMR & extension
 
 #define MAXGAMEMOVES 2048 // number max of moves in a game (will never never never be more than 2048 exept if u trynna beat a world record)
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 64
+#define MAXTHREAD 32
 
-#define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define INF_BOUND 32000
+#define AB_BOUND 30000
+#define ISMATE (AB_BOUND - MAXDEPTH)
 
-#define INFINITE 30000
-#define MATE (INFINITE - MAXDEPTH)
-
-enum Mode {
-    UCIMODE, XBOARDMODE, CONSOLEMODE
-};
+#define MAX_HASH 1024
 
 enum Color {
     WHITE, BLACK, BOTH
@@ -83,12 +88,41 @@ enum Piece {
     EMPTY,
     wP, wN, wB, wR, wQ, wK,
     bP, bN, bB, bR, bQ, bK,
-    PIECE_NB
+    PIECE_NB = 13
+};
+
+enum Move : int {
+    NOMOVE = 0
+};
+
+enum HASHFLAG {
+    HFNONE, HFALPHA, HFBETA, HFEXACT
 };
 
 /* MACROS */
 
 #define FR2SQ(f,r) ( (21 + (f) ) + ( (r) * 10) ) // for a given file (f) and rank (r) returns the equivalent square in the 120 square 2D array
+
+/*
+0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
+0000 0000 0000 0011 1111 1000 0000 -> To >> 7, 0x7F
+0000 0000 0011 1100 0000 0000 0000 -> Captured >> 14, 0xF
+0000 0000 0100 0000 0000 0000 0000 -> EP 0x40000
+0000 0000 1000 0000 0000 0000 0000 -> Pawn Start 0x80000
+0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece >> 20, 0xF
+0001 0000 0000 0000 0000 0000 0000 -> Castle 0x1000000
+*/
+#define FROMSQ(m) ((m) & 0x7F)
+#define TOSQ(m) (((m) >> 7) & 0x7F) //for move
+#define CAPTURED(m) (((m) >> 14) & 0xF) //the piece captured in a move
+#define PROMOTED(m) (((m) >> 20) & 0xF)
+
+#define MOVEFLAG_EP 0x40000
+#define MOVEFLAG_PAWNSTART 0x80000
+#define MOVEFLAG_CASTLE 0x1000000
+
+#define MOVEFLAG_CAPTURED 0x7C000
+#define MOVEFLAG_PROMOTED 0xF00000
 
 /* FUNCTIONS */
 
@@ -114,6 +148,7 @@ inline T& operator/=(T& d, int i) { return d = T(int(d) / i); }
 
 ENABLE_INCR_OPERATORS_ON(File)
 ENABLE_INCR_OPERATORS_ON(Rank)
+ENABLE_INCR_OPERATORS_ON(Piece)
 
 #undef ENABLE_FULL_OPERATORS_ON
 #undef ENABLE_INCR_OPERATORS_ON

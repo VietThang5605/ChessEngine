@@ -1,6 +1,14 @@
 #include "init.h"
+#include "movegen.h"
+#include "polybook.h"
+#include "zobrist.h"
+#include "eval_help.h"
+#include "attack_gen.h"
+// #include "bitboards.h" //print bitboard
+// #include "io.h" //print square
 
 #include <iostream>
+#include <iomanip>
 
 int Sq120ToSq64[BRD_SQ_NUM];
 int Sq64ToSq120[64];
@@ -11,6 +19,120 @@ U64 ClearMask[64];
 U64 PieceKeys[13][120];
 U64 SideKey;
 U64 CastleKeys[16];
+
+int FilesBrd[BRD_SQ_NUM];
+int RanksBrd[BRD_SQ_NUM];
+
+U64 FileBBMask[8];
+U64 RankBBMask[8];
+
+U64 BlackPassedMask[64];
+U64 WhitePassedMask[64];
+U64 IsolatedMask[64];
+
+void InitEvalMasks() {
+    for (Rank rank = RANK_8; rank >= RANK_1; --rank) {
+        for (File file = FILE_A; file <= FILE_H; ++file) {
+            int sq = rank * 8 + file;
+            FileBBMask[file] |= (1ULL << sq);
+            RankBBMask[rank] |= (1ULL << sq);
+        }
+	}
+
+    // for (Rank rank = RANK_1; rank <= RANK_8; ++rank) {
+    //     std::cout << "rank " << rank << '\n';
+    //     PrintBitBoard(RankBBMask[rank]);
+    //     std::cout << '\n';
+    // }
+    
+    // for (File file = FILE_A; file <= FILE_H; ++file) {
+    //     std::cout << "file " << file << '\n';
+    //     PrintBitBoard(FileBBMask[file]);
+    // }
+
+    for (int sq = 0; sq < 64; ++sq) {
+		int tsq = sq + 8;
+
+        while (tsq < 64) {
+            WhitePassedMask[sq] |= (1ULL << tsq);
+            tsq += 8;
+        }
+
+        tsq = sq - 8;
+        while (tsq >= 0) {
+            BlackPassedMask[sq] |= (1ULL << tsq);
+            tsq -= 8;
+        }
+
+        if (FilesBrd[SQ120(sq)] > FILE_A) {
+            IsolatedMask[sq] |= FileBBMask[FilesBrd[SQ120(sq)] - 1];
+
+            tsq = sq + 7;
+            while (tsq < 64) {
+                WhitePassedMask[sq] |= (1ULL << tsq);
+                tsq += 8;
+            }
+
+            tsq = sq - 9;
+            while (tsq >= 0) {
+                BlackPassedMask[sq] |= (1ULL << tsq);
+                tsq -= 8;
+            }
+        }
+
+        if (FilesBrd[SQ120(sq)] < FILE_H) {
+            IsolatedMask[sq] |= FileBBMask[FilesBrd[SQ120(sq)] + 1];
+
+            tsq = sq + 9;
+            while (tsq < 64) {
+                WhitePassedMask[sq] |= (1ULL << tsq);
+                tsq += 8;
+            }
+
+            tsq = sq - 7;
+            while (tsq >= 0) {
+                BlackPassedMask[sq] |= (1ULL << tsq);
+                tsq -= 8;
+            }
+        }
+
+        // std::cout << "square " << PrintSquare(SQ120(sq)) << '\n';
+        // std::cout << "isolated mask\n";
+        // PrintBitBoard(IsolatedMask[sq]);
+        // std::cout << "white passed mask\n";
+        // PrintBitBoard(WhitePassedMask[sq]);
+        // std::cout << "black passed mask\n";
+        // PrintBitBoard(BlackPassedMask[sq]);
+        // std::cout << '\n';
+	}
+}
+
+void InitFilesRanksBrd() {
+	for(int i = 0; i < BRD_SQ_NUM; ++i) {
+		FilesBrd[i] = OFFBOARD;
+		RanksBrd[i] = OFFBOARD;
+	}
+
+	for (Rank rank = RANK_1; rank <= RANK_8; ++rank) {
+		for (File file = FILE_A; file <= FILE_H; ++file) {
+			int sq = FR2SQ(file,rank);
+			FilesBrd[sq] = file;
+			RanksBrd[sq] = rank;
+		}
+	}
+
+    // std::cout << "\nFile\n";
+    // for (int i = 0; i < BRD_SQ_NUM; ++i) {
+    //     if (i % 10 == 0 && i != 0) std::cout << '\n';
+    //     std::cout << std::setw(4) << FilesBrd[i];
+    // }
+
+    // std::cout << "\nRank\n";
+    // for (int i = 0; i < BRD_SQ_NUM; ++i) {
+    //     if (i % 10 == 0 && i != 0) std::cout << '\n';
+    //     std::cout << std::setw(4) << RanksBrd[i];
+    // }
+}
 
 void InitHashKeys() {
     for (int i = 0; i < 13; ++i) {
@@ -66,8 +188,17 @@ void InitSrandTime() {
 }
 
 void AllInit() {
-    InitSrandTime(); //must before any of using rand()
+    InitSrandTime(); //must before any of using rand(), can turn off for debug so each pos will have fix posKey
     InitSq120To64();
     InitBitMasks();
     InitHashKeys();
+    InitFilesRanksBrd();
+    InitEvalMasks();
+    InitMvvLva();
+    InitPolyBook();
+    
+    Zobrist::init(); // Initialize Zobrist hashing
+    eval_help::init_U64_utils(); 
+    AttackGen::init_attack_tables(); // Initialize attack tables
+    eval_help::init_precomputed_eval_bitboards(); // Initialize precomputed evaluation bitboards
 }
