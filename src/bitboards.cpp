@@ -73,9 +73,10 @@ int PopBit(U64 *bb) { // takestakes the first bit in the least significant bit i
 }
 
 int CountBits(U64 b) { //counts and return the number of 1s in the bitboard
-    int r;
-    for(r = 0; b; r++, b &= b-1);
-    return r;
+    // int r;
+    // for(r = 0; b; r++, b &= b-1);
+    // return r;
+    return __builtin_popcountll(b);
 }
 
 void PrintBitBoard(U64 bb) {
