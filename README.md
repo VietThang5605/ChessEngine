@@ -17,6 +17,30 @@ Unstoppable Evaluation Tool (UET) là một engine cờ được thiết kế đ
     * Thuật toán tìm kiếm cốt lõi của engine.
     * Đệ quy khám phá cây trò chơi, cắt tỉa các nhánh không hứa hẹn để giảm số lượng thế cờ cần đánh giá.
     * Việc cắt tỉa dựa trên các giá trị alpha (điểm số tối thiểu mà bên trắng đảm bảo) và beta (điểm số tối đa mà bên đen đảm bảo).
+* **Tìm kiếm Quiescence:**
+    * Đệ quy tìm kiếm tất cả các nước bắt quân liên tiếp.
+    * Tránh hiện tượng đường chân trời (Horizon effect) khi đánh giá thế cờ vẫn còn nước bắt quân.
+* **Null Move Pruning:**
+    * Thử thực hiện nước đi rỗng (chuyển lượt cho đối thủ mà không di chuyển quân nào)
+    * Nếu kết quả tìm kiếm của nước đi này cho thấy vị trí vẫn “quá tốt” cho bên thực hiện nước đi rỗng, khả năng cắt tỉa beta là rất cao.
+    * Trả ngay về giá trị beta và bỏ qua việc tìm kiếm các nước đi hợp lệ còn lại từ vị trí gốc
+* **Sắp xếp nước đi:**
+    * Các heuristics để ưu tiên các nước đi có khả năng cao dẫn đến thế cờ tốt.
+    * Ví dụ:
+        * MVV-LVA (Most Valuable Victim - Least Valuable Attacker): Ưu tiên các nước đi bắt quân mạnh bằng quân yếu.
+        * Nước đi sát thủ (Killer moves): Lưu trữ các nước đi gây ra cắt tỉa beta và khám phá chúng trước.
+        * Lịch sử nước đi: Đếm tần suất một nước đi dẫn đến cải thiện điểm số.
+* **Late Move Reduction:**
+    * Các nước đi được tìm kiếm sẽ sắp xếp theo điểm giảm dần,
+    * Giảm độ sâu tìm kiếm dành cho các nước đi không hứa hẹn (có điểm thấp hơn),
+    * Nếu kết quả trả về lớn hơn alpha thì ta tìm kiếm lại nước này với độ sâu tối đa.
+* **Mở rộng khi Chiếu Tướng (Check Extension):**
+    * Khi tìm kiếm một nước đi mà vua bị chiếu tướng thì sẽ mở rộng độ sâu tìm kiếm.
+    * Thoát khỏi nước chiếu là “bắt buộc” và việc mở rộng tìm kiếm có thể phát hiện các đòn chiến thuật bất ngờ hay tìm được nước chiếu hết sớm hơn.
+* **Pawn Promotion Extension:**
+    * Khi một quân tốt tiến đến hàng ngang số 7 (đối với Trắng) hoặc hàng ngang số 2 (đối với Đen) thì ta sẽ mở rộng độ sâu tìm kiếm.
+    * Tốt ở hàng ngang số 7 là một mối đe doạ nguy cấp, đe doạ sẽ phong cấp ngay lập tức.
+    * Việc tìm kiếm sâu hơn sẽ cho khả năng về các đòn chiến thuật sau khi phong cấp, hoặc cách đổi thủ có thể phản ứng lại.
 * **Tìm kiếm sâu dần (Iterative Deepening):**
     * Tìm kiếm ở độ sâu 1, sau đó 2, 3, v.v., lặp lại cho đến khi hết thời gian.
     * Cho phép engine trả về nước đi tốt nhất tìm được trong thời gian giới hạn.
@@ -25,12 +49,6 @@ Unstoppable Evaluation Tool (UET) là một engine cờ được thiết kế đ
     * Lưu trữ kết quả đánh giá của các thế cờ đã gặp trước đó để tránh tính toán lại.
     * Sử dụng băm Zobrist để tạo ra các khóa duy nhất cho các thế cờ.
     * Cải thiện đáng kể hiệu suất tìm kiếm.
-* **Sắp xếp nước đi:**
-    * Các heuristics để ưu tiên các nước đi có khả năng cao dẫn đến thế cờ tốt.
-    * Ví dụ:
-        * MVV-LVA (Most Valuable Victim - Least Valuable Attacker): Ưu tiên các nước đi bắt quân mạnh bằng quân yếu.
-        * Nước đi sát thủ (Killer moves): Lưu trữ các nước đi gây ra cắt tỉa beta và khám phá chúng trước.
-        * Lịch sử nước đi: Đếm tần suất một nước đi dẫn đến cải thiện điểm số.
 * **Đa luồng:**
     * Sử dụng thư viện `tinycthread` để thực hiện tìm kiếm song song trên nhiều luồng CPU.
     * Chia cây trò chơi thành các phần và tìm kiếm chúng đồng thời.
