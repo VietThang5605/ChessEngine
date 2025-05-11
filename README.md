@@ -155,11 +155,11 @@ https://drive.google.com/drive/folders/1TFfjM-N0hLyvdCUQEcegxqEGekKAQfK7?usp=sha
 
 ## Tài liệu tham khảo
 
-    * `Stockfish11`:
+   * `Stockfish11`:
         * https://drive.google.com/drive/folders/10b915Xd9DcTvkAVPib9VETcJtRUkK14U.
-    * `Vice engine`:
+   * `Vice engine`:
         * https://github.com/bluefeversoft/vice?tab=readme-ov-file.
-    * `Chess programing wiki`:
+   * `Chess programing wiki`:
         * https://www.chessprogramming.org/Main_Page.
 
 ## Lời cảm ơn
