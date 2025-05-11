@@ -1,24 +1,55 @@
-#include "types.h"
+#include "init.h"
+#include "board.h"
+#include "search.h"
+#include "uci.h"
+#include "polybook.h"
+#include "pvtable.h"
 
 #include <iostream>
+#include <limits>
+#include <cstring>
 
-int main() {
+#define WAC1 "r1b1k2r/ppppnppp/2n2q2/2b5/3NP3/2P1B3/PP3PPP/RN1QKB1R w KQkq - 0 1"
+#define PERFT "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+
+int main(int argc, char *argv[]) {
     AllInit();
 
-    for (int index = 0; index < BRD_SQ_NUM; index++) {
-        if (index % 10 == 0)
-            std::cout << '\n';
-        printf("%5d", Sq120ToSq64[index]);
-    }
+    S_BOARD board[1];
+    S_SEARCHINFO info[1];
 
-    std::cout << '\n';
-    std::cout << '\n';
+    info->quit = FALSE;
+	info->threadNumber = 1;
+    InitHashTable(HashTable, 64);
 
-    for (int index = 0; index < 64; ++index) {
-        if (index % 8 == 0)
-            std::cout << '\n';
-        printf("%5d", Sq64ToSq120[index]);
-    }
+    setbuf(stdin, NULL);
+    setbuf(stdout, NULL);
+
+	// TempHashTest(WAC1);
+	// TempHashTest(PERFT);
+    
+    std::cout << "Welcome to Unstoppable Evaluation Tool (UET)!\n";
+
+	char line[256];
+	while (TRUE) {
+		if (!std::cin.getline(line, sizeof(line))) {
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			continue;
+		}
+
+		if (!strncmp(line, "uci", 3)) {
+			Uci_Loop(board, info);
+			if(info->quit == TRUE) break;
+			continue;
+
+		} else if (!strncmp(line, "quit", 4)) {
+			break;
+		}
+	}
+
+    CleanPolyBook();
+    delete[] HashTable->pTable;
 
     return 0;
 }
