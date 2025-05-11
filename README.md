@@ -156,7 +156,7 @@ https://drive.google.com/drive/folders/1TFfjM-N0hLyvdCUQEcegxqEGekKAQfK7?usp=sha
 ## Tài liệu tham khảo
 
    * `Stockfish11`:
-        * https://drive.google.com/drive/folders/10b915Xd9DcTvkAVPib9VETcJtRUkK14U.
+        * https://github.com/official-stockfish/Stockfish.
    * `Vice engine`:
         * https://github.com/bluefeversoft/vice?tab=readme-ov-file.
    * `Chess programing wiki`:
