@@ -1,6 +1,5 @@
 # Unstoppable Evaluation Tool (UET)
 
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Một engine cờ mạnh mẽ và hiệu quả, được viết bằng C++.
 
@@ -57,35 +56,19 @@ Unstoppable Evaluation Tool (UET) là một engine cờ được thiết kế đ
 
 Để xây dựng UET từ mã nguồn, bạn cần có một trình biên dịch C++ (ví dụ: GCC, Clang, MSVC) và các công cụ phát triển cần thiết.
 
-**Hướng dẫn chung (Linux/macOS):**
+**Hướng dẫn chung Windows:**
 
 1.  Mở terminal và điều hướng đến thư mục chứa mã nguồn.
 2.  Sử dụng lệnh sau để biên dịch:
 
     ```bash
-    g++ -o uet *.cpp -std=c++11 -lpthread 
+    g++ -std=c++17 *.cpp -O2 -o uet 
     ```
 
     * `-o uet`: Đặt tên cho file thực thi là "uet".
     * `*.cpp`: Biên dịch tất cả các file .cpp trong thư mục hiện tại.
-    * `-std=c++11`: Yêu cầu trình biên dịch hỗ trợ các tính năng của C++11 (cần thiết cho `tinycthread`).
-    * `-lpthread`: Liên kết với thư viện pthreads (cho đa luồng).
+    * `-std=c++17`: Yêu cầu trình biên dịch hỗ trợ các tính năng của C++17 (cần thiết cho `tinycthread`).
 
-**Hướng dẫn cho Windows (MSVC):**
-
-1.  Mở Visual Studio Developer Command Prompt.
-2.  Điều hướng đến thư mục chứa mã nguồn.
-3.  Sử dụng lệnh sau để biên dịch:
-
-    ```batch
-    cl *.cpp /EHsc /MD /O2 /Fe:uet.exe
-    ```
-
-    * `cl`: Gọi trình biên dịch MSVC.
-    * `/EHsc`: Bật xử lý ngoại lệ C++.
-    * `/MD`: Sử dụng thư viện runtime đa luồng.
-    * `/O2`: Bật tối ưu hóa.
-    * `/Fe:uet.exe`: Đặt tên cho file thực thi là "uet.exe".
 
 **Lưu ý quan trọng:**
 
@@ -100,6 +83,7 @@ Unstoppable Evaluation Tool (UET) là một engine cờ được thiết kế đ
     ```bash
     ./uet  # Linux/macOS
     uet.exe  # Windows
+    
     ```
 
 3.  Mở một GUI cờ tương thích với UCI (ví dụ: Cute Chess, Arena, Fritz).
@@ -165,9 +149,18 @@ Nếu bạn muốn đóng góp vào dự án UET, bạn có thể thực hiện 
 * **Gửi pull request:** Nếu bạn muốn sửa lỗi hoặc thêm một tính năng mới, bạn có thể tạo một nhánh (branch), thực hiện các thay đổi của mình và gửi một pull request. Vui lòng đảm bảo rằng mã của bạn tuân theo các quy ước mã hóa của dự án và có các bài kiểm tra thích hợp.
 * **Đóng góp ý tưởng:** Chia sẻ ý tưởng của bạn về các tính năng mới, cải tiến hiệu suất hoặc bất kỳ khía cạnh nào khác của dự án.
 
-## Giấy phép
+## Link video demo
 
-Dự án này được cấp phép theo Giấy phép MIT. Xem file `LICENSE` để biết chi tiết. Bạn có quyền tự do sử dụng, sửa đổi và phân phối mã nguồn này cho cả mục đích thương mại và phi thương mại.
+https://drive.google.com/drive/folders/1TFfjM-N0hLyvdCUQEcegxqEGekKAQfK7?usp=sharing
+
+## Tài liệu tham khảo
+
+* `Stockfish11`:
+        * https://drive.google.com/drive/folders/10b915Xd9DcTvkAVPib9VETcJtRUkK14U.
+    * `Vice engine`:
+        * https://github.com/bluefeversoft/vice?tab=readme-ov-file.
+    * `Chess programing wiki`:
+        * https://www.chessprogramming.org/Main_Page.
 
 ## Lời cảm ơn
 
