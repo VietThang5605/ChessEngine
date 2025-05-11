@@ -4,6 +4,7 @@
 #include "data.h"
 #include "io.h"
 #include "pawn_analysis.h"
+#include "king_safety.h"
 
 
 
@@ -68,6 +69,8 @@ int EvalPosition(const S_BOARD *pos) {
     int piece;
 	int sq;
 	int score = pos->material[WHITE] - pos->material[BLACK];
+    
+	int endGameMaterial = ENDGAME_MATERIAL;
 
 	if (!pos->pieceNum[wP] && !pos->pieceNum[bP] && MaterialDraw(pos) == TRUE) {
 		return 0;
@@ -112,9 +115,16 @@ int EvalPosition(const S_BOARD *pos) {
 		int blended = ((mg * phase) + (eg * (256 - phase))) >> 8;
 		score += blended;
 
+		if (phase >= 185) {
+			int king_mg = eval_help::mg_value(CalculateSimpleKingSafetyScore(pos, WHITE)) - eval_help::mg_value(CalculateSimpleKingSafetyScore(pos, BLACK));
+			int king_eg = eval_help::eg_value(CalculateSimpleKingSafetyScore(pos, WHITE)) - eval_help::eg_value(CalculateSimpleKingSafetyScore(pos, BLACK));
+			int king_safety = ((king_mg * phase) + (king_eg * (256 - phase))) >> 8;
+			score += king_safety;
+		}
+		
     }
 
-
+	
 
 
     piece = wN;	
@@ -206,7 +216,7 @@ int EvalPosition(const S_BOARD *pos) {
 	ASSERT(SqOnBoard(sq));
 	ASSERT(SQ64(sq) >= 0 && SQ64(sq) <= 63);
 	
-	if ((pos->material[BLACK] <= ENDGAME_MATERIAL)) {
+	if ((pos->material[BLACK] <= endGameMaterial)) {
 		score += KingE[SQ64(sq)];
 	} else {
 		score += KingO[SQ64(sq)];
@@ -217,7 +227,7 @@ int EvalPosition(const S_BOARD *pos) {
 	ASSERT(SqOnBoard(sq));
 	ASSERT(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
 	
-	if( (pos->material[WHITE] <= ENDGAME_MATERIAL) ) {
+	if( (pos->material[WHITE] <= endGameMaterial) ) {
 		score -= KingE[MIRROR64(SQ64(sq))];
 	} else {
 		score -= KingO[MIRROR64(SQ64(sq))];

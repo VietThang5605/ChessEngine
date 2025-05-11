@@ -13,12 +13,9 @@
 // --- Hash table instance ---
 namespace {
     // Bảng băm toàn cục (ví dụ cho đơn luồng)
-    PawnHashTable pawnTableInstance; // PawnHashTable đã typedef trong pawn_analysis.h
+    PawnHashTable pawnTableInstance;
 
-    const double FactorMg = 100.0 / 128.0;
-    const double FactorEg = 100.0 / 213.0;
-
-    // --- Constants from Stockfish 11 pawns.cpp ---
+    // ---- Constants----
     #define S(mg, eg) eval_help::make_score(mg, eg)
     constexpr eval_help::Score Isolated      = S( 7, 13);
     constexpr eval_help::Score Backward      = S( 7, 11);
@@ -27,16 +24,16 @@ namespace {
     constexpr eval_help::Score WeakLever     = S( 0, 26);
     constexpr int Connected[RANK_NB] = {
         0,
-        5,
-        6,
-        9,
-        22,
-        37,
-        67
+        3,
+        4,
+        8,
+        12,
+        20,
+        50
     };
 
     constexpr eval_help::Score PassedRank[RANK_NB] = {
-        S(0 , 0), S(4, 12), S(10, 15), S(9, 20), S(48, 33), S(83, 60), S(120, 100)
+        S(0 , 0), S(5, 10), S(10, 20), S(20, 30), S(35, 50), S(60, 80), S(100, 150)
         };
 
      #undef S
@@ -67,9 +64,9 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
     U64 currentPawns = ourPawns;
     while (currentPawns) {
         eval_help::Square_pawn s = eval_help::pop_lsb(&currentPawns); 
-        Rank r = eval_help::relative_rank(Us, eval_help::rank_of(s));
+        Rank r = eval_help::relative_rank(Us, eval_help::rank_of(s)); 
         File f = eval_help::file_of(s); 
-        eval_help::Square_pawn pushSq = static_cast<eval_help::Square_pawn>(s + Up); 
+        eval_help::Square_pawn pushSq = static_cast<eval_help::Square_pawn>(s + Up);
         U64 pushSq_bb = eval_help::square_bb(pushSq);
 
         // value for pawn structure
@@ -83,13 +80,13 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
         // Features - Gọi các hàm tiện ích bitboard 
         
         U64 neighbours = ourPawns & eval_help::AdjacentFilesBB[s];
-        U64 phalanx    = neighbours & eval_help::rank_bb(s);       
+        U64 phalanx    = neighbours & eval_help::rank_bb(s);     
         U64 support    = neighbours & eval_help::rank_bb(static_cast<eval_help::Square_pawn>(s + Down));
-        U64 opposed    = theirPawns & eval_help::ForwardFileBB[Us][s];  
-        U64 blocked    = theirPawns & pushSq_bb; // Chặn push
+        U64 opposed    = theirPawns & eval_help::ForwardFileBB[Us][s];
+        U64 blocked    = theirPawns & pushSq_bb; // Chặn push           
         U64 stoppers   = theirPawns & eval_help::PassedPawnSpanBB[Us][s]; // Chặn tốt đã qua
         // Truy cập mảng PawnAttacks từ namespace AttackGen
-        U64 lever      = theirPawns & AttackGen::PawnAttacks[Us][s];
+        U64 lever      = theirPawns & AttackGen::PawnAttacks[Us][s]; 
         U64 leverPush  = 0;
         if (eval_help::is_ok(pushSq)) { 
              leverPush = theirPawns & AttackGen::PawnAttacks[Us][pushSq];
@@ -100,7 +97,7 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
         // Backward pawn check
         bool backward = false;
 
-        if (eval_help::is_ok(pushSq)) { // Quan trọng: kiểm tra pushSq hợp lệ
+        if (eval_help::is_ok(pushSq)) { 
             if (!support) {
                 if (((theirPawnAttacks & pushSq_bb) || (theirPawns & pushSq_bb)) && !lever) {
                     backward = true;
@@ -110,7 +107,7 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
 
         // Update span
         if (!backward && !blocked) {
-            entry->pawnAttacksSpan[Us] |= eval_help::PawnAttackSpanBB[Us][s];
+            entry->pawnAttacksSpan[Us] |= eval_help::PawnAttackSpanBB[Us][s]; 
         }
 
         // Passed pawn check
@@ -122,7 +119,7 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
         }
 
         if (passed) {
-            entry->passedPawns[Us] |= eval_help::square_bb(s); 
+            entry->passedPawns[Us] |= eval_help::square_bb(s);
         }
 
         // Calculate score
