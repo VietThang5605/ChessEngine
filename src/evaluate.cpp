@@ -114,6 +114,7 @@ int EvalPosition(const S_BOARD *pos) {
 		int phase = calculate_game_phase(pos); // 0–256
 		int blended = ((mg * phase) + (eg * (256 - phase))) >> 8;
 		score += blended;
+		
 
 		if (phase >= 185) {
 			int king_mg = eval_help::mg_value(CalculateSimpleKingSafetyScore(pos, WHITE)) - eval_help::mg_value(CalculateSimpleKingSafetyScore(pos, BLACK));

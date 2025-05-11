@@ -17,9 +17,9 @@ namespace {
 
     // ---- Constants----
     #define S(mg, eg) eval_help::make_score(mg, eg)
-    constexpr eval_help::Score Isolated      = S( 7, 13);
+    constexpr eval_help::Score Isolated      = S( 10, 15);
     constexpr eval_help::Score Backward      = S( 7, 11);
-    constexpr eval_help::Score Doubled       = S( 8, 26);
+    constexpr eval_help::Score Doubled       = S( 20, 40);
     constexpr eval_help::Score WeakUnopposed = S( 10, 12);
     constexpr eval_help::Score WeakLever     = S( 0, 26);
     constexpr int Connected[RANK_NB] = {
@@ -92,7 +92,8 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
              leverPush = theirPawns & AttackGen::PawnAttacks[Us][pushSq];
         }
 
-        bool doubled = bool(ourPawns & static_cast<eval_help::Square_pawn>(s + Down)); 
+        // bool doubled = bool(ourPawns & static_cast<eval_help::Square_pawn>(s + Down)); 
+        bool doubled = bool(eval_help::popcount(ourPawns & eval_help::file_bb(s))>=2); // Tốt bị gấp đôi
 
         // Backward pawn check
         bool backward = false;
