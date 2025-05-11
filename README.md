@@ -10,7 +10,7 @@ Unstoppable Evaluation Tool (UET) là một engine cờ được thiết kế đ
 ## Các tính năng chính
 
 * **Giao thức UCI (Universal Chess Interface):**
-    * UET giao tiếp với các GUI cờ (ví dụ: Cute Chess, Arena) bằng giao thức UCI.
+    * UET giao tiếp với các GUI cờ (ví dụ: Cute Chess, Arena, En Croissant) bằng giao thức UCI.
     * UCI định nghĩa một tập hợp các lệnh chuẩn để trao đổi thông tin về ván cờ, các tùy chọn của engine và kết quả tìm kiếm.
     * `uci.cpp` xử lý việc phân tích cú pháp các lệnh UCI và định dạng đầu ra của engine.
 * **Tìm kiếm Alpha-Beta:**
@@ -62,12 +62,12 @@ Unstoppable Evaluation Tool (UET) là một engine cờ được thiết kế đ
 2.  Sử dụng lệnh sau để biên dịch:
 
     ```bash
-    g++ -std=c++17 *.cpp -O2 -o uet 
+    g++ -std=c++17 *.cpp -pthread -O2 -o uet
     ```
 
     * `-o uet`: Đặt tên cho file thực thi là "uet".
     * `*.cpp`: Biên dịch tất cả các file .cpp trong thư mục hiện tại.
-    * `-std=c++17`: Yêu cầu trình biên dịch hỗ trợ các tính năng của C++17 (cần thiết cho `tinycthread`).
+    * `-std=c++17`: Yêu cầu trình biên dịch hỗ trợ các tính năng của C++17.
 
 
 **Lưu ý quan trọng:**
@@ -86,7 +86,7 @@ Unstoppable Evaluation Tool (UET) là một engine cờ được thiết kế đ
     
     ```
 
-3.  Mở một GUI cờ tương thích với UCI (ví dụ: Cute Chess, Arena, Fritz).
+3.  Mở một GUI cờ tương thích với UCI (ví dụ: Cute Chess, Arena, Fritz, En Croissant).
 4.  Trong GUI, thêm engine UET. Bạn sẽ cần chỉ định đường dẫn đến file thực thi của UET.
 5.  GUI sẽ gửi các lệnh UCI đến engine và hiển thị các nước đi của engine.
 
