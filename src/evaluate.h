@@ -4,15 +4,15 @@
 #include "types.h"
 #include "board.h"
 
-const int PawnIsolated = -10;
-const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 200 }; 
-const int RookOpenFile = 10;
-const int RookSemiOpenFile = 5;
-const int QueenOpenFile = 5;
-const int QueenSemiOpenFile = 3;
-const int BishopPair = 30;
+constexpr int PawnIsolated = -10;
+constexpr int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 200 }; 
+constexpr int RookOpenFile = 10;
+constexpr int RookSemiOpenFile = 5;
+constexpr int QueenOpenFile = 5;
+constexpr int QueenSemiOpenFile = 3;
+constexpr int BishopPair = 30;
 
-const int PawnTable[64] = {
+constexpr int PawnTable[64] = {
     0	,	0	,	0	,	0	,	0	,	0	,	0	,	0	,
     10	,	10	,	0	,	-10	,	-10	,	0	,	10	,	10	,
     5	,	0	,	0	,	5	,	5	,	0	,	0	,	5	,
@@ -23,7 +23,7 @@ const int PawnTable[64] = {
     0	,	0	,	0	,	0	,	0	,	0	,	0	,	0	
 };
 
-const int KnightTable[64] = {
+constexpr int KnightTable[64] = {
     0	,	-10	,	0	,	0	,	0	,	0	,	-10	,	0	,
     0	,	0	,	0	,	5	,	5	,	0	,	0	,	0	,
     0	,	0	,	10	,	10	,	10	,	10	,	0	,	0	,
@@ -34,7 +34,7 @@ const int KnightTable[64] = {
     0	,	0	,	0	,	0	,	0	,	0	,	0	,	0		
 };
     
-const int BishopTable[64] = {
+constexpr int BishopTable[64] = {
     0	,	0	,	-10	,	0	,	0	,	-10	,	0	,	0	,
     0	,	0	,	0	,	10	,	10	,	0	,	0	,	0	,
     0	,	0	,	10	,	15	,	15	,	10	,	0	,	0	,
@@ -45,7 +45,7 @@ const int BishopTable[64] = {
     0	,	0	,	0	,	0	,	0	,	0	,	0	,	0	
 };
     
-const int RookTable[64] = {
+constexpr int RookTable[64] = {
     0	,	0	,	5	,	10	,	10	,	5	,	0	,	0	,
     0	,	0	,	5	,	10	,	10	,	5	,	0	,	0	,
     0	,	0	,	5	,	10	,	10	,	5	,	0	,	0	,
@@ -56,7 +56,7 @@ const int RookTable[64] = {
     0	,	0	,	5	,	10	,	10	,	5	,	0	,	0		
 };
 
-const int KingE[64] = {	
+constexpr int KingE[64] = {	
 	-50	,	-10	,	0	,	0	,	0	,	0	,	-10	,	-50	,
 	-10,	0	,	10	,	10	,	10	,	10	,	0	,	-10	,
 	0	,	10	,	20	,	20	,	20	,	20	,	10	,	0	,
@@ -67,7 +67,7 @@ const int KingE[64] = {
 	-50	,	-10	,	0	,	0	,	0	,	0	,	-10	,	-50	
 };
 
-const int KingO[64] = {	
+constexpr int KingO[64] = {	
 	0	,	5	,	5	,	-10	,	-10	,	0	,	10	,	5	,
 	-30	,	-30	,	-30	,	-30	,	-30	,	-30	,	-30	,	-30	,
 	-50	,	-50	,	-50	,	-50	,	-50	,	-50	,	-50	,	-50	,

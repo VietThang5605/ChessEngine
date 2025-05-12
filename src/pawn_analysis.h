@@ -15,7 +15,6 @@ namespace {
 // Truy xuất hoặc tính toán PawnEntry cho thế cờ hiện tại từ bảng băm.
 PawnEntry* probe_pawn_table(const S_BOARD* pos);
 
-// (Phiên bản cho đa luồng nếu cần)
 // PawnEntry* probe_pawn_table(const S_BOARD* pos, PawnHashTable& table);
 
 // Phân tích cấu trúc Tốt và điền kết quả vào PawnEntry.

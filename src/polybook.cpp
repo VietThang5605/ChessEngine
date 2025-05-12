@@ -5,7 +5,7 @@
 #include "ucioption.h"
 #include "data.h" //for print move
 
-const int PolyKindOfPiece[13] = {
+constexpr int PolyKindOfPiece[13] = {
 	-1, 1, 3, 5, 7, 9, 11, 0, 2, 4, 6, 8, 10
 };
 
@@ -188,7 +188,7 @@ static int KeyLowerBoundIndex(U64 polyKey) {
 
 int GetBookMove(S_BOARD *board) {
     unsigned short move;
-    const int MAXBOOKMOVES = 32;
+    constexpr int MAXBOOKMOVES = 32;
     int bookMoves[MAXBOOKMOVES];
     int tempMove = NOMOVE;
     int count = 0;

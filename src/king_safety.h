@@ -7,11 +7,7 @@
 
 
 
-
-
 eval_help::Score CalculateSimpleKingSafetyScore(const S_BOARD *pos, Color kingColor); // Đổi tên cho rõ ràng hơn nếu muốn
-
-
 
 
 

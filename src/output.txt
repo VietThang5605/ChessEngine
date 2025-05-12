@@ -1,4 +1,4 @@
-PPRpr "8/4k3/1R6/3p4/1P6/4K3/2P5/5r2 w - - 1 54" //game giữa eval cũ và search có LMR & extension - eval mới có LMR & extension
+PPRpr "8/4k3/1R6/3p4/1P6/4K3/2P5/5r2 w - - 1 54" //game giữa evaquit cũ và search có LMR & extension - eval mới có LMR & extension
 eval mới tìm thấy e3d4 chậm hơn (b4b5 là nước sai, đưa cờ trở về gần cân bằng, trắng có ít lợi thế - theo stockfish)
 -> game hoà do eval mới tìm được nước đi vua kia chậm hơn, đi tốt lên dẫn tới hoà
 Hash 512

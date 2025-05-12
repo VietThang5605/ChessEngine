@@ -10,7 +10,7 @@
 #define HASH_SIDE (pos->posKey ^= (SideKey))
 #define HASH_EP (pos->posKey ^= (PieceKeys[EMPTY][(pos->enPas)]))
 
-const int CastlePerm[120] = { // castle permsissions array
+constexpr int CastlePerm[120] = { // castle permsissions array
     15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
     15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
     15, 13, 15, 15, 15, 12, 15, 15, 14, 15,

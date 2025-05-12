@@ -17,26 +17,21 @@ namespace {
 
     // ---- Constants----
     #define S(mg, eg) eval_help::make_score(mg, eg)
-    constexpr eval_help::Score Isolated      = S( 10, 15);
-    constexpr eval_help::Score Backward      = S( 7, 11);
-    constexpr eval_help::Score Doubled       = S( 20, 40);
-    constexpr eval_help::Score WeakUnopposed = S( 10, 12);
-    constexpr eval_help::Score WeakLever     = S( 0, 26);
-    constexpr int Connected[RANK_NB] = {
-        0,
-        3,
-        4,
-        8,
-        12,
-        20,
-        50
-    };
-
-    constexpr eval_help::Score PassedRank[RANK_NB] = {
-        S(0 , 0), S(5, 10), S(10, 20), S(20, 30), S(35, 50), S(60, 80), S(100, 150)
-        };
-
-     #undef S
+    // constexpr eval_help::Score Isolated      = S(15, 20);
+    constexpr eval_help::Score Isolated      = S(22, 28); // cũ: 15,20
+    // constexpr eval_help::Score Backward      = S(10, 15);
+    constexpr eval_help::Score Backward      = S(14, 18); // cũ: 10,15
+    // constexpr eval_help::Score Doubled       = S(18, 30);
+    constexpr eval_help::Score Doubled       = S(26, 36); // cũ: 18,30
+    // constexpr eval_help::Score WeakUnopposed = S(8, 10);
+    constexpr eval_help::Score WeakUnopposed = S(10, 12); // cũ: 8,10
+    // constexpr eval_help::Score WeakLever     = S(0, 15);
+    constexpr eval_help::Score WeakLever     = S(0, 18); // cũ: 0,15
+    // constexpr int Connected[RANK_NB] = { 0, 4, 6, 10, 16, 25, 60 };
+    constexpr int Connected[RANK_NB] = { 0, 6, 10, 16, 24, 36, 80 }; // cũ: 0,4,6,10,16,25,60
+    // constexpr eval_help::Score PassedRank[RANK_NB] = { S(0 , 0), S(8, 15), S(16, 30), S(32, 50), S(50, 80), S(80, 120), S(130, 200) };
+    constexpr eval_help::Score PassedRank[RANK_NB] = { S(0 , 0), S(12, 20), S(24, 40), S(48, 80), S(80, 130), S(130, 200), S(220, 320) }; // cũ: S(0,0),S(8,15),S(16,30),S(32,50),S(50,80),S(80,120),S(130,200)
+    #undef S
 
 } // end anonymous namespace
 
@@ -62,6 +57,9 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
     U64 theirPawnAttacks = AttackGen::attacks_from_pawns(pos, Them); 
 
     U64 currentPawns = ourPawns;
+
+    U64 penalizedDoubledFiles = 0ULL;
+
     while (currentPawns) {
         eval_help::Square_pawn s = eval_help::pop_lsb(&currentPawns); 
         Rank r = eval_help::relative_rank(Us, eval_help::rank_of(s)); 
@@ -93,7 +91,6 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
         }
 
         // bool doubled = bool(ourPawns & static_cast<eval_help::Square_pawn>(s + Down)); 
-        bool doubled = bool(eval_help::popcount(ourPawns & eval_help::file_bb(s))>=2); // Tốt bị gấp đôi
 
         // Backward pawn check
         bool backward = false;
@@ -136,15 +133,24 @@ eval_help::Score evaluate_structure(const S_BOARD* pos, PawnEntry* entry) {
         if(passed) {
             score += PassedRank[r]; // Điểm cho tốt đã qua
         }
+        
         score += eval_help::make_score(pst_value, pst_value); // score for pawn structure in mg vs eg
 
         if (!support) {
-            score -= Doubled * doubled;
             if (!backward && !passed && eval_help::more_than_one(lever)) { 
                score -= WeakLever;
             }
         }
 
+        bool isPartOfDoubledStructure = (eval_help::popcount(ourPawns & eval_help::file_bb(s)) >= 2);
+        if (isPartOfDoubledStructure && !support) {
+            File f = eval_help::file_of(s);
+            U64 fileMask = eval_help::file_bb(f);
+            if (!(penalizedDoubledFiles & fileMask)) { // Kiểm tra xem cột này đã bị phạt chưa
+                score -= Doubled;
+                penalizedDoubledFiles |= fileMask; // Đánh dấu cột này đã bị phạt
+            }
+        }
     } // end while
 
     return score;

@@ -50,7 +50,7 @@ typedef uint64_t U64;
 #define AB_BOUND 30000
 #define ISMATE (AB_BOUND - MAXDEPTH)
 
-#define MAX_HASH 1024
+#define MAX_HASH 4096
 
 enum Color {
     WHITE, BLACK, BOTH

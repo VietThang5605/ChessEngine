@@ -88,7 +88,7 @@ int GetPvLine(const int depth, S_BOARD *pos, const S_HASHTABLE *table) {
 }
 
 void InitHashTable(S_HASHTABLE *table, const int MB) {
-	int HashSize = 0x100000 * MB;
+	long long HashSize = ((long long)0x100000) * MB;
     table->numEntries = HashSize / sizeof(S_HASHENTRY);
     table->numEntries -= 2;
 	// table->numEntries = 1000000;
