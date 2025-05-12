@@ -170,6 +170,7 @@ Nếu bạn muốn đóng góp vào dự án UET, bạn có thể thực hiện 
 ## Link video demo
 
 https://drive.google.com/drive/folders/1TFfjM-N0hLyvdCUQEcegxqEGekKAQfK7?usp=sharing
+https://lichess.org/@/uet69/all
 
 ## Tài liệu tham khảo
 
