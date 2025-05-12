@@ -3,6 +3,11 @@
 
 Một engine cờ mạnh mẽ và hiệu quả, được viết bằng C++.
 
+## Link video demo
+
+* https://drive.google.com/drive/folders/1TFfjM-N0hLyvdCUQEcegxqEGekKAQfK7?usp=sharing
+* https://lichess.org/@/uet69/all
+
 ## Tổng quan
 
 Unstoppable Evaluation Tool (UET) là một engine cờ được thiết kế để đạt hiệu suất cao và phân tích chính xác các thế cờ. Nó kết hợp các thuật toán tìm kiếm hiện đại với một hàm đánh giá được điều chỉnh tỉ mỉ để chơi cờ ở cấp độ cao. Engine này tuân theo giao thức UCI (Universal Chess Interface) để tương thích với nhiều giao diện cờ khác nhau.
@@ -169,8 +174,8 @@ Nếu bạn muốn đóng góp vào dự án UET, bạn có thể thực hiện 
 
 ## Link video demo
 
-https://drive.google.com/drive/folders/1TFfjM-N0hLyvdCUQEcegxqEGekKAQfK7?usp=sharing
-https://lichess.org/@/uet69/all
+* https://drive.google.com/drive/folders/1TFfjM-N0hLyvdCUQEcegxqEGekKAQfK7?usp=sharing
+* https://lichess.org/@/uet69/all
 
 ## Tài liệu tham khảo
 
